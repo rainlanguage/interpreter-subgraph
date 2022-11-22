@@ -8,7 +8,7 @@ dataSources:
     source:
       address: "0x6a199e376D0dc789E87E5f9ED6d303b63b259c91"
       abi: RainterpreterExpressionDeployer
-      startBlock: 29043278
+      startBlock: 29043277
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6

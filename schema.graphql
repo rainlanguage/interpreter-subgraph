@@ -14,7 +14,7 @@ type Factory @entity {
 type Contract @entity {
   "Address of this contract"
   id: ID!
-  deployTransaction: Transaction!
+  deployTransaction: Transaction
   "Expressions deployed via this contract."
   expressions: [Expression!]
   "If this contract was deployed by factory"
@@ -28,6 +28,8 @@ type ExpressionDeployer @entity {
   interpreter: InterpreterInstance! # get from ValidInterpreter.interpreter
   "The account that deployed this IExpressionDeployerV1"
   account: Account!
+  "functionPointers"
+  functionPointers: [String!]!
 }
 
 type Interpreter @entity {
