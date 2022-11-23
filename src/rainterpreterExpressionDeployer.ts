@@ -1,7 +1,7 @@
 import { DeployExpression, ValidInterpreter } from "../generated/RainterpreterExpressionDeployer/RainterpreterExpressionDeployer";
 import { Account, Contract, DeployExpressionEvent, Expression, ExpressionDeployer, Interpreter, InterpreterInstance, StateConfig, Transaction } from "../generated/schema";
 import { Rainterpreter } from "../generated/RainterpreterExpressionDeployer/Rainterpreter";
-import { getOpcodes } from "./utils";
+import { decodeSources } from "./utils";
 export function handleValidInterpreter(event: ValidInterpreter): void {
     let interpreter = new Interpreter(event.params.interpreter.toHex());
     interpreter.save();
@@ -20,12 +20,12 @@ export function handleValidInterpreter(event: ValidInterpreter): void {
     let expressionDeployer = new ExpressionDeployer(event.address.toHex());
     expressionDeployer.interpreter = interpreterInstance.id;
     expressionDeployer.account = account.id;
-    let functionPointers = contract.functionPointers().toHexString().slice(2);
-    let pointers: string[] = [];
-    for(let i=0;i<functionPointers.length;i=i+4){
-        pointers.push(functionPointers.slice(i,i+4));
-    }
-    expressionDeployer.functionPointers = pointers;
+    let functionPointers = contract.functionPointers().toHexString();
+    // let pointers: string[] = [];
+    // for(let i=0;i<functionPointers.length;i=i+4){
+    //     pointers.push(functionPointers.slice(i,i+4));
+    // }
+    expressionDeployer.functionPointers = functionPointers;
     expressionDeployer.save();
 }
 
@@ -49,7 +49,7 @@ export function handleDeployExpression(event: DeployExpression): void {
     let expressionDeployer = ExpressionDeployer.load(event.address.toHex());
     if(expressionDeployer){
         let stateConfig = new StateConfig(event.transaction.hash.toHex());
-        stateConfig.sources = getOpcodes(expressionDeployer.functionPointers, event.params.config.sources);
+        stateConfig.sources = decodeSources(expressionDeployer.functionPointers, event.params.config.sources);
         stateConfig.constants = event.params.config.constants;
         stateConfig.save();
 

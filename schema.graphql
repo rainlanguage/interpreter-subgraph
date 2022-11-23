@@ -29,7 +29,7 @@ type ExpressionDeployer @entity {
   "The account that deployed this IExpressionDeployerV1"
   account: Account!
   "functionPointers"
-  functionPointers: [String!]!
+  functionPointers: String!
 }
 
 type Interpreter @entity {
