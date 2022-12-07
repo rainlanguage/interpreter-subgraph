@@ -1,5 +1,5 @@
 {
     "network": "mumbai",
-    "Rainterpreter": "0x6a199e376D0dc789E87E5f9ED6d303b63b259c91",
-    "RainterpreterBlock": 29043277
+    "RainterpreterExpressionDeployer": "0x1819ed2de3ABa77c93C3B263aA95fbE67ef34088",
+    "RainterpreterExpressionDeployerBlock": 29527499
 }
