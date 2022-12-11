@@ -45,8 +45,8 @@
   },
   "dependencies": {
     "@beehiveinnovation/rain-protocol": "git+https://github.com/beehive-innovation/rain-protocol.git#4ce900d8ad54d8d9b280eb9a8c725a256549d09d",
-    "@graphprotocol/graph-cli": "^0.35.0",
-    "@graphprotocol/graph-ts": "^0.28.1",
+    "@graphprotocol/graph-cli": "^0.37.1",
+    "@graphprotocol/graph-ts": "^0.29.0",
     "@openzeppelin/contracts-upgradeable": "^4.7.3",
     "dotenv": "^16.0.3",
     "mustache": "^3.2.1"

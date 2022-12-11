@@ -1,7 +1,8 @@
 import { DeployExpression, ValidInterpreter } from "../generated/RainterpreterExpressionDeployer/RainterpreterExpressionDeployer";
-import { Account, Contract, DeployExpressionEvent, Expression, ExpressionDeployer, Interpreter, InterpreterInstance, StateConfig, Transaction } from "../generated/schema";
+import { Account, Contract, DeployExpressionEvent, Expression, ExpressionDeployer, Factory, Interpreter, InterpreterInstance, StateConfig, Transaction } from "../generated/schema";
 import { Rainterpreter } from "../generated/RainterpreterExpressionDeployer/Rainterpreter";
-import { decodeSources } from "./utils";
+import { decodeSources, getFactory, NEWCHILD_EVENT } from "./utils";
+import { log } from "@graphprotocol/graph-ts";
 export function handleValidInterpreter(event: ValidInterpreter): void {
     let interpreter = new Interpreter(event.params.interpreter.toHex());
     interpreter.save();
@@ -30,6 +31,23 @@ export function handleValidInterpreter(event: ValidInterpreter): void {
 }
 
 export function handleDeployExpression(event: DeployExpression): void { 
+    let factory: Factory;
+    let receipt = event.receipt;
+    if(receipt){
+        let logs = receipt.logs;
+        if(logs){
+            for(let i=0;i<logs.length;i++){
+                let topics = logs[i].topics;
+                if(topics.length > 0){
+                    if(topics[0].toHexString() == NEWCHILD_EVENT){
+                        factory = getFactory(logs[i].address.toHexString());
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     let emitter = Account.load(event.transaction.from.toHex());
     if(!emitter){
         emitter = new Account(event.transaction.from.toHex());
@@ -56,6 +74,7 @@ export function handleDeployExpression(event: DeployExpression): void {
         let sender = Contract.load(event.params.sender.toHex());
         if(!sender){
             sender = new Contract(event.params.sender.toHex());
+            if(factory)sender.factory = factory.id;
             sender.save();
         }
 
