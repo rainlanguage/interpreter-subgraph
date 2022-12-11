@@ -1,4 +1,5 @@
 import { Bytes, log } from "@graphprotocol/graph-ts";
+import { Factory } from "../generated/schema";
 
 export function decodeSources(functionPointers: string, sources: Bytes[]): Bytes[] {
   let tmp: string = '';
@@ -26,3 +27,14 @@ export function decodeSources(functionPointers: string, sources: Bytes[]): Bytes
   }
   return decompiledSources;
 }
+
+export function getFactory(address: string): Factory {
+  let factory = Factory.load(address);
+  if(!factory){
+    factory = new Factory(address);
+    factory.save();
+  }
+  return factory;
+}
+
+export let NEWCHILD_EVENT = "0x7da70c4e5387d7038610b79ca7d304caaef815826e51e67cf247135387a79bce";

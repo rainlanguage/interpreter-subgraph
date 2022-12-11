@@ -1,11 +1,14 @@
 import { DeployExpression, ValidInterpreter } from "../generated/RainterpreterExpressionDeployer/RainterpreterExpressionDeployer";
-import { Account, Contract, DeployExpressionEvent, Expression, ExpressionDeployer, Interpreter, InterpreterInstance, StateConfig, Transaction } from "../generated/schema";
-import { Rainterpreter } from "../generated/RainterpreterExpressionDeployer/Rainterpreter";
-import { decodeSources } from "./utils";
+import { Account, Contract, DeployExpressionEvent, EvalCount, Expression, ExpressionDeployer, Factory, Interpreter, InterpreterInstance, StateConfig, Transaction } from "../generated/schema";
+import { Rainterpreter} from "../generated/RainterpreterExpressionDeployer/Rainterpreter";
+import { decodeSources, getFactory, NEWCHILD_EVENT } from "./utils";
+import { BigInt, ethereum, log } from "@graphprotocol/graph-ts";
+import { RainterpreterTemplate } from "../generated/templates";
 export function handleValidInterpreter(event: ValidInterpreter): void {
     let interpreter = new Interpreter(event.params.interpreter.toHex());
     interpreter.save();
     
+    RainterpreterTemplate.create(event.params.interpreter);
     let interpreterInstance = new InterpreterInstance(event.params.interpreter.toHex());
     interpreterInstance.interpreter = interpreter.id;
     interpreterInstance.save();
@@ -21,15 +24,28 @@ export function handleValidInterpreter(event: ValidInterpreter): void {
     expressionDeployer.interpreter = interpreterInstance.id;
     expressionDeployer.account = account.id;
     let functionPointers = contract.functionPointers().toHexString();
-    // let pointers: string[] = [];
-    // for(let i=0;i<functionPointers.length;i=i+4){
-    //     pointers.push(functionPointers.slice(i,i+4));
-    // }
+
     expressionDeployer.functionPointers = functionPointers;
     expressionDeployer.save();
 }
 
-export function handleDeployExpression(event: DeployExpression): void { 
+export function handleDeployExpression(event: DeployExpression): void {
+    let factory: Factory;
+    let receipt = event.receipt;
+    if(receipt){
+        let logs = receipt.logs;
+        if(logs){
+            for(let i=0;i<logs.length;i++){
+                let topics = logs[i].topics;
+                if(topics[0].toHexString() == NEWCHILD_EVENT){
+                    factory = getFactory(logs[i].address.toHexString());
+                }
+            }
+        }
+    } else {
+        log.info("no receipt", []);
+    }
+
     let emitter = Account.load(event.transaction.from.toHex());
     if(!emitter){
         emitter = new Account(event.transaction.from.toHex());
@@ -56,6 +72,7 @@ export function handleDeployExpression(event: DeployExpression): void {
         let sender = Contract.load(event.params.sender.toHex());
         if(!sender){
             sender = new Contract(event.params.sender.toHex());
+            sender.factory = factory.id;
             sender.save();
         }
 
@@ -72,4 +89,15 @@ export function handleDeployExpression(event: DeployExpression): void {
         deployExpressionEvent.expression = expression.id;
         deployExpressionEvent.save()
     }
+}
+
+export function handleEval(call: ethereum.Call): void {
+    log.info("Eval Called", []);
+    let interpreter = EvalCount.load(call.to.toHex());
+    if(!interpreter){
+        interpreter = new EvalCount(call.to.toHex());
+        interpreter.evalCount = BigInt.fromI32(0);
+    }
+    interpreter.evalCount = interpreter.evalCount.plus(BigInt.fromI32(1));
+    interpreter.save();
 }

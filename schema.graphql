@@ -33,7 +33,7 @@ type ExpressionDeployer @entity {
 }
 
 type Interpreter @entity {
-  "Hash of the deployed bytecode for this interpreter."
+  "Hash of the deployed byteCode for this interpreter."
   id: ID!
   "Instances of this interpreter"
   instances: [InterpreterInstance!]! @derivedFrom(field: "interpreter")
@@ -45,7 +45,7 @@ type InterpreterInstance @entity {
   "Address of this interpreter instance"
   id: ID!
   interpreter: Interpreter!
-  "Expressions deploeyd by this interpreter instance"
+  "Expressions deployed by this interpreter instance"
   expressions: [Expression!] @derivedFrom(field: "interpreterInstance")
 }
 
@@ -95,4 +95,9 @@ type StateConfig @entity {
   id: ID!
   sources: [Bytes!]!
   constants: [BigInt!]!
+}
+
+type EvalCount @entity {
+  id: ID!
+  evalCount: BigInt!
 }

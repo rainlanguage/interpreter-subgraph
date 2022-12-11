@@ -9,7 +9,10 @@
     "build": "graph build",
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ vishalkale151071/blocks",
     "deploy-subgraph": "ts-node scripts/index.ts",
-    "generate-schema": "cat schema/* > schema.graphql"
+    "generate-schema": "cat schema/* > schema.graphql",
+    "create-local": "graph create --node http://192.168.0.179:8020/ beehive-innovation/rainInterpreter",
+    "remove-local": "graph remove --node http://192.168.0.179:8020/ beehive-innovation/rainInterpreter",
+    "deploy-local": "graph deploy --node http://192.168.0.179:8020/ --ipfs http://192.168.0.179:5001/  beehive-innovation/rainInterpreter  --version-label 1"
   },
   "repository": {
     "type": "git",
@@ -45,8 +48,8 @@
   },
   "dependencies": {
     "@beehiveinnovation/rain-protocol": "git+https://github.com/beehive-innovation/rain-protocol.git#4ce900d8ad54d8d9b280eb9a8c725a256549d09d",
-    "@graphprotocol/graph-cli": "^0.35.0",
-    "@graphprotocol/graph-ts": "^0.28.1",
+    "@graphprotocol/graph-cli": "^0.37.1",
+    "@graphprotocol/graph-ts": "^0.29.0",
     "@openzeppelin/contracts-upgradeable": "^4.7.3",
     "dotenv": "^16.0.3",
     "mustache": "^3.2.1"

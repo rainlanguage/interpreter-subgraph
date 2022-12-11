@@ -11,7 +11,7 @@ dataSources:
       startBlock: {{ RainterpreterBlock }}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - RainterpreterExpressionDeployer
@@ -23,7 +23,26 @@ dataSources:
       eventHandlers:
         - event: DeployExpression(address,(bytes[],uint256[]),address,uint256)
           handler: handleDeployExpression
+          receipt: true
         - event: ValidInterpreter(address,address)
           handler: handleValidInterpreter
       file: ./src/rainterpreterExpressionDeployer.ts
-  
+templates:
+  - kind: ethereum/contract
+    name: RainterpreterTemplate
+    network: {{ network }}
+    source:
+      abi: Rainterpreter
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Rainterpreter
+      abis:
+        - name: Rainterpreter
+          file: ./abis/Rainterpreter.json
+      callHandlers:
+        - function: eval(address,uint256,uint256[][])
+          handler: handleEval
+      file: ./src/rainterpreterExpressionDeployer.ts

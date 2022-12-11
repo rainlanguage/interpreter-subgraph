@@ -96,3 +96,8 @@ type StateConfig @entity {
   sources: [Bytes!]!
   constants: [BigInt!]!
 }
+
+type EvalCount @entity {
+  id: ID!
+  evalCount: BigInt!
+}
