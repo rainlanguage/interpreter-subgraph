@@ -27,4 +27,3 @@ dataSources:
         - event: ValidInterpreter(address,address)
           handler: handleValidInterpreter
       file: ./src/rainterpreterExpressionDeployer.ts
-  

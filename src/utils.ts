@@ -5,7 +5,7 @@ export function decodeSources(
   functionPointers: string,
   sources: Bytes[]
 ): Bytes[] {
-  let tmp: string = "";
+  let tmp = "";
   let decompiledSources: Bytes[] = [];
   functionPointers = functionPointers.substring(2);
   for (let i = 0; i < sources.length; i++) {
@@ -32,14 +32,13 @@ export function decodeSources(
 }
 
 export function getFactory(address: string): Factory {
-
-    let factory = Factory.load(address);
-    if (!factory) {
-      factory = new Factory(address);
-      factory.save();
-    }
-    return factory;
+  let factory = Factory.load(address);
+  if (!factory) {
+    factory = new Factory(address);
+    factory.save();
   }
+  return factory;
+}
 
 export let NEWCHILD_EVENT =
   "0x7da70c4e5387d7038610b79ca7d304caaef815826e51e67cf247135387a79bce";
