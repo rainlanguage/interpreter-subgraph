@@ -24,3 +24,8 @@ docker/data
 config/localhost.json
 scripts/deployConfig.json
 
+# Rain protocol files
+/contracts
+/utils
+opmeta_schema.json
+
