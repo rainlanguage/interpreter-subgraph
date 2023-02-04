@@ -17,6 +17,7 @@ module.exports = {
       files: ["src/**/*.ts"],
       rules: {
         "prefer-const": "off",
+        "@typescript-eslint/no-inferrable-types": "off",
       },
     },
   ],
