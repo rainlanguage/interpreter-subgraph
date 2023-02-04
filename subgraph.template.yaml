@@ -16,6 +16,7 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - NoticeBoard
+        - RainterpreterExpressionDeployer
       abis:
         - name: NoticeBoard
           file: ./abis/NoticeBoard.json
@@ -26,10 +27,28 @@ dataSources:
           handler: handleNewNotice
           receipt: true
       file: ./src/noticeBoard.ts
-      # eventHandlers:
-      #   - event: DeployExpression(address,(bytes[],uint256[]),address,uint256)
-      #     handler: handleDeployExpression
-      #     receipt: true
-      #   - event: ValidInterpreter(address,address)
-      #     handler: handleValidInterpreter
-      # file: ./src/rainterpreterExpressionDeployer.ts
+template:
+
+  - kind: ethereum/contract
+    name: RainterpreterExpressionDeployerTemplate
+    network: {{ network }}
+    source:
+      abi: RainterpreterExpressionDeployer
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - RainterpreterExpressionDeployer
+      abis:
+        - name: RainterpreterExpressionDeployer
+          file: ./abis/RainterpreterExpressionDeployer.json
+        - name: Rainterpreter
+          file: ./abis/Rainterpreter.json
+      eventHandlers:
+        - event: DeployExpression(address,(bytes[],uint256[]),address,uint256)
+          handler: handleDeployExpression
+          receipt: true
+        - event: ValidInterpreter(address,address)
+          handler: handleValidInterpreter
+      file: ./src/rainterpreterExpressionDeployer.ts

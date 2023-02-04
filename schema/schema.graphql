@@ -25,11 +25,11 @@ type ExpressionDeployer @entity {
   "The address of this deployer."
   id: ID!
   "The interpreter instance this deployer uses."
-  interpreter: InterpreterInstance! # get from ValidInterpreter.interpreter
+  interpreter: InterpreterInstance # get from ValidInterpreter.interpreter
   "The account that deployed this IExpressionDeployerV1"
-  account: Account!
+  account: Account
   "functionPointers"
-  functionPointers: String!
+  functionPointers: String
 }
 
 type Interpreter @entity {

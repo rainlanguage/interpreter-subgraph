@@ -220,8 +220,8 @@ export function handleNewNotice(event: NewNotice): void {
           );
 
           // TODO: THIS throw an error since we have null fields into non-nullable field
-          // let expressionDeployer = new ExpressionDeployer(contract_.address);
-          // expressionDeployer.save();
+          let expressionDeployer = new ExpressionDeployer(contract_.address);
+          expressionDeployer.save();
         }
       });
     }
