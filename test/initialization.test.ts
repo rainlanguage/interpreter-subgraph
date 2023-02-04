@@ -1,14 +1,21 @@
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
 import * as path from "path";
 
 import * as Util from "./utils/utils";
-import { hexlify } from "ethers/lib/utils";
-import { waitForSubgraphToBeSynced } from "./utils/utils";
+import { hexlify, keccak256 } from "ethers/lib/utils";
+import { waitForSubgraphToBeSynced, DataNotice } from "./utils/utils";
 
 // Types
 import { ApolloFetch } from "apollo-fetch";
-import { NoticeBoard__factory, type NoticeBoard } from "../typechain";
+import {
+  NoticeBoard__factory,
+  type NoticeBoard,
+  type Rainterpreter,
+} from "../typechain";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+
+import { rainterpreterDeploy } from "../utils/deploy/interpreter/shared/rainterpreter/deploy";
+import { rainterpreterExpressionDeployerDeploy } from "../utils/deploy/interpreter/shared/rainterpreterExpressionDeployer/deploy";
 
 const subgraphName = "rainprotocol/rain-protocol-test";
 
@@ -17,18 +24,52 @@ export let subgraph: ApolloFetch, noticeboard: NoticeBoard;
 
 // Export signers
 export let deployer: SignerWithAddress,
-  creator: SignerWithAddress,
+  sender: SignerWithAddress,
   signer1: SignerWithAddress,
   signer2: SignerWithAddress,
   signer3: SignerWithAddress,
   signer4: SignerWithAddress;
 
+const getRainterpreter = async () => {
+  const interpreter = await rainterpreterDeploy();
+  const interpreterFactory = await ethers.getContractFactory("Rainterpreter");
+
+  const bytecodeHash = keccak256(interpreterFactory.bytecode);
+
+  return {
+    contract: interpreter,
+    name: "Rainterpreter",
+    address: interpreter.address,
+    bytecodeHash,
+  };
+};
+
+const getRainterpreterExpressionDeployer = async (
+  interpreter_: Rainterpreter
+) => {
+  const expressionDeployer = await rainterpreterExpressionDeployerDeploy(
+    interpreter_
+  );
+  const deployerFactory = await ethers.getContractFactory(
+    "RainterpreterExpressionDeployer"
+  );
+
+  const bytecodeHash = keccak256(deployerFactory.bytecode);
+
+  return {
+    contract: expressionDeployer,
+    name: "RainterpreterExpressionDeployer",
+    address: expressionDeployer.address,
+    bytecodeHash,
+  };
+};
+
 before("Deployment contracts and subgraph", async function () {
   const signers = await ethers.getSigners();
 
   // Signers (to avoid fetch again)
-  deployer = signers[0]; // deployer is NOT creator
-  creator = signers[1];
+  deployer = signers[0]; // deployer is NOT sender
+  sender = signers[1];
   signer1 = signers[2];
   signer2 = signers[3];
   signer3 = signers[4];
@@ -70,20 +111,30 @@ before("Deployment contracts and subgraph", async function () {
 });
 
 it("Initial testing", async () => {
-  const dataMessage = {
-    name: "core-dev",
-    commit: "this commit",
+  const interpreterData = await getRainterpreter();
+  const expressionDeployerData = await getRainterpreterExpressionDeployer(
+    interpreterData.contract
+  );
+
+  const dataMessage: DataNotice = {
+    repo: "rainprotocol/rain-protocol",
+    commit: "7b950b46031cb7ece8043e5c8dadec528b578501",
+    network: network.name,
     contracts: [
       {
-        name: "Interpreter",
-        address: "0x93b2179a8fBA5C989CeE627eD9f8F3AE9d9C45a0",
+        name: interpreterData.name,
+        address: interpreterData.address,
+        bytecodeHash: interpreterData.bytecodeHash,
       },
       {
-        name: "Rainterpreter",
-        address: "0x4Ef88F266D03eC2a3e3e1beb1D77cB9c52c93003",
+        name: expressionDeployerData.name,
+        address: expressionDeployerData.address,
+        bytecodeHash: expressionDeployerData.bytecodeHash,
       },
     ],
   };
+  console.log(dataMessage);
+
   const message = JSON.stringify(dataMessage);
 
   const notice = {
@@ -91,7 +142,7 @@ it("Initial testing", async () => {
     data: hexlify([...Buffer.from(message)]),
   };
 
-  await noticeboard.createNotices([notice]);
+  await noticeboard.connect(deployer).createNotices([notice]);
 
   await waitForSubgraphToBeSynced();
 });

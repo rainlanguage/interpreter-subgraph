@@ -21,9 +21,22 @@ import {
   ImplementationEvent,
   NewChildEvent,
 } from "../../typechain/contracts/factory/Factory";
+import { deflateSync } from "zlib";
+import { format } from "prettier";
 
 // A fixed range to Tier Levels
 type levelsRange = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+
+export type DataNotice = {
+  repo: string;
+  commit: string | Buffer;
+  network: string;
+  contracts: Array<{
+    name: string;
+    address: string;
+    bytecodeHash: string;
+  }>;
+};
 
 // Interfaces
 interface SyncedSubgraphType {
@@ -699,3 +712,90 @@ export const minBN = (a: BigNumber, b: BigNumber): BigNumber =>
   a.lt(b) ? a : b;
 export const maxBN = (a: BigNumber, b: BigNumber): BigNumber =>
   a.gt(b) ? a : b;
+
+/////////
+
+/**
+ * @public
+ * All Rainterpreter opmetas
+ */
+// export const rainterpreterOpmeta = [
+//   chainlinkOraclePriceMeta,
+//   callMeta,
+//   contextMeta,
+//   contextRowMeta,
+//   debugMeta,
+//   doWhileMeta,
+//   foldContextMeta,
+//   getMeta,
+//   loopNMeta,
+//   readMemoryMeta,
+//   setMeta,
+//   hashMeta,
+//   erc20BalanceOfMeta,
+//   erc20TotalSupplyMeta,
+//   erc20SnapshotBalanceOfatMeta,
+//   erc20SnapshotTotalSupplyAtMeta,
+//   erc721BalanceOfMeta,
+//   erc721OwnerOfMeta,
+//   erc1155BalanceOfMeta,
+//   erc1155BalanceOfBatchMeta,
+//   ensureMeta,
+//   blockNumberMeta,
+//   timestampMeta,
+//   explode32Meta,
+//   fixedPointScale18Meta,
+//   fixedPointScale18DivMeta,
+//   fixedPointScale18MulMeta,
+//   fixedPointScaleByMeta,
+//   fixedPointScaleNMeta,
+//   anyMeta,
+//   eagerIfMeta,
+//   equalToMeta,
+//   everyMeta,
+//   greaterThanMeta,
+//   isZeroMeta,
+//   lessThanMeta,
+//   saturatingAddMeta,
+//   saturatingMulMeta,
+//   saturatingSubMeta,
+//   addMeta,
+//   divMeta,
+//   expMeta,
+//   maxMeta,
+//   minMeta,
+//   modMeta,
+//   mulMeta,
+//   subMeta,
+//   iOrderBookV1VaultBalanceMeta,
+//   iSaleV2RemainingTokenInventoryMeta,
+//   iSaleV2ReserveMeta,
+//   iSaleV2SaleStatusMeta,
+//   iSaleV2TokenMeta,
+//   iSaleV2TotalReserveReceivedMeta,
+//   iVerifyV1AccountStatusAtTimeMeta,
+//   iTierV2ReportMeta,
+//   iTierV2ReportTimeForTierMeta,
+//   saturatingDiffMeta,
+//   selectLteMeta,
+//   updateTimesForTierRangeMeta,
+// ];
+
+// /**
+//  * @public
+//  * Compress and convert Rainterpreter opmetas to bytes
+//  * @returns hex string
+//  */
+// export const getRainterpreterOpmetaBytes = (): string => {
+//   const opmetaBytes = Uint8Array.from(
+//     deflateSync(
+//       format(JSON.stringify(rainterpreterOpmeta, null, 4), { parser: "json" })
+//     )
+//   );
+//   let opmetaHexString = "0x";
+//   for (let i = 0; i < opmetaBytes.length; i++) {
+//     opmetaHexString =
+//       opmetaHexString + opmetaBytes[i].toString(16).padStart(2, "0");
+//   }
+//   return opmetaHexString;
+// };
