@@ -1,53 +1,33 @@
 import { ethers } from "hardhat";
-import { Result, concat, hexlify, Hexable, zeroPad } from "ethers/lib/utils";
 import fs from "fs";
 import path from "path";
 import { execSync } from "child_process";
+import { createApolloFetch, type ApolloFetch } from "apollo-fetch";
 
-import { createApolloFetch, ApolloFetch } from "apollo-fetch";
-import type { Artifact } from "hardhat/types";
-import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import type { Result } from "ethers/lib/utils";
 import type {
   Contract,
-  Signer,
   BigNumberish,
   BigNumber,
   FixedNumber,
   ContractTransaction,
-  BytesLike,
 } from "ethers";
-import {
+import type {
   Factory,
   ImplementationEvent,
   NewChildEvent,
 } from "../../typechain/contracts/factory/Factory";
-
-// A fixed range to Tier Levels
-type levelsRange = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
-
-export type DataNotice = {
-  repo: string;
-  commit: string | Buffer;
-  network: string;
-  contracts: Array<{
-    name: string;
-    address: string;
-    bytecodeHash: string;
-  }>;
-};
+import type { RainterpreterExpressionDeployer } from "../../typechain";
+import type { DISpairEvent } from "../../typechain/contracts/interpreter/deploy/IExpressionDeployerV1";
 
 // Interfaces
 interface SyncedSubgraphType {
   synced: boolean;
 }
 
-interface BasicArtifact {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  abi: any[];
-  bytecode: string;
-}
-
 // Helper values
+export const wait = 1000;
+
 export const sixZeros = "000000";
 export const sixteenZeros = "0000000000000000";
 export const eighteenZeros = "000000000000000000";
@@ -77,216 +57,6 @@ export const divBNOrFixed = (
   return a.divUnsafe(b);
 };
 
-export const CREATOR_FUNDS_RELEASE_TIMEOUT_TESTING = 100;
-export const MAX_RAISE_DURATION_TESTING = 100;
-
-// Verify Roles
-export const DEFAULT_ADMIN_ROLE = ethers.utils.hexZeroPad("0x00", 32);
-
-export const APPROVER_ADMIN = ethers.utils.keccak256(
-  ethers.utils.toUtf8Bytes("APPROVER_ADMIN")
-);
-export const APPROVER = ethers.utils.keccak256(
-  ethers.utils.toUtf8Bytes("APPROVER")
-);
-
-export const REMOVER_ADMIN = ethers.utils.keccak256(
-  ethers.utils.toUtf8Bytes("REMOVER_ADMIN")
-);
-export const REMOVER = ethers.utils.keccak256(
-  ethers.utils.toUtf8Bytes("REMOVER")
-);
-
-export const BANNER_ADMIN = ethers.utils.keccak256(
-  ethers.utils.toUtf8Bytes("BANNER_ADMIN")
-);
-export const BANNER = ethers.utils.keccak256(
-  ethers.utils.toUtf8Bytes("BANNER")
-);
-
-export enum RequestType {
-  APPROVE,
-  BAN,
-  REMOVE,
-}
-
-export enum RequestStatus {
-  NONE,
-  APPROVE,
-  BAN,
-  REMOVE,
-}
-
-export enum VerifyStatus {
-  NIL,
-  ADDED,
-  APPROVED,
-  BANNED,
-}
-
-export enum VerifyRole {
-  NONE,
-  APPROVER_ADMIN,
-  REMOVER_ADMIN,
-  BANNER_ADMIN,
-  APPROVER,
-  REMOVER,
-  BANNER,
-}
-
-export enum Tier {
-  ZERO, // NIL
-  ONE, // COPPER
-  TWO, // BRONZE
-  THREE, // SILVER
-  FOUR, // GOLD
-  FIVE, // PLATINUM
-  SIX, // DIAMOND
-  SEVEN, // CHAD
-  EIGHT, // JAWAD
-}
-
-// All Opcodes
-export enum AllStandardOps {
-  CONSTANT,
-  STACK,
-  CONTEXT,
-  STORAGE,
-  ZIPMAP,
-  DEBUG,
-  ERC20_BALANCE_OF,
-  ERC20_TOTAL_SUPPLY,
-  ERC20_SNAPSHOT_BALANCE_OF_AT,
-  ERC20_SNAPSHOT_TOTAL_SUPPLY_AT,
-  IERC721_BALANCE_OF,
-  IERC721_OWNER_OF,
-  IERC1155_BALANCE_OF,
-  IERC1155_BALANCE_OF_BATCH,
-  BLOCK_NUMBER,
-  SENDER,
-  THIS_ADDRESS,
-  BLOCK_TIMESTAMP,
-  SCALE18,
-  SCALE18_DIV,
-  SCALE18_MUL,
-  SCALE_BY,
-  SCALEN,
-  ANY,
-  EAGER_IF,
-  EQUAL_TO,
-  EVERY,
-  GREATER_THAN,
-  ISZERO,
-  LESS_THAN,
-  SATURATING_ADD,
-  SATURATING_MUL,
-  SATURATING_SUB,
-  ADD,
-  DIV,
-  EXP,
-  MAX,
-  MIN,
-  MOD,
-  MUL,
-  SUB,
-  ITIERV2_REPORT,
-  ITIERV2_REPORT_TIME_FOR_TIER,
-  SATURATING_DIFF,
-  SELECT_LTE,
-  UPDATE_TIMES_FOR_TIER_RANGE,
-  length,
-}
-
-// Orderbook opcodes
-export const OrderBookOps = {
-  ORDER_FUNDS_CLEARED: 0 + AllStandardOps.length,
-  COUNTERPARTY_FUNDS_CLEARED: 1 + AllStandardOps.length,
-};
-
-export const OrderBookOpcode = {
-  ...AllStandardOps,
-  ...OrderBookOps,
-};
-
-// Sale opcodes
-export enum OpcodeSale {
-  SKIP,
-  VAL,
-  DUP,
-  ZIPMAP,
-  BLOCK_NUMBER,
-  BLOCK_TIMESTAMP,
-  SENDER,
-  IS_ZERO,
-  EAGER_IF,
-  EQUAL_TO,
-  LESS_THAN,
-  GREATER_THAN,
-  EVERY,
-  ANY,
-  ADD,
-  SUB,
-  MUL,
-  DIV,
-  MOD,
-  POW,
-  MIN,
-  MAX,
-  REPORT,
-  NEVER,
-  ALWAYS,
-  SATURATING_DIFF,
-  UPDATE_BLOCKS_FOR_TIER_RANGE,
-  SELECT_LTE,
-  ERC20_BALANCE_OF,
-  ERC20_TOTAL_SUPPLY,
-  ERC721_BALANCE_OF,
-  ERC721_OWNER_OF,
-  ERC1155_BALANCE_OF,
-  ERC1155_BALANCE_OF_BATCH,
-  REMAINING_UNITS,
-  TOTAL_RESERVE_IN,
-  LAST_BUY_BLOCK,
-  LAST_BUY_UNITS,
-  LAST_BUY_PRICE,
-  CURRENT_BUY_UNITS,
-  TOKEN_ADDRESS,
-  RESERVE_ADDRESS,
-}
-
-// Tier opcodes
-export enum OpcodeTier {
-  END,
-  VAL,
-  DUP,
-  ZIPMAP,
-  BLOCK_NUMBER,
-  BLOCK_TIMESTAMP,
-  REPORT,
-  NEVER,
-  ALWAYS,
-  DIFF,
-  UPDATE_BLOCKS_FOR_TIER_RANGE,
-  SELECT_LTE,
-  ACCOUNT,
-}
-
-// Enum that represent the SaleStatus (Sale)
-export enum SaleStatus {
-  PENDING,
-  ACTIVE,
-  SUCCESS,
-  FAIL,
-}
-
-/**
- * Return the Levels tier used by default. LEVELS always will be an array with 8 elements to
- * correspond to the 8 TierLevels
- */
-export const LEVELS: string[] = Array.from(Array(8).keys()).map((value) =>
-  ethers.BigNumber.from(++value + eighteenZeros).toString()
-); // [1,2,3,4,5,6,7,8]
-
 /**
  * Convert an array of BigNumberih to an array to string. This will facilitate the test.
  * **NOTE:** This ONLY will convert the value to the expression in string.
@@ -295,33 +65,6 @@ export const LEVELS: string[] = Array.from(Array(8).keys()).map((value) =>
  */
 export const arrayToString = (arr: BigNumberish[]): string[] => {
   return arr.map((x: BigNumberish) => x.toString());
-};
-
-/**
- * Calculate the amount necessary to send or refund for get a `desiredLevel` from `currentLevel` on a TierContract
- * @param desiredLvl Desired TierLevel. Required to be between 0-8
- * @param currentLevel (Optional) Current TierLevel, by default if Tier.Zero -  Required to be between 0-8
- * @returns The difference of tokens between the acutal level and desired level
- */
-export const amountToLevel = (
-  desiredLvl: levelsRange,
-  currentLevel: levelsRange = 0
-): string => {
-  if (currentLevel == desiredLvl) {
-    return "0";
-  }
-  const BN = ethers.BigNumber;
-
-  let valueFrom =
-    currentLevel == 0 ? ZERO_BN : BN.from(LEVELS[currentLevel - 1]);
-
-  let valueTo = desiredLvl == 0 ? ZERO_BN : BN.from(LEVELS[desiredLvl - 1]);
-
-  if (valueFrom.gt(valueTo)) {
-    [valueFrom, valueTo] = [valueTo, valueFrom];
-  }
-
-  return valueTo.sub(valueFrom).toString();
 };
 
 /**
@@ -380,7 +123,7 @@ export const waitForSubgraphToBeSynced = async (
   wait = 0,
   timeDelay = 1,
   seconds = 60,
-  subgraphName = "rainprotocol/rain-protocol-test"
+  subgraphName = "rainprotocol/interpreter-registry-test"
 ): Promise<SyncedSubgraphType> => {
   if (wait > 0) {
     await delay(wait);
@@ -468,27 +211,6 @@ export const waitForSubgraphToBeSynced = async (
 };
 
 /**
- * Deploy a contract with they artifact (JSON)
- * @param artifact The artifact of the contract to deploy. It should contain the ABI and bytecode. The
- * user should manage the type contract when returned.
- * @param signer Signer that will deploy the contract
- * @param argmts (Optional) Arguments to deploy the contract
- * @returns A deployed contract instance
- */
-export const deploy = async (
-  artifact: Artifact | BasicArtifact,
-  signer: SignerWithAddress | Signer,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  argmts: any[] = []
-): Promise<Contract> => {
-  const iface = new ethers.utils.Interface(artifact.abi);
-  const factory = new ethers.ContractFactory(iface, artifact.bytecode, signer);
-  const contract = await factory.deploy(...argmts);
-  await contract.deployed();
-  return contract;
-};
-
-/**
  * Get the implementation address correpond to a Factory contract
  * @param factory The factory contract that have the implementation. For ex: a TrustFactory or SaleFactory
  * @returns The implementation address
@@ -531,6 +253,16 @@ export const getChild = async (
 
   return child;
 };
+
+export async function getDISpairEvent(
+  expressionDeployer_: RainterpreterExpressionDeployer
+) {
+  return (await getEventArgs(
+    expressionDeployer_.deployTransaction,
+    "DISpair",
+    expressionDeployer_
+  )) as DISpairEvent["args"];
+}
 
 /**
  * Send empty transactions to mine new blocks. Mainly used in HH network
@@ -638,30 +370,6 @@ export const getEventArgs = async (
   );
 };
 
-export const wait = 1000;
-
-/**
- * Converts a value to raw bytes representation. Assumes `value` is less than or equal to 1 byte, unless a desired `bytesLength` is specified.
- * @param value value to convert to raw bytes format
- * @param bytesLength (defaults to 1) number of bytes to left pad if `value` doesn't completely fill the desired amount of memory. Will throw `InvalidArgument` error if value already exceeds bytes length.
- * @returns {Uint8Array} raw bytes representation
- */
-export function bytify(
-  value: number | BytesLike | Hexable,
-  bytesLength = 1
-): BytesLike {
-  return zeroPad(hexlify(value), bytesLength);
-}
-
-/**
- * Converts an opcode and operand to bytes, and returns their concatenation.
- * @param code the opcode
- * @param erand the operand, currently limited to 1 byte (defaults to 0)
- */
-export function op(code: number, erand = 0): Uint8Array {
-  return concat([bytify(code), bytify(erand)]);
-}
-
 /**
  * Get the block and timestamp of a specific transaction
  * @param tx Transaction that will be use to get the block and timestamp
@@ -675,125 +383,3 @@ export const getTxTimeblock = async (
   const timestamp = (await ethers.provider.getBlock(block)).timestamp;
   return [block, timestamp];
 };
-
-export const afterBlockNumberSource = (constant: number): Uint8Array => {
-  // prettier-ignore
-  return concat([
-    // (BLOCK_NUMBER blockNumberSub1 gt)
-      op(AllStandardOps.BLOCK_NUMBER),
-      op(AllStandardOps.CONSTANT, constant),
-    op(AllStandardOps.GREATER_THAN),
-  ]);
-};
-
-export const betweenBlockNumbersSource = (
-  vStart: Uint8Array,
-  vEnd: Uint8Array
-): Uint8Array => {
-  // prettier-ignore
-  return concat([
-        op(AllStandardOps.BLOCK_NUMBER),
-        vStart,
-      op(AllStandardOps.GREATER_THAN),
-        op(AllStandardOps.BLOCK_NUMBER),
-        vEnd,
-      op(AllStandardOps.LESS_THAN),
-    op(AllStandardOps.EVERY, 2),
-  ])
-};
-
-export const fixedPointMul = (a: BigNumber, b: BigNumber): BigNumber =>
-  a.mul(b).div(ONE);
-export const fixedPointDiv = (a: BigNumber, b: BigNumber): BigNumber =>
-  a.mul(ONE).div(b);
-export const minBN = (a: BigNumber, b: BigNumber): BigNumber =>
-  a.lt(b) ? a : b;
-export const maxBN = (a: BigNumber, b: BigNumber): BigNumber =>
-  a.gt(b) ? a : b;
-
-/////////
-
-/**
- * @public
- * All Rainterpreter opmetas
- */
-// export const rainterpreterOpmeta = [
-//   chainlinkOraclePriceMeta,
-//   callMeta,
-//   contextMeta,
-//   contextRowMeta,
-//   debugMeta,
-//   doWhileMeta,
-//   foldContextMeta,
-//   getMeta,
-//   loopNMeta,
-//   readMemoryMeta,
-//   setMeta,
-//   hashMeta,
-//   erc20BalanceOfMeta,
-//   erc20TotalSupplyMeta,
-//   erc20SnapshotBalanceOfatMeta,
-//   erc20SnapshotTotalSupplyAtMeta,
-//   erc721BalanceOfMeta,
-//   erc721OwnerOfMeta,
-//   erc1155BalanceOfMeta,
-//   erc1155BalanceOfBatchMeta,
-//   ensureMeta,
-//   blockNumberMeta,
-//   timestampMeta,
-//   explode32Meta,
-//   fixedPointScale18Meta,
-//   fixedPointScale18DivMeta,
-//   fixedPointScale18MulMeta,
-//   fixedPointScaleByMeta,
-//   fixedPointScaleNMeta,
-//   anyMeta,
-//   eagerIfMeta,
-//   equalToMeta,
-//   everyMeta,
-//   greaterThanMeta,
-//   isZeroMeta,
-//   lessThanMeta,
-//   saturatingAddMeta,
-//   saturatingMulMeta,
-//   saturatingSubMeta,
-//   addMeta,
-//   divMeta,
-//   expMeta,
-//   maxMeta,
-//   minMeta,
-//   modMeta,
-//   mulMeta,
-//   subMeta,
-//   iOrderBookV1VaultBalanceMeta,
-//   iSaleV2RemainingTokenInventoryMeta,
-//   iSaleV2ReserveMeta,
-//   iSaleV2SaleStatusMeta,
-//   iSaleV2TokenMeta,
-//   iSaleV2TotalReserveReceivedMeta,
-//   iVerifyV1AccountStatusAtTimeMeta,
-//   iTierV2ReportMeta,
-//   iTierV2ReportTimeForTierMeta,
-//   saturatingDiffMeta,
-//   selectLteMeta,
-//   updateTimesForTierRangeMeta,
-// ];
-
-// /**
-//  * @public
-//  * Compress and convert Rainterpreter opmetas to bytes
-//  * @returns hex string
-//  */
-// export const getRainterpreterOpmetaBytes = (): string => {
-//   const opmetaBytes = Uint8Array.from(
-//     deflateSync(
-//       format(JSON.stringify(rainterpreterOpmeta, null, 4), { parser: "json" })
-//     )
-//   );
-//   let opmetaHexString = "0x";
-//   for (let i = 0; i < opmetaBytes.length; i++) {
-//     opmetaHexString =
-//       opmetaHexString + opmetaBytes[i].toString(16).padStart(2, "0");
-//   }
-//   return opmetaHexString;
-// };

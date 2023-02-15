@@ -17,7 +17,7 @@ import {
 } from "../utils/deploy/interpreter/shared/rainterpreter/deploy";
 import { rainterpreterExpressionDeployerDeploy } from "../utils/deploy/interpreter/shared/rainterpreterExpressionDeployer/deploy";
 
-describe("Interpreter entity", async () => {
+describe("InterpreterInstance entity", async () => {
   it("should query all the fields correctly after a new deploy of an ExpressionDeployer", async () => {
     const interpreter = await rainterpreterDeploy();
     const store = await rainterpreterStoreDeploy();
@@ -33,8 +33,11 @@ describe("Interpreter entity", async () => {
 
     const query = `
         {
-          interpreter (id: "${interpreterBytecodeHash.toLowerCase()}") {
-            instances {
+          interpreterInstance (id: "${interpreter.address.toLowerCase()}") {
+            interpreter {
+              id
+            }
+            expressions {
               id
             }
           }
@@ -45,12 +48,14 @@ describe("Interpreter entity", async () => {
       query,
     })) as FetchResult;
 
-    const data = response.data.interpreter;
+    const data = response.data.interpreterInstance;
 
-    expect(data.instances).to.deep.include({
-      id: interpreter.address.toLowerCase(),
-    });
+    expect(data.interpreter.id).to.be.equal(interpreterBytecodeHash);
+    expect(
+      data.expressions,
+      "There are no expressions deployed at this point with this instance"
+    ).to.be.empty;
   });
 
-  it("should get expressions that are deployed by an interpreter");
+  it("should get expressions that are deployed by an interpreter instance");
 });

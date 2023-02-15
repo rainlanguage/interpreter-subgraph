@@ -3,128 +3,109 @@ import {
   ExpressionAddress,
   NewExpression,
 } from "../generated/templates/RainterpreterExpressionDeployerTemplate/RainterpreterExpressionDeployer";
-// import {
-//   Account,
-//   Contract,
-//   DeployExpressionEvent,
-//   Expression,
-//   ExpressionDeployer,
-//   Factory,
-//   Interpreter,
-//   InterpreterInstance,
-//   StateConfig,
-//   Transaction,
-// } from "../generated/schema";
-// import { Rainterpreter } from "../generated/RainterpreterExpressionDeployer/Rainterpreter";
-// import { decodeSources, getFactory, NEWCHILD_EVENT } from "./utils";
-import { log } from "@graphprotocol/graph-ts";
+import {
+  Account,
+  // Contract,
+  // DeployExpressionEvent,
+  // Expression,
+  ExpressionDeployer,
+  // Factory,
+  Interpreter,
+  InterpreterInstance,
+  // StateConfig,
+  // Transaction,
+} from "../generated/schema";
+import { Rainterpreter } from "../generated/templates/RainterpreterExpressionDeployerTemplate/Rainterpreter";
+import {
+  ExtrospectionPerNetwork,
+  // decodeSources,
+  // getFactory,
+  // NEWCHILD_EVENT,
+} from "./utils";
+// import { Address, log } from "@graphprotocol/graph-ts";
+
+function getExpressionDeployer(address_: string): ExpressionDeployer {
+  let expressionDeployer = ExpressionDeployer.load(address_);
+  if (!expressionDeployer) {
+    expressionDeployer = new ExpressionDeployer(address_);
+    expressionDeployer.save();
+  }
+
+  return expressionDeployer;
+}
+
+function getInterpreter(hash_: string): Interpreter {
+  let interpreter = Interpreter.load(hash_);
+  if (!interpreter) {
+    interpreter = new Interpreter(hash_);
+    interpreter.save();
+  }
+
+  return interpreter;
+}
+
+function getInterpreterInstance(address_: string): InterpreterInstance {
+  let interpreterInstance = InterpreterInstance.load(address_);
+  if (!interpreterInstance) {
+    interpreterInstance = new InterpreterInstance(address_);
+  }
+
+  return interpreterInstance;
+}
+
+function getAccount(address_: string): Account {
+  let account = Account.load(address_);
+  if (!account) {
+    account = new Account(address_);
+    account.save();
+  }
+
+  return account;
+}
 
 export function handleDISpair(event: DISpair): void {
-  //
-  log.info(
-    `handleDISpair3: interpreter: ${event.params.interpreter.toHex()} - deployer: ${event.params.deployer.toHex()}}`,
-    []
+  const extrospection = ExtrospectionPerNetwork.get();
+  const bytecodeHash = extrospection.bytecodeHash(event.params.interpreter);
+
+  // Interpreter - using the bytecode hash as ID.
+  const interpreter = getInterpreter(bytecodeHash.toHex());
+
+  // ExpressionDeployer - using the address of the ExpressionDeployer as ID.
+  const expressionDeployer = getExpressionDeployer(
+    event.params.deployer.toHex()
   );
+
+  // InterpreterInstance - using the address of the Interpreter as ID.
+  const interpreterInstance = getInterpreterInstance(
+    event.params.interpreter.toHex()
+  );
+
+  // Account - using the address of the sender as ID.
+  const account = getAccount(event.transaction.from.toHex());
+
+  // ExpressionDeployer fields
+  expressionDeployer.interpreter = interpreterInstance.id;
+  expressionDeployer.account = account.id;
+  expressionDeployer.opmeta = event.params.opMeta.toHex();
+
+  const rainterpreterContract = Rainterpreter.bind(event.params.interpreter);
+  const functionPointers = rainterpreterContract.try_functionPointers();
+  if (!functionPointers.reverted) {
+    expressionDeployer.functionPointers = functionPointers.value.toHex();
+  }
+
+  // InterpreterInstance fields
+  interpreterInstance.interpreter = interpreter.id;
+
+  interpreter.save();
+  interpreterInstance.save();
+  expressionDeployer.save();
 }
+
 export function handleExpressionAddress(event: ExpressionAddress): void {
   //
 }
+
 export function handleNewExpression(event: NewExpression): void {
   //
 }
-
-// export function handleValidInterpreter(event: ValidInterpreter): void {
-//   let interpreter = new Interpreter(event.params.interpreter.toHex());
-//   interpreter.save();
-
-//   let interpreterInstance = new InterpreterInstance(
-//     event.params.interpreter.toHex()
-//   );
-//   interpreterInstance.interpreter = interpreter.id;
-//   interpreterInstance.save();
-
-//   let account = Account.load(event.transaction.from.toHex());
-//   if (!account) {
-//     account = new Account(event.transaction.from.toHex());
-//     account.save();
-//   }
-
-//   let contract = Rainterpreter.bind(event.params.interpreter);
-//   let expressionDeployer = new ExpressionDeployer(event.address.toHex());
-//   expressionDeployer.interpreter = interpreterInstance.id;
-//   expressionDeployer.account = account.id;
-//   let functionPointers = contract.functionPointers().toHexString();
-//   // let pointers: string[] = [];
-//   // for(let i=0;i<functionPointers.length;i=i+4){
-//   //     pointers.push(functionPointers.slice(i,i+4));
-//   // }
-//   expressionDeployer.functionPointers = functionPointers;
-//   expressionDeployer.save();
-// }
-
-// export function handleDeployExpression(event: DeployExpression): void {
-//   let factory: Factory;
-//   let receipt = event.receipt;
-//   if (receipt) {
-//     let logs = receipt.logs;
-//     if (logs) {
-//       for (let i = 0; i < logs.length; i++) {
-//         let topics = logs[i].topics;
-//         if (topics.length > 0) {
-//           if (topics[0].toHexString() == NEWCHILD_EVENT) {
-//             factory = getFactory(logs[i].address.toHexString());
-//             break;
-//           }
-//         }
-//       }
-//     }
-//   }
-
-//   let emitter = Account.load(event.transaction.from.toHex());
-//   if (!emitter) {
-//     emitter = new Account(event.transaction.from.toHex());
-//     emitter.save();
-//   }
-
-//   let transaction = new Transaction(event.transaction.hash.toHex());
-//   transaction.timestamp = event.block.timestamp;
-//   transaction.blockNumber = event.block.number;
-//   transaction.save();
-
-//   let deployExpressionEvent = new DeployExpressionEvent(
-//     event.transaction.hash.toHex()
-//   );
-//   deployExpressionEvent.transaction = transaction.id;
-//   deployExpressionEvent.emitter = emitter.id;
-//   deployExpressionEvent.timestamp = event.block.timestamp;
-
-//   let expressionDeployer = ExpressionDeployer.load(event.address.toHex());
-//   if (expressionDeployer) {
-//     let stateConfig = new StateConfig(event.transaction.hash.toHex());
-//     stateConfig.sources = decodeSources("", event.params.config.sources);
-//     stateConfig.constants = event.params.config.constants;
-//     stateConfig.save();
-
-//     let sender = Contract.load(event.params.sender.toHex());
-//     if (!sender) {
-//       sender = new Contract(event.params.sender.toHex());
-//       if (factory) sender.factory = factory.id;
-//       sender.save();
-//     }
-
-//     let expression = new Expression(event.params.expressionAddress.toHex());
-//     expression.event = deployExpressionEvent.id;
-//     expression.account = emitter.id;
-//     expression.sender = sender.id;
-//     expression.contextScratch = event.params.contextScratch;
-//     // if (expressionDeployer.interpreter)
-//     //   expression.interpreter = expressionDeployer.interpreter;
-//     // if (expressionDeployer.interpreter)
-//     //   expression.interpreterInstance = expressionDeployer.interpreter;
-//     expression.config = stateConfig.id;
-//     expression.save();
-
-//     deployExpressionEvent.expression = expression.id;
-//     deployExpressionEvent.save();
-//   }
-// }
