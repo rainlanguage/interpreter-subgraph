@@ -29,6 +29,7 @@ let
   init = pkgs.writeShellScriptBin "init" ''
     mkdir -p contracts && cp -r node_modules/@rainprotocol/rain-protocol/contracts .
     mkdir -p utils && cp -r node_modules/@rainprotocol/rain-protocol/utils .
+    cp -r node_modules/@rainprotocol/rain-protocol/utils .
     cp node_modules/@rainprotocol/rain-protocol/opmeta_schema.json .
     npx hardhat compile
   '';

@@ -16,6 +16,8 @@ function createLocalHostConfig() {
       path: "m/44'/60'/0'/0",
     },
     url,
+    blockGasLimit: 100000000,
+    allowUnlimitedContractSize: true,
   };
 }
 
