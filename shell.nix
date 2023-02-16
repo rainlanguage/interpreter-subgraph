@@ -18,7 +18,7 @@ let
     npm run graph-node
   '';
 
-  graph-node-up = pkgs.writeShellScriptBin " graph-node-up" ''
+  graph-node-up = pkgs.writeShellScriptBin "graph-node-up" ''
     npm run graph-node-up
   '';
 
@@ -38,7 +38,6 @@ let
     mkdir -p contracts && cp -r node_modules/@rainprotocol/rain-protocol/contracts .
     mkdir -p utils && cp -r node_modules/@rainprotocol/rain-protocol/utils .
     cp -r node_modules/@rainprotocol/rain-protocol/utils .
-    cp node_modules/@rainprotocol/rain-protocol/opmeta_schema.json .
     npx hardhat compile
   '';
   
