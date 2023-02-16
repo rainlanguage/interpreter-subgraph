@@ -18,6 +18,14 @@ let
     npm run graph-node
   '';
 
+  graph-node-up = pkgs.writeShellScriptBin " graph-node-up" ''
+    npm run graph-node-up
+  '';
+
+  graph-node-down = pkgs.writeShellScriptBin "graph-node-down" ''
+    npm run graph-node-down
+  '';
+
   graph-test = pkgs.writeShellScriptBin "graph-test" ''
     npx hardhat test
   '';
@@ -43,6 +51,8 @@ pkgs.stdenv.mkDerivation {
   command
   hardhat-node
   graph-node
+  graph-node-up
+  graph-node-down
   graph-test
   deploy-subgraph
   init

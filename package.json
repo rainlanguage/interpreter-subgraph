@@ -12,6 +12,8 @@
     "generate-schema": "cat schema/* > schema.graphql",
     "hardhat-node": "hardhat node",
     "graph-node": "docker-compose -f \"docker/docker-compose.yml\" up",
+    "graph-node-up": "docker-compose -f \"docker/docker-compose.yml\" up --build -d",
+    "graph-node-down": "docker-compose -f \"docker/docker-compose.yml\" down",
     "lint": "eslint .",
     "lint-fix": "eslint . --fix",
     "prettier": "prettier . '!./docker' --check",

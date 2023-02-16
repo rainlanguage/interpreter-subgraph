@@ -12,33 +12,26 @@ env:
   THE_GRAPH_API_TOKEN: ${{ secrets.THE_GRAPH_API_TOKEN }}
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Use Node.js version
-        uses: actions/setup-node@v2
+      - uses: cachix/install-nix-action@v13
         with:
-          node-version: 16
-
-      - name: Install dependencies
-        run: |
-          npm ci
+          nix_path: nixpkgs=channel:nixos-unstable
 
       - name: Build Docker Compose images
         run: |
-          docker-compose -f "docker/docker-compose.yml" down
-          docker-compose -f "docker/docker-compose.yml" up --build -d
+          nix-shell --run graph-node-down
+          nix-shell --run graph-node-up
 
       - name: Run Subgraph tests
-        run: |
-          npx hardhat test
+        run: nix-shell --run graph-test
 
       - name: Stop containers
-        run: docker-compose -f "docker/docker-compose.yml" down
+        run: nix-shell --run graph-node-down
 
       - name: Graph Authentication
         run: npx graph auth --product hosted-service $THE_GRAPH_API_TOKEN
