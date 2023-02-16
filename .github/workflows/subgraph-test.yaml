@@ -1,0 +1,50 @@
+name: flow-subgraph-test
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  DEPLOYMENT_KEY_MUMBAI: ${{ secrets.DEPLOYMENT_KEY_MUMBAI }}
+  THE_GRAPH_API_TOKEN: ${{ secrets.THE_GRAPH_API_TOKEN }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Use Node.js version
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - name: Install dependencies
+        run: |
+          npm ci
+
+      - name: Build Docker Compose images
+        run: |
+          docker-compose -f "docker/docker-compose.yml" down
+          docker-compose -f "docker/docker-compose.yml" up --build -d
+
+      - name: Run Subgraph tests
+        run: |
+          npm run test
+
+      - name: Stop containers
+        run: docker-compose -f "docker/docker-compose.yml" down
+
+      - name: Graph Authentication
+        run: npx graph auth --product hosted-service $THE_GRAPH_API_TOKEN
+
+      - name: Prepare subgraph manifest
+        run: npx mustache config/mumbai.json subgraph.template.yaml subgraph.yaml
+
+      - name: Graph Deployments
+        run: npx graph deploy --product hosted-service rainprotocol/interpreter-registry

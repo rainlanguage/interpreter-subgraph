@@ -1,5 +1,5 @@
 {
-    "network": "mumbai",
-    "Rainterpreter": "0x1819ed2de3ABa77c93C3B263aA95fbE67ef34088",
-    "RainterpreterBlock": 29527499
+  "network": "mumbai",
+  "ERC1820Registry": "0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24",
+  "RainterpreterBlock": 30000000
 }
