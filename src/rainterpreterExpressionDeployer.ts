@@ -22,6 +22,7 @@ import {
   // getFactory,
   // NEWCHILD_EVENT,
 } from "./utils";
+import { JSONValue, JSONValueKind, json, log } from "@graphprotocol/graph-ts";
 // import { Address, log } from "@graphprotocol/graph-ts";
 
 function getExpressionDeployer(address_: string): ExpressionDeployer {
@@ -88,6 +89,17 @@ export function handleDISpair(event: DISpair): void {
   expressionDeployer.account = account.id;
   expressionDeployer.opmeta = event.params.opMeta.toHex();
 
+  let value = json.fromBytes(event.params.opMeta);
+  if (value.kind == JSONValueKind.OBJECT) {
+    const aver = value.toObject();
+    const name = aver.get("name");
+    if (name) {
+      log.info(`CODE_2: ${name.toString()}`, []);
+    } else {
+      log.info(`CODE_2: no value`, []);
+    }
+  }
+
   const rainterpreterContract = Rainterpreter.bind(event.params.interpreter);
   const functionPointers = rainterpreterContract.try_functionPointers();
   if (!functionPointers.reverted) {
@@ -102,10 +114,13 @@ export function handleDISpair(event: DISpair): void {
   expressionDeployer.save();
 }
 
-export function handleExpressionAddress(event: ExpressionAddress): void {
-  //
+export function handleNewExpression(event: NewExpression): void {
+  log.info(
+    `CODE_1: msg.sender: ${event.params.sender.toHex()} - from: ${event.transaction.from.toHex()}`,
+    []
+  );
 }
 
-export function handleNewExpression(event: NewExpression): void {
+export function handleExpressionAddress(event: ExpressionAddress): void {
   //
 }

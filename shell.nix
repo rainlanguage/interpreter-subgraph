@@ -38,6 +38,7 @@ let
     mkdir -p contracts && cp -r node_modules/@rainprotocol/rain-protocol/contracts .
     mkdir -p utils && cp -r node_modules/@rainprotocol/rain-protocol/utils .
     cp -r node_modules/@rainprotocol/rain-protocol/utils .
+    cp -r node_modules/@rainprotocol/rain-protocol/schema .
     npx hardhat compile
   '';
   

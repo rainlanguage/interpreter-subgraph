@@ -52,5 +52,9 @@ describe("Interpreter entity", async () => {
     });
   });
 
+  it(
+    "should query different InterpreterInstances from same input within the Interpreter"
+  );
+
   it("should get expressions that are deployed by an interpreter");
 });

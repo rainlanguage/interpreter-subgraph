@@ -10,12 +10,13 @@ import {
   fetchSubgraph,
   waitForSubgraphToBeSynced,
 } from "./utils";
+import { flowFactoryDeploy } from "../utils/deploy/flow/basic/flowFactory/deploy";
 import { deploy1820 } from "../utils/deploy/registry1820/deploy";
 
 // Types
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import type { Contract } from "ethers";
-import type { Extrospection } from "../typechain";
+import type { Extrospection, FlowFactory } from "../typechain";
 
 const subgraphName = "rainprotocol/interpreter-registry-test";
 
@@ -23,7 +24,9 @@ const subgraphName = "rainprotocol/interpreter-registry-test";
 export let subgraph: ApolloFetch;
 
 // Export Contract
-export let registry1820: Contract, extrospection: Extrospection;
+export let registry1820: Contract,
+  extrospection: Extrospection,
+  flowFactory: FlowFactory;
 
 // Export signers
 export let deployer: SignerWithAddress,
@@ -50,6 +53,8 @@ before("Deployment contracts and subgraph", async function () {
     "Extrospection",
     deployer
   )) as Extrospection;
+
+  flowFactory = await flowFactoryDeploy();
 
   // Saving data in JSON
   const pathExampleConfig = path.resolve(__dirname, "../config/example.json");
