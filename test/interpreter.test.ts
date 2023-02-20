@@ -56,5 +56,52 @@ describe("Interpreter entity", async () => {
     "should query different InterpreterInstances from same input within the Interpreter"
   );
 
+  it("should query same Interpreter with different InterpreterInstances from same bytecodehash", async () => {
+    // First instance
+    const interpreter_1 = await rainterpreterDeploy();
+    const store_1 = await rainterpreterStoreDeploy();
+    await rainterpreterExpressionDeployerDeploy(interpreter_1, store_1);
+
+    // Second instance
+    const interpreter_2 = await rainterpreterDeploy();
+    const store_2 = await rainterpreterStoreDeploy();
+    await rainterpreterExpressionDeployerDeploy(interpreter_2, store_2);
+
+    const interpreterBytecodeHash_1 = await extrospection.bytecodeHash(
+      interpreter_1.address
+    );
+
+    const interpreterBytecodeHash_2 = await extrospection.bytecodeHash(
+      interpreter_2.address
+    );
+
+    expect(interpreterBytecodeHash_1).to.be.equal(interpreterBytecodeHash_2);
+
+    await waitForSubgraphToBeSynced();
+
+    const query = `
+        {
+          interpreter (id: "${interpreterBytecodeHash_1.toLowerCase()}") {
+            instances {
+              id
+            }
+          }
+        }
+      `;
+
+    const response = (await subgraph({
+      query,
+    })) as FetchResult;
+
+    const data = response.data.interpreter;
+
+    expect(data.instances).to.deep.include({
+      id: interpreter_1.address.toLowerCase(),
+    });
+    expect(data.instances).to.deep.include({
+      id: interpreter_2.address.toLowerCase(),
+    });
+  });
+
   it("should get expressions that are deployed by an interpreter");
 });

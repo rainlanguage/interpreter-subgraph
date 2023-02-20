@@ -35,7 +35,7 @@
     "@ethersproject/providers": "^5.4.7",
     "@nomiclabs/hardhat-ethers": "=2.2.1",
     "@openzeppelin/contracts-upgradeable": "=4.8.0",
-    "@rainprotocol/rain-protocol": "git+https://github.com/rainprotocol/rain-protocol.git#b2ce66395df8acbd0cf75314179ef028cadce932",
+    "@rainprotocol/rain-protocol": "git+https://github.com/rainprotocol/rain-protocol.git#3ecc1e621edf722bff29aa4ae81ff566fcf3241d",
     "@typechain/ethers-v5": "=10.2.0",
     "@typechain/hardhat": "=6.1.5",
     "@types/chai": "^4.2.0",
