@@ -263,6 +263,15 @@ export async function getDISpairEvent(
     expressionDeployer_
   )) as DISpairEvent["args"];
 }
+export async function getDISpairEvent(
+  expressionDeployer_: RainterpreterExpressionDeployer
+) {
+  return (await getEventArgs(
+    expressionDeployer_.deployTransaction,
+    "DISpair",
+    expressionDeployer_
+  )) as DISpairEvent["args"];
+}
 
 /**
  * Send empty transactions to mine new blocks. Mainly used in HH network

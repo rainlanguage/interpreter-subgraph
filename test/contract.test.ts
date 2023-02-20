@@ -1,21 +1,17 @@
-import { expect } from "chai";
 import { ethers } from "hardhat";
+import { expect } from "chai";
 import {
-  eighteenZeros,
-  getEventArgs,
-  max_uint256,
   waitForSubgraphToBeSynced,
+  // getEventArgs,
+  eighteenZeros,
 } from "./utils";
-import { concat } from "ethers/lib/utils";
 
 import {
   // Subgraph
   subgraph,
-  //
-  extrospection,
-  //
-  signer1,
+  // Signers
   deployer,
+  signer1,
 } from "./0_initialization.test";
 
 import {
@@ -23,97 +19,80 @@ import {
   rainterpreterStoreDeploy,
 } from "../utils/deploy/interpreter/shared/rainterpreter/deploy";
 import { rainterpreterExpressionDeployerDeploy } from "../utils/deploy/interpreter/shared/rainterpreterExpressionDeployer/deploy";
-import {
-  memoryOperand,
-  MemoryType,
-  op,
-} from "../utils/interpreter/interpreter";
-import { Opcode } from "../utils/interpreter/ops";
 import { getRainContractMetaBytes } from "../utils/meta";
-import { basicDeploy } from "../utils/deploy/basicDeploy";
 import { randomUint256 } from "../utils/bytes";
+import { max_uint256 } from "../utils/constants";
 
 // Types
 import type { FetchResult } from "apollo-fetch";
-import type { ExpressionAddressEvent } from "../typechain/contracts/interpreter/shared/RainterpreterExpressionDeployer";
-import type { OrderConfigStruct } from "../typechain/contracts/orderbook/IOrderBookV1";
-import type { InterpreterCallerV1ConstructionConfigStruct } from "../typechain/contracts/flow/FlowCommon";
 import type { OrderBook, ReserveToken18 } from "../typechain";
-import type { EvaluableConfigStruct } from "../typechain/contracts/orderbook/OrderBook";
+import type { InterpreterCallerV1ConstructionConfigStruct } from "../typechain/contracts/flow/FlowCommon";
+import type { InterpreterCallerMetaEvent } from "../typechain/contracts/interpreter/caller/IInterpreterCallerV1";
+import { MemoryType, Opcode, memoryOperand, op } from "../utils/interpreter";
+import { concat } from "ethers/lib/utils";
+import { OrderConfigStruct } from "../typechain/contracts/orderbook/OrderBook";
+import { basicDeploy } from "../utils/deploy/basicDeploy";
+import { ExpressionAddressEvent } from "../typechain/contracts/interpreter/shared/RainterpreterExpressionDeployer";
+import { getEventArgs } from "../utils/events";
+import { EvaluableConfigStruct } from "../typechain/contracts/lobby/Lobby";
 
-describe("InterpreterInstance entity", async () => {
-  it("should query all the fields correctly after a new deploy of an ExpressionDeployer", async () => {
+describe("Contract entity", async () => {
+  it("should query the Contract after touch the ExpressionDeployer with OB", async () => {
     const interpreter = await rainterpreterDeploy();
     const store = await rainterpreterStoreDeploy();
 
     // Deploy the expression deployer to get the event
-    await rainterpreterExpressionDeployerDeploy(interpreter, store);
-
-    await waitForSubgraphToBeSynced();
-
-    const interpreterBytecodeHash = await extrospection.bytecodeHash(
-      interpreter.address
+    const expressionDeployer = await rainterpreterExpressionDeployerDeploy(
+      interpreter,
+      store
     );
 
-    const query = `
-        {
-          interpreterInstance (id: "${interpreter.address.toLowerCase()}") {
-            interpreter {
-              id
-            }
-            expressions {
-              id
-            }
-          }
-        }
-      `;
-
-    const response = (await subgraph({
-      query,
-    })) as FetchResult;
-
-    const data = response.data.interpreterInstance;
-
-    expect(data.interpreter.id).to.be.equal(interpreterBytecodeHash);
-    expect(
-      data.expressions,
-      "There are no expressions deployed at this point with this instance"
-    ).to.be.empty;
-  });
-
-  it("should create different InterpreterInstances from same bytecodehash", async () => {
-    // First instance
-    const interpreter_1 = await rainterpreterDeploy();
-    const store_1 = await rainterpreterStoreDeploy();
-    await rainterpreterExpressionDeployerDeploy(interpreter_1, store_1);
-
-    // Second instance
-    const interpreter_2 = await rainterpreterDeploy();
-    const store_2 = await rainterpreterStoreDeploy();
-    await rainterpreterExpressionDeployerDeploy(interpreter_2, store_2);
+    const config_: InterpreterCallerV1ConstructionConfigStruct = {
+      callerMeta: getRainContractMetaBytes("orderbook"),
+      deployer: expressionDeployer.address,
+    };
+    const orderBookFactory = await ethers.getContractFactory(
+      "OrderBook",
+      deployer
+    );
+    const orderBook = (await orderBookFactory.deploy(config_)) as OrderBook;
 
     await waitForSubgraphToBeSynced();
 
+    const { callerMeta } = (await getEventArgs(
+      orderBook.deployTransaction,
+      "InterpreterCallerMeta",
+      orderBook
+    )) as InterpreterCallerMetaEvent["args"];
+
     const query = `
-        {
-          interpreterInstances {
+      {
+        contract (id: "${orderBook.address.toLowerCase()}") {
+          opmeta
+          deployTransaction {
+            id
+          }
+          expressions {
             id
           }
         }
-      `;
+      }
+    `;
 
     const response = (await subgraph({
       query,
     })) as FetchResult;
 
-    const data = response.data.interpreterInstances;
+    const data = response.data.contract;
 
-    expect(data).to.deep.include({
-      id: interpreter_1.address.toLowerCase(),
-    });
-    expect(data).to.deep.include({
-      id: interpreter_2.address.toLowerCase(),
-    });
+    expect(data.opmeta).to.be.equal(callerMeta);
+    expect(
+      data.expressions,
+      "The expression when touching the deployer is being added"
+    ).to.be.empty;
+    expect(data.deployTransaction.id).to.be.equal(
+      orderBook.deployTransaction.hash
+    );
   });
 
   it("should query the expression in the contract after an use of deployExpression with OB addOrder", async () => {
@@ -185,6 +164,12 @@ describe("InterpreterInstance entity", async () => {
 
     await waitForSubgraphToBeSynced();
 
+    const { callerMeta } = (await getEventArgs(
+      orderBook.deployTransaction,
+      "InterpreterCallerMeta",
+      orderBook
+    )) as InterpreterCallerMetaEvent["args"];
+
     const { expression } = (await getEventArgs(
       txOrder_A,
       "ExpressionAddress",
@@ -193,7 +178,11 @@ describe("InterpreterInstance entity", async () => {
 
     const query = `
       {
-        interpreterInstance (id: "${interpreter.address.toLowerCase()}") {
+        contract (id: "${orderBook.address.toLowerCase()}") {
+          opmeta
+          deployTransaction {
+            id
+          }
           expressions {
             id
           }
@@ -205,7 +194,12 @@ describe("InterpreterInstance entity", async () => {
       query,
     })) as FetchResult;
 
-    const data = response.data.interpreterInstance;
+    const data = response.data.contract;
+
+    expect(data.opmeta).to.be.equal(callerMeta);
+    expect(data.deployTransaction.id).to.be.equal(
+      orderBook.deployTransaction.hash
+    );
 
     expect(data.expressions).to.deep.include({
       id: expression.toLowerCase(),

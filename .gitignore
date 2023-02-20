@@ -28,6 +28,7 @@ scripts/deployConfig.json
 /contracts
 /utils
 opmeta_schema.json
+schema
 
 subgraph.yaml
 schema.graphql
