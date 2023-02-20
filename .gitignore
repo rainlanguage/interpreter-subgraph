@@ -31,4 +31,4 @@ opmeta_schema.json
 schema
 
 subgraph.yaml
-schema.graphql
+/schema.graphql
