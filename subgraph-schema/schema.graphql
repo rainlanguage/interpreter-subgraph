@@ -1,0 +1,93 @@
+type Account @entity {
+  id: ID!
+  "Events emitted by this account"
+  events: [Event!]! @derivedFrom(field: "emitter")
+  "Expressions deployed by this account"
+  expressions: [Expression!] @derivedFrom(field: "account")
+}
+
+type Contract @entity {
+  "Address of this contract"
+  id: ID!
+  deployTransaction: Transaction
+  "Opmeta"
+  opmeta: String
+  "Expressions deployed via this contract."
+  expressions: [Expression!] @derivedFrom(field: "sender")
+}
+
+type ExpressionDeployer @entity {
+  "The address of this deployer."
+  id: ID!
+  "The interpreter instance this deployer uses."
+  interpreter: InterpreterInstance # get from ValidInterpreter.interpreter
+  "The account that deployed this IExpressionDeployerV1"
+  account: Account
+  "functionPointers"
+  functionPointers: String
+  "Opmeta"
+  opmeta: String
+}
+
+type Interpreter @entity {
+  "Hash of the deployed bytecode for this interpreter."
+  id: ID!
+  "Instances of this interpreter"
+  instances: [InterpreterInstance!]! @derivedFrom(field: "interpreter")
+  "Expressions deployed by this interpreter"
+  expressions: [Expression!] @derivedFrom(field: "interpreter")
+}
+
+type InterpreterInstance @entity {
+  "Address of this interpreter instance"
+  id: ID!
+  interpreter: Interpreter!
+  "Expressions deploeyd by this interpreter instance"
+  expressions: [Expression!] @derivedFrom(field: "interpreterInstance")
+}
+
+type Expression @entity(immutable: true) {
+  "Address for this expression"
+  id: ID!
+  event: DeployExpressionEvent!
+  "Account that deployed this expression"
+  account: Account!
+  "The contract that this expression was deployed via"
+  sender: Contract!
+  interpreter: Interpreter!
+  interpreterInstance: InterpreterInstance!
+  config: StateConfig!
+}
+
+type DeployExpressionEvent implements Event @entity(immutable: true) {
+  id: ID!
+  "Transaction this event was emitted in."
+  transaction: Transaction!
+  "Account that sent the transaction this event was emitted in."
+  emitter: Account!
+  timestamp: BigInt!
+  "Expression"
+  expression: Expression! #map by DeployExpression.expressionAddress
+}
+
+interface Event {
+  id: ID!
+  "Transaction this event was emitted in."
+  transaction: Transaction!
+  "Account that sent the transaction this event was emitted in."
+  emitter: Account!
+  timestamp: BigInt!
+}
+
+type Transaction @entity(immutable: true) {
+  id: ID!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  events: [Event!] @derivedFrom(field: "transaction")
+}
+
+type StateConfig @entity {
+  id: ID!
+  sources: [Bytes!]!
+  constants: [BigInt!]!
+}

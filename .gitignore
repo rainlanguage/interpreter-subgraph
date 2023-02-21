@@ -8,7 +8,7 @@ typechain-types
 #Hardhat files
 cache
 artifacts
-
+contracts
 
 node_modules
 .env
@@ -20,4 +20,15 @@ typechain-types
 #graph
 build
 generated
+docker/data
+config/localhost.json
+scripts/deployConfig.json
 
+# Rain protocol files
+/contracts
+/utils
+opmeta_schema.json
+schema
+
+subgraph.yaml
+/schema.graphql

@@ -1,14 +1,40 @@
 specVersion: 0.0.4
 schema:
   file: ./schema.graphql
+
 dataSources:
   - kind: ethereum/contract
-    name: RainterpreterExpressionDeployer
+    name: ERC1820Registry
     network: {{ network }}
     source:
-      address: "{{ Rainterpreter }}"
+      address: "{{ ERC1820Registry }}"
+      abi: ERC1820Registry
+      startBlock: {{ ERC1820RegistryBlock }}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ERC1820Registry
+        - RainterpreterExpressionDeployer
+      abis:
+        - name: ERC1820Registry
+          file: ./abis/ERC1820Registry.json
+        - name: RainterpreterExpressionDeployer
+          file: ./abis/RainterpreterExpressionDeployer.json
+        - name: Extrospection
+          file: ./abis/Extrospection.json
+      eventHandlers:
+        - event: InterfaceImplementerSet(indexed address,indexed bytes32,indexed address)
+          handler: handleInterfaceImplementerSet
+          # receipt: true
+      file: ./src/erc1820Registry.ts
+templates:
+  - kind: ethereum/contract
+    name: RainterpreterExpressionDeployerTemplate
+    network: {{ network }}
+    source:
       abi: RainterpreterExpressionDeployer
-      startBlock: {{ RainterpreterBlock }}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -20,11 +46,33 @@ dataSources:
           file: ./abis/RainterpreterExpressionDeployer.json
         - name: Rainterpreter
           file: ./abis/Rainterpreter.json
+        - name: Extrospection
+          file: ./abis/Extrospection.json
       eventHandlers:
-        - event: DeployExpression(address,(bytes[],uint256[]),address,uint256)
-          handler: handleDeployExpression
+        - event: DISpair(address,address,address,address,bytes)
+          handler: handleDISpair
+        - event: ExpressionAddress(address,address)
+          handler: handleExpressionAddress
+        - event: NewExpression(address,bytes[],uint256[],uint256[])
+          handler: handleNewExpression
           receipt: true
-        - event: ValidInterpreter(address,address)
-          handler: handleValidInterpreter
       file: ./src/rainterpreterExpressionDeployer.ts
-  
+  - kind: ethereum/contract
+    name: IInterpreterCallerV1
+    network: {{ network }}
+    source:
+      abi: IInterpreterCallerV1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - IInterpreterCallerV1
+      abis:
+        - name: IInterpreterCallerV1
+          file: ./abis/IInterpreterCallerV1.json
+      eventHandlers:
+        - event: InterpreterCallerMeta(address,bytes)
+          handler: handleInterpreterCallerMeta
+          receipt: true
+      file: ./src/IInterpreterCallerV1.ts

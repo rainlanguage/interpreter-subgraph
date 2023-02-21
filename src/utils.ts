@@ -1,11 +1,51 @@
-import { Bytes, ethereum, log } from "@graphprotocol/graph-ts";
-import { Factory } from "../generated/schema";
+import { Bytes, Address, dataSource, ethereum } from "@graphprotocol/graph-ts";
+import { Extrospection } from "../generated/ERC1820Registry/Extrospection";
+import {
+  Account,
+  Contract,
+  ExpressionDeployer,
+  Interpreter,
+  InterpreterInstance,
+  Expression,
+  Transaction,
+} from "../generated/schema";
+
+// IERC1820_REGISTRY.interfaceHash("IExpressionDeployerV1")
+export let IERC1820_NAME_IEXPRESSION_DEPLOYER_V1_HASH =
+  "0xf10faf5e29ad7057aa6922f7dc34fd1b591620d40c7a7f4443565469f249ec91";
+
+// InterpreterCallerMeta(address sender, bytes callerMeta)
+export let INTERPRETER_CALLER_META_EVENT =
+  "0x4ca7f97520bcc430af1f1f7bf2584176bec2fc06596c58b63897525bf1110b88";
+
+// ExpressionAddress(address sender, address expression)
+export let EXPRESSION_ADDRESS_EVENT =
+  "0xce6e4a4a7b561c65155990775d2faf8a581292f97859ce67e366fd53686b31f1";
+
+export let NEWCHILD_EVENT =
+  "0x7da70c4e5387d7038610b79ca7d304caaef815826e51e67cf247135387a79bce";
+
+export class ExtrospectionPerNetwork {
+  static get(): Extrospection {
+    const currentNetwork = dataSource.network();
+    let address = "";
+
+    // TODO: Implement keyless deploy + CREATE2 opcode to have the same address on all chains
+    if (currentNetwork == "mumbai")
+      address = "0x95A5aC80025128a220D577D77E400191087a3B83";
+
+    if (currentNetwork == "localhost")
+      address = "0x5daCf1ad3714D4c4E5314d946C4fa359cE85D2C6";
+
+    return Extrospection.bind(Address.fromString(address));
+  }
+}
 
 export function decodeSources(
   functionPointers: string,
   sources: Bytes[]
 ): Bytes[] {
-  let tmp: string = "";
+  let tmp = "";
   let decompiledSources: Bytes[] = [];
   functionPointers = functionPointers.substring(2);
   for (let i = 0; i < sources.length; i++) {
@@ -31,15 +71,73 @@ export function decodeSources(
   return decompiledSources;
 }
 
-export function getFactory(address: string): Factory {
-
-    let factory = Factory.load(address);
-    if (!factory) {
-      factory = new Factory(address);
-      factory.save();
-    }
-    return factory;
+export function getExpressionDeployer(address_: string): ExpressionDeployer {
+  let expressionDeployer = ExpressionDeployer.load(address_);
+  if (!expressionDeployer) {
+    expressionDeployer = new ExpressionDeployer(address_);
+    expressionDeployer.save();
   }
 
-export let NEWCHILD_EVENT =
-  "0x7da70c4e5387d7038610b79ca7d304caaef815826e51e67cf247135387a79bce";
+  return expressionDeployer;
+}
+
+export function getInterpreter(hash_: string): Interpreter {
+  let interpreter = Interpreter.load(hash_);
+  if (!interpreter) {
+    interpreter = new Interpreter(hash_);
+    interpreter.save();
+  }
+
+  return interpreter;
+}
+
+export function getInterpreterInstance(address_: string): InterpreterInstance {
+  let interpreterInstance = InterpreterInstance.load(address_);
+  if (!interpreterInstance) {
+    interpreterInstance = new InterpreterInstance(address_);
+  }
+
+  return interpreterInstance;
+}
+
+export function getAccount(address_: string): Account {
+  let account = Account.load(address_);
+  if (!account) {
+    account = new Account(address_);
+    account.save();
+  }
+
+  return account;
+}
+
+export function getContract(address_: string): Contract {
+  let contract = Contract.load(address_);
+  if (!contract) {
+    contract = new Contract(address_);
+    contract.save();
+  }
+
+  return contract;
+}
+
+export function getExpression(address_: string): Expression {
+  let expression = Expression.load(address_);
+  if (!expression) {
+    expression = new Expression(address_);
+    expression.save();
+  }
+
+  return expression;
+}
+
+export function generateTransaction(event_: ethereum.Event): Transaction {
+  let transaction = Transaction.load(event_.transaction.hash.toHex());
+  if (!transaction) {
+    transaction = new Transaction(event_.transaction.hash.toHex());
+    transaction.timestamp = event_.block.timestamp;
+    transaction.blockNumber = event_.block.number;
+    transaction.save();
+  }
+
+  return transaction;
+}
