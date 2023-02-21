@@ -34,6 +34,12 @@ let
     ts-node scripts/index.ts
   '';
 
+  prepare-deploy-ci = pkgs.writeShellScriptBin "prepare-deploy-ci" ''
+    npx mustache config/mumbai.json subgraph.template.yaml subgraph.yaml
+  '';
+
+  
+
   init = pkgs.writeShellScriptBin "init" ''
     mkdir -p contracts && cp -r node_modules/@rainprotocol/rain-protocol/contracts .
     mkdir -p utils && cp -r node_modules/@rainprotocol/rain-protocol/utils .
@@ -55,6 +61,7 @@ pkgs.stdenv.mkDerivation {
   graph-node-down
   graph-test
   deploy-subgraph
+  prepare-deploy-ci
   init
  ];
 

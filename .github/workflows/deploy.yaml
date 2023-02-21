@@ -20,11 +20,11 @@ jobs:
         with:
           nix_path: nixpkgs=channel:nixos-unstable
 
+      - name: Prepare subgraph manifest
+        run: nix-shell --run prepare-deploy-ci
+
       - name: Graph Authentication
         run: npx graph auth --product hosted-service $THE_GRAPH_API_TOKEN
-
-      - name: Prepare subgraph manifest
-        run: npx mustache config/mumbai.json subgraph.template.yaml subgraph.yaml
 
       - name: Graph Deployments
         run: npx graph deploy --product hosted-service rainprotocol/interpreter-registry
