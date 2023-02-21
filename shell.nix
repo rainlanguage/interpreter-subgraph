@@ -36,6 +36,7 @@ let
 
   prepare-deploy-ci = pkgs.writeShellScriptBin "prepare-deploy-ci" ''
     npx mustache config/mumbai.json subgraph.template.yaml subgraph.yaml
+    npm run generate-schema && npm run codegen && npm run build
   '';
 
   
