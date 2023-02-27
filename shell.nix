@@ -20,6 +20,7 @@ let
 
   graph-node-up = pkgs.writeShellScriptBin "graph-node-up" ''
     npm run graph-node-up
+    sleep 30s # Waits 30 seconds
   '';
 
   graph-node-down = pkgs.writeShellScriptBin "graph-node-down" ''
