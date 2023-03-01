@@ -29,7 +29,7 @@ import {
   op,
 } from "../utils/interpreter/interpreter";
 import { Opcode } from "../utils/interpreter/ops";
-import { getRainDocumentsFromContract } from "../utils/meta";
+import { getRainMetaDocumentFromContract } from "../utils/meta";
 import { basicDeploy } from "../utils/deploy/basicDeploy";
 import { randomUint256 } from "../utils/bytes";
 
@@ -127,7 +127,7 @@ describe("InterpreterInstance entity", async () => {
     );
 
     const config_: InterpreterCallerV1ConstructionConfigStruct = {
-      callerMeta: getRainDocumentsFromContract("orderbook"),
+      meta: getRainMetaDocumentFromContract("orderbook"),
       deployer: expressionDeployer.address,
     };
     const orderBookFactory = await ethers.getContractFactory(

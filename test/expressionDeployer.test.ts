@@ -38,7 +38,7 @@ describe("ExpressionDeployer entity", async () => {
               id
             }
             functionPointers
-            opmeta
+            meta
           }
         }
       `;
@@ -52,6 +52,6 @@ describe("ExpressionDeployer entity", async () => {
     expect(data.interpreter.id).to.be.equal(interpreter.address.toLowerCase());
     expect(data.account.id).to.be.equal(sender.toLowerCase());
     expect(data.functionPointers).to.be.equal(functionPointers);
-    expect(data.opmeta).to.be.equal(opMeta);
+    expect(data.meta).to.be.equal(opMeta);
   });
 });

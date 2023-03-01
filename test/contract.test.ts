@@ -19,7 +19,7 @@ import {
   rainterpreterStoreDeploy,
 } from "../utils/deploy/interpreter/shared/rainterpreter/deploy";
 import { rainterpreterExpressionDeployerDeploy } from "../utils/deploy/interpreter/shared/rainterpreterExpressionDeployer/deploy";
-import { getRainDocumentsFromContract } from "../utils/meta";
+import { getRainMetaDocumentFromContract } from "../utils/meta";
 import { randomUint256 } from "../utils/bytes";
 import { max_uint256 } from "../utils/constants";
 
@@ -27,7 +27,7 @@ import { max_uint256 } from "../utils/constants";
 import type { FetchResult } from "apollo-fetch";
 import type { OrderBook, ReserveToken18 } from "../typechain";
 import type { InterpreterCallerV1ConstructionConfigStruct } from "../typechain/contracts/flow/FlowCommon";
-import type { InterpreterCallerMetaEvent } from "../typechain/contracts/interpreter/caller/IInterpreterCallerV1";
+import type { MetaEvent } from "../typechain/contracts/interpreter/caller/InterpreterCallerV1";
 import { MemoryType, Opcode, memoryOperand, op } from "../utils/interpreter";
 import { concat } from "ethers/lib/utils";
 import { OrderConfigStruct } from "../typechain/contracts/orderbook/OrderBook";
@@ -48,7 +48,7 @@ describe("Contract entity", async () => {
     );
 
     const config_: InterpreterCallerV1ConstructionConfigStruct = {
-      callerMeta: getRainDocumentsFromContract("orderbook"),
+      meta: getRainMetaDocumentFromContract("orderbook"),
       deployer: expressionDeployer.address,
     };
     const orderBookFactory = await ethers.getContractFactory(
@@ -59,16 +59,16 @@ describe("Contract entity", async () => {
 
     await waitForSubgraphToBeSynced();
 
-    const { callerMeta } = (await getEventArgs(
+    const { meta } = (await getEventArgs(
       orderBook.deployTransaction,
-      "InterpreterCallerMeta",
+      "Meta",
       orderBook
-    )) as InterpreterCallerMetaEvent["args"];
+    )) as MetaEvent["args"];
 
     const query = `
       {
         contract (id: "${orderBook.address.toLowerCase()}") {
-          opmeta
+          meta
           deployTransaction {
             id
           }
@@ -85,7 +85,7 @@ describe("Contract entity", async () => {
 
     const data = response.data.contract;
 
-    expect(data.opmeta).to.be.equal(callerMeta);
+    expect(data.meta).to.be.equal(meta);
     expect(
       data.expressions,
       "The expression when touching the deployer is being added"
@@ -106,7 +106,7 @@ describe("Contract entity", async () => {
     );
 
     const config_: InterpreterCallerV1ConstructionConfigStruct = {
-      callerMeta: getRainDocumentsFromContract("orderbook"),
+      meta: getRainMetaDocumentFromContract("orderbook"),
       deployer: expressionDeployer.address,
     };
     const orderBookFactory = await ethers.getContractFactory(
@@ -164,11 +164,11 @@ describe("Contract entity", async () => {
 
     await waitForSubgraphToBeSynced();
 
-    const { callerMeta } = (await getEventArgs(
+    const { meta } = (await getEventArgs(
       orderBook.deployTransaction,
-      "InterpreterCallerMeta",
+      "Meta",
       orderBook
-    )) as InterpreterCallerMetaEvent["args"];
+    )) as MetaEvent["args"];
 
     const { expression } = (await getEventArgs(
       txOrder_A,
@@ -179,7 +179,7 @@ describe("Contract entity", async () => {
     const query = `
       {
         contract (id: "${orderBook.address.toLowerCase()}") {
-          opmeta
+          meta
           deployTransaction {
             id
           }
@@ -196,7 +196,7 @@ describe("Contract entity", async () => {
 
     const data = response.data.contract;
 
-    expect(data.opmeta).to.be.equal(callerMeta);
+    expect(data.meta).to.be.equal(meta);
     expect(data.deployTransaction.id).to.be.equal(
       orderBook.deployTransaction.hash
     );
