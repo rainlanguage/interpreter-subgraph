@@ -14,9 +14,9 @@ import {
 export let IERC1820_NAME_IEXPRESSION_DEPLOYER_V1_HASH =
   "0xf10faf5e29ad7057aa6922f7dc34fd1b591620d40c7a7f4443565469f249ec91";
 
-// InterpreterCallerMeta(address sender, bytes callerMeta)
+// InterpreterCallerMeta(address sender, bytes meta)
 export let INTERPRETER_CALLER_META_EVENT =
-  "0x4ca7f97520bcc430af1f1f7bf2584176bec2fc06596c58b63897525bf1110b88";
+  "0x20b33fd5188a57eebbb3ccd67ceef094e73dbda848ba098e82859bf860eb1d7f";
 
 // ExpressionAddress(address sender, address expression)
 export let EXPRESSION_ADDRESS_EVENT =

@@ -1,8 +1,35 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "IInterpreterCallerV1",
-  "sourceName": "contracts/interpreter/caller/IInterpreterCallerV1.sol",
+  "contractName": "InterpreterCallerV1",
+  "sourceName": "contracts/interpreter/caller/InterpreterCallerV1.sol",
   "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "unmeta",
+          "type": "bytes"
+        }
+      ],
+      "name": "NotRainMetaV1",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "expectedHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "actualHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "UnexpectedMetaHash",
+      "type": "error"
+    },
     {
       "anonymous": false,
       "inputs": [
@@ -34,11 +61,11 @@
         {
           "indexed": false,
           "internalType": "bytes",
-          "name": "callerMeta",
+          "name": "meta",
           "type": "bytes"
         }
       ],
-      "name": "InterpreterCallerMeta",
+      "name": "Meta",
       "type": "event"
     }
   ],

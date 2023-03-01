@@ -20,7 +20,7 @@ import {
   rainterpreterStoreDeploy,
 } from "../utils/deploy/interpreter/shared/rainterpreter/deploy";
 import { rainterpreterExpressionDeployerDeploy } from "../utils/deploy/interpreter/shared/rainterpreterExpressionDeployer/deploy";
-import { getRainDocumentsFromContract } from "../utils/meta";
+import { getRainMetaDocumentFromContract } from "../utils/meta";
 import { randomUint256 } from "../utils/bytes";
 import { max_uint256 } from "../utils/constants";
 
@@ -48,7 +48,7 @@ describe("Expression entity", async () => {
     );
 
     const config_: InterpreterCallerV1ConstructionConfigStruct = {
-      callerMeta: getRainDocumentsFromContract("orderbook"),
+      meta: getRainMetaDocumentFromContract("orderbook"),
       deployer: expressionDeployer.address,
     };
     const orderBookFactory = await ethers.getContractFactory(

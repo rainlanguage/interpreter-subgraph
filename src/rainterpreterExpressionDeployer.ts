@@ -27,7 +27,7 @@ import {
   // NEWCHILD_EVENT,
 } from "./utils";
 
-import { IInterpreterCallerV1 } from "../generated/templates";
+import { InterpreterCallerV1 } from "../generated/templates";
 
 export function handleDISpair(event: DISpair): void {
   const extrospection = ExtrospectionPerNetwork.get();
@@ -52,7 +52,7 @@ export function handleDISpair(event: DISpair): void {
   // ExpressionDeployer fields
   expressionDeployer.interpreter = interpreterInstance.id;
   expressionDeployer.account = account.id;
-  expressionDeployer.opmeta = event.params.opMeta.toHex();
+  expressionDeployer.meta = event.params.opMeta.toHex();
 
   const rainterpreterContract = Rainterpreter.bind(event.params.interpreter);
   const functionPointers = rainterpreterContract.try_functionPointers();
@@ -91,7 +91,7 @@ export function handleNewExpression(event: NewExpression): void {
 
         // Checking if the contract address was previously added or creating new one.
         contract = getContract(log_callerMeta.address.toHex());
-        IInterpreterCallerV1.create(log_callerMeta.address);
+        InterpreterCallerV1.create(log_callerMeta.address);
 
         const sourcesL = event.params.sources.length;
         const minOutputsL = event.params.minOutputs.length;

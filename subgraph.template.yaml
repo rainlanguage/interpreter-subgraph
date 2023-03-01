@@ -58,21 +58,21 @@ templates:
           receipt: true
       file: ./src/rainterpreterExpressionDeployer.ts
   - kind: ethereum/contract
-    name: IInterpreterCallerV1
+    name: InterpreterCallerV1
     network: {{ network }}
     source:
-      abi: IInterpreterCallerV1
+      abi: InterpreterCallerV1
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - IInterpreterCallerV1
+        - InterpreterCallerV1
       abis:
-        - name: IInterpreterCallerV1
-          file: ./abis/IInterpreterCallerV1.json
+        - name: InterpreterCallerV1
+          file: ./abis/InterpreterCallerV1.json
       eventHandlers:
-        - event: InterpreterCallerMeta(address,bytes)
-          handler: handleInterpreterCallerMeta
+        - event: Meta(address,bytes)
+          handler: handleMeta
           receipt: true
-      file: ./src/IInterpreterCallerV1.ts
+      file: ./src/InterpreterCallerV1.ts
