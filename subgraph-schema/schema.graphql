@@ -9,6 +9,8 @@ type Account @entity {
 type Contract @entity {
   "Address of this contract"
   id: ID!
+  "Bytecode hash of this contract"
+  bytecodeHash: String
   deployTransaction: Transaction
   "Contract meta"
   meta: String

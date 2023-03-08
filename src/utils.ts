@@ -114,6 +114,13 @@ export function getContract(address_: string): Contract {
   let contract = Contract.load(address_);
   if (!contract) {
     contract = new Contract(address_);
+    const extrospection = ExtrospectionPerNetwork.get();
+    const bytecodeHash = extrospection.bytecodeHash(
+      Address.fromString(address_)
+    );
+
+    contract.bytecodeHash = bytecodeHash.toHexString();
+
     contract.save();
   }
 
