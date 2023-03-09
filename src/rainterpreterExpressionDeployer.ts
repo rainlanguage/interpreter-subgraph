@@ -31,10 +31,12 @@ import { InterpreterCallerV1 } from "../generated/templates";
 
 export function handleDISpair(event: DISpair): void {
   const extrospection = ExtrospectionPerNetwork.get();
-  const bytecodeHash = extrospection.bytecodeHash(event.params.interpreter);
+  const interpreterBytecodeHash = extrospection.bytecodeHash(
+    event.params.interpreter
+  );
 
   // Interpreter - using the bytecode hash as ID.
-  const interpreter = getInterpreter(bytecodeHash.toHex());
+  const interpreter = getInterpreter(interpreterBytecodeHash.toHex());
 
   // ExpressionDeployer - using the address of the ExpressionDeployer as ID.
   const expressionDeployer = getExpressionDeployer(
@@ -49,10 +51,15 @@ export function handleDISpair(event: DISpair): void {
   // Account - using the address of the sender as ID.
   const account = getAccount(event.transaction.from.toHex());
 
+  const deployerBytecodeHash = extrospection.bytecodeHash(
+    event.params.deployer
+  );
+
   // ExpressionDeployer fields
   expressionDeployer.interpreter = interpreterInstance.id;
   expressionDeployer.account = account.id;
   expressionDeployer.meta = event.params.opMeta.toHex();
+  expressionDeployer.bytecodeHash = deployerBytecodeHash.toHex();
 
   const rainterpreterContract = Rainterpreter.bind(event.params.interpreter);
   const functionPointers = rainterpreterContract.try_functionPointers();
