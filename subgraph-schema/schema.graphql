@@ -21,6 +21,8 @@ type Contract @entity {
 type ExpressionDeployer @entity {
   "The address of this deployer."
   id: ID!
+  "Bytecode hash of this Deployer"
+  bytecodeHash: String
   "The interpreter instance this deployer uses."
   interpreter: InterpreterInstance # get from ValidInterpreter.interpreter
   "The account that deployed this IExpressionDeployerV1"
