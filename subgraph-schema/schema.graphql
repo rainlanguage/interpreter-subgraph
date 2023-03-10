@@ -25,6 +25,8 @@ type ExpressionDeployer @entity {
   bytecodeHash: String
   "The interpreter instance this deployer uses."
   interpreter: InterpreterInstance # get from ValidInterpreter.interpreter
+  "The RainterpreterStore being used by the deployer"
+  store: RainterpreterStore
   "The account that deployed this IExpressionDeployerV1"
   account: Account
   "functionPointers"
@@ -46,8 +48,15 @@ type InterpreterInstance @entity {
   "Address of this interpreter instance"
   id: ID!
   interpreter: Interpreter!
-  "Expressions deploeyd by this interpreter instance"
+  "Expressions deployed by this interpreter instance"
   expressions: [Expression!] @derivedFrom(field: "interpreterInstance")
+}
+
+type RainterpreterStore @entity {
+  "Address of the RainterpreterStore contract"
+  id: ID!
+  "ExpressionDeployers using this store"
+  deployers: [ExpressionDeployer!] @derivedFrom(field: "store")
 }
 
 type Expression @entity(immutable: true) {
