@@ -23,6 +23,7 @@ import {
   getInterpreter,
   getInterpreterInstance,
   getRainterpreterStore,
+  getRainterpreterStoreInstance,
   // decodeSources,
   // getFactory,
   // NEWCHILD_EVENT,
@@ -49,12 +50,20 @@ export function handleDISpair(event: DISpair): void {
     event.params.interpreter.toHex()
   );
 
-  // RainterpreterStore - using the address of the RainterpreterStore as ID.
-  const rainterpreterStore = getRainterpreterStore(event.params.store.toHex());
+  // RainterpreterStore hash - using the address of the RainterpreterStore as ID.
   const rainterpreterBytecodeHash = extrospection.bytecodeHash(
     event.params.store
   );
-  rainterpreterStore.bytecodeHash = rainterpreterBytecodeHash.toHex();
+
+  // RainterpreterStore - using the bytecode hash of the RainterpreterStore as ID.
+  const rainterpreterStore = getRainterpreterStore(
+    rainterpreterBytecodeHash.toHex()
+  );
+
+  // RainterpreterStoreInstance and his field
+  const storeInstance = getRainterpreterStoreInstance(
+    event.params.store.toHex()
+  );
 
   // Account - using the address of the sender as ID.
   const account = getAccount(event.transaction.from.toHex());
@@ -65,7 +74,7 @@ export function handleDISpair(event: DISpair): void {
 
   // ExpressionDeployer fields
   expressionDeployer.interpreter = interpreterInstance.id;
-  expressionDeployer.store = rainterpreterStore.id;
+  expressionDeployer.store = storeInstance.id;
   expressionDeployer.account = account.id;
   expressionDeployer.meta = event.params.opMeta.toHex();
   expressionDeployer.bytecodeHash = deployerBytecodeHash.toHex();
@@ -79,10 +88,14 @@ export function handleDISpair(event: DISpair): void {
   // InterpreterInstance fields
   interpreterInstance.interpreter = interpreter.id;
 
+  // RainterpreterStoreInstance fields
+  storeInstance.store = rainterpreterStore.id;
+
   interpreter.save();
   interpreterInstance.save();
   expressionDeployer.save();
   rainterpreterStore.save();
+  storeInstance.save();
 }
 
 export function handleNewExpression(event: NewExpression): void {
