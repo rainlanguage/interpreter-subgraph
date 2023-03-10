@@ -37,6 +37,9 @@ describe("ExpressionDeployer entity", async () => {
             account {
               id
             }
+            store {
+              id
+            }
             functionPointers
             meta
           }
@@ -50,6 +53,7 @@ describe("ExpressionDeployer entity", async () => {
     const data = response.data.expressionDeployer;
 
     expect(data.interpreter.id).to.be.equal(interpreter.address.toLowerCase());
+    expect(data.store.id).to.be.equal(store.address.toLowerCase());
     expect(data.account.id).to.be.equal(sender.toLowerCase());
     expect(data.functionPointers).to.be.equal(functionPointers);
     expect(data.meta).to.be.equal(opMeta);

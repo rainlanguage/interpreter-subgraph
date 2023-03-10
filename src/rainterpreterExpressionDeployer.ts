@@ -22,6 +22,7 @@ import {
   getExpressionDeployer,
   getInterpreter,
   getInterpreterInstance,
+  getRainterpreterStore,
   // decodeSources,
   // getFactory,
   // NEWCHILD_EVENT,
@@ -48,6 +49,9 @@ export function handleDISpair(event: DISpair): void {
     event.params.interpreter.toHex()
   );
 
+  // RainterpreterStore - using the address of the RainterpreterStore as ID.
+  const rainterpreterStore = getRainterpreterStore(event.params.store.toHex());
+
   // Account - using the address of the sender as ID.
   const account = getAccount(event.transaction.from.toHex());
 
@@ -57,6 +61,7 @@ export function handleDISpair(event: DISpair): void {
 
   // ExpressionDeployer fields
   expressionDeployer.interpreter = interpreterInstance.id;
+  expressionDeployer.store = rainterpreterStore.id;
   expressionDeployer.account = account.id;
   expressionDeployer.meta = event.params.opMeta.toHex();
   expressionDeployer.bytecodeHash = deployerBytecodeHash.toHex();
