@@ -82,7 +82,7 @@ describe("RainterpreterStoreInstance entity", async () => {
       query,
     })) as FetchResult;
 
-    const data = response.data.rainterpreterStoreInstance;
+    const data = response.data.rainterpreterStoreInstances;
 
     expect(data).to.deep.include({
       id: store_1.address.toLowerCase(),
