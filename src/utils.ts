@@ -9,6 +9,7 @@ import {
   Expression,
   Transaction,
   RainterpreterStore,
+  RainterpreterStoreInstance,
 } from "../generated/schema";
 
 // IERC1820_REGISTRY.interfaceHash("IExpressionDeployerV1")
@@ -101,14 +102,26 @@ export function getInterpreterInstance(address_: string): InterpreterInstance {
   return interpreterInstance;
 }
 
-export function getRainterpreterStore(address_: string): RainterpreterStore {
-  let rainterpreterStore = RainterpreterStore.load(address_);
+export function getRainterpreterStore(hash_: string): RainterpreterStore {
+  let rainterpreterStore = RainterpreterStore.load(hash_);
   if (!rainterpreterStore) {
-    rainterpreterStore = new RainterpreterStore(address_);
+    rainterpreterStore = new RainterpreterStore(hash_);
     rainterpreterStore.save();
   }
 
   return rainterpreterStore;
+}
+
+export function getRainterpreterStoreInstance(
+  address_: string
+): RainterpreterStoreInstance {
+  let storeInstance = RainterpreterStoreInstance.load(address_);
+  if (!storeInstance) {
+    storeInstance = new RainterpreterStoreInstance(address_);
+    // storeInstance.save();
+  }
+
+  return storeInstance;
 }
 
 export function getAccount(address_: string): Account {

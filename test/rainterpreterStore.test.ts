@@ -23,10 +23,7 @@ describe("RainterpreterStore entity", async () => {
     const store = await rainterpreterStoreDeploy();
 
     // Deploy the expression deployer to get the event
-    const expressionDeployer = await rainterpreterExpressionDeployerDeploy(
-      interpreter,
-      store
-    );
+    await rainterpreterExpressionDeployerDeploy(interpreter, store);
 
     const storeBytecodeHash = await extrospection.bytecodeHash(store.address);
 
@@ -34,9 +31,8 @@ describe("RainterpreterStore entity", async () => {
 
     const query = `
         {
-          rainterpreterStore (id: "${store.address.toLowerCase()}") {
-            bytecodeHash
-            deployers {
+          rainterpreterStore (id: "${storeBytecodeHash.toLowerCase()}") {
+            instances {
               id
             }
           }
@@ -49,9 +45,8 @@ describe("RainterpreterStore entity", async () => {
 
     const data = response.data.rainterpreterStore;
 
-    expect(data.bytecodeHash).to.be.equal(storeBytecodeHash);
-    expect(data.deployers).to.deep.include({
-      id: expressionDeployer.address.toLowerCase(),
+    expect(data.instances).to.deep.include({
+      id: store.address.toLowerCase(),
     });
   });
 });
