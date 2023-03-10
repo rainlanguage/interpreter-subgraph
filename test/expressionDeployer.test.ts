@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { waitForSubgraphToBeSynced, getDISpairEvent } from "./utils";
 
 import {
+  extrospection,
   // Subgraph
   subgraph,
 } from "./0_initialization.test";
@@ -23,6 +24,11 @@ describe("ExpressionDeployer entity", async () => {
       interpreter,
       store
     );
+
+    const expressionDeployerBytecodeHash = await extrospection.bytecodeHash(
+      expressionDeployer.address
+    );
+
     await waitForSubgraphToBeSynced();
 
     const { sender, opMeta } = await getDISpairEvent(expressionDeployer);
@@ -40,6 +46,7 @@ describe("ExpressionDeployer entity", async () => {
             store {
               id
             }
+            bytecodeHash
             functionPointers
             meta
           }
@@ -55,6 +62,7 @@ describe("ExpressionDeployer entity", async () => {
     expect(data.interpreter.id).to.be.equal(interpreter.address.toLowerCase());
     expect(data.store.id).to.be.equal(store.address.toLowerCase());
     expect(data.account.id).to.be.equal(sender.toLowerCase());
+    expect(data.bytecodeHash).to.be.equal(expressionDeployerBytecodeHash);
     expect(data.functionPointers).to.be.equal(functionPointers);
     expect(data.meta).to.be.equal(opMeta);
   });

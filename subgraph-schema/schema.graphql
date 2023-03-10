@@ -55,6 +55,8 @@ type InterpreterInstance @entity {
 type RainterpreterStore @entity {
   "Address of the RainterpreterStore contract"
   id: ID!
+  "Bytecode hash of this RainterpreterStore"
+  bytecodeHash: String
   "ExpressionDeployers using this store"
   deployers: [ExpressionDeployer!] @derivedFrom(field: "store")
 }
