@@ -28,11 +28,14 @@ describe("RainterpreterStore entity", async () => {
       store
     );
 
+    const storeBytecodeHash = await extrospection.bytecodeHash(store.address);
+
     await waitForSubgraphToBeSynced();
 
     const query = `
         {
           rainterpreterStore (id: "${store.address.toLowerCase()}") {
+            bytecodeHash
             deployers {
               id
             }
@@ -46,6 +49,7 @@ describe("RainterpreterStore entity", async () => {
 
     const data = response.data.rainterpreterStore;
 
+    expect(data.bytecodeHash).to.be.equal(storeBytecodeHash);
     expect(data.deployers).to.deep.include({
       id: expressionDeployer.address.toLowerCase(),
     });
