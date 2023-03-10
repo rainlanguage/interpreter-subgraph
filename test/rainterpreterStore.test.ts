@@ -33,15 +33,15 @@ describe("RainterpreterStore entity", async () => {
     await waitForSubgraphToBeSynced();
 
     const query = `
-        {
-          rainterpreterStore (id: "${store.address.toLowerCase()}") {
-            bytecodeHash
-            deployers {
-              id
-            }
+      {
+        rainterpreterStore (id: "${store.address.toLowerCase()}") {
+          bytecodeHash
+          deployers {
+            id
           }
         }
-      `;
+      }
+    `;
 
     const response = (await subgraph({
       query,
