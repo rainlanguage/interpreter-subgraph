@@ -51,6 +51,10 @@ export function handleDISpair(event: DISpair): void {
 
   // RainterpreterStore - using the address of the RainterpreterStore as ID.
   const rainterpreterStore = getRainterpreterStore(event.params.store.toHex());
+  const rainterpreterBytecodeHash = extrospection.bytecodeHash(
+    event.params.store
+  );
+  rainterpreterStore.bytecodeHash = rainterpreterBytecodeHash.toHex();
 
   // Account - using the address of the sender as ID.
   const account = getAccount(event.transaction.from.toHex());
@@ -78,6 +82,7 @@ export function handleDISpair(event: DISpair): void {
   interpreter.save();
   interpreterInstance.save();
   expressionDeployer.save();
+  rainterpreterStore.save();
 }
 
 export function handleNewExpression(event: NewExpression): void {
