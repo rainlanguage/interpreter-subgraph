@@ -35,12 +35,15 @@ let
     ts-node scripts/index.ts
   '';
 
-  prepare-deploy-ci = pkgs.writeShellScriptBin "prepare-deploy-ci" ''
+  prepare-deploy-ci-mumbai = pkgs.writeShellScriptBin "prepare-deploy-ci-mumbai" ''
     npx mustache config/mumbai.json subgraph.template.yaml subgraph.yaml
     npm run generate-schema && npm run codegen && npm run build
   '';
 
-  
+  prepare-deploy-ci-polygon = pkgs.writeShellScriptBin "prepare-deploy-ci-polygon" ''
+    npx mustache config/polygon.json subgraph.template.yaml subgraph.yaml
+    npm run generate-schema && npm run codegen && npm run build
+  '';
 
   init = pkgs.writeShellScriptBin "init" ''
     mkdir -p contracts && cp -r node_modules/@rainprotocol/rain-protocol/contracts .
@@ -63,7 +66,8 @@ pkgs.stdenv.mkDerivation {
   graph-node-down
   graph-test
   deploy-subgraph
-  prepare-deploy-ci
+  prepare-deploy-ci-mumbai
+  prepare-deploy-ci-polygon 
   init
  ];
 
