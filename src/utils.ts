@@ -36,6 +36,9 @@ export class ExtrospectionPerNetwork {
     if (currentNetwork == "mumbai")
       address = "0x95A5aC80025128a220D577D77E400191087a3B83";
 
+    if (currentNetwork == "matic" || currentNetwork == "polygon")
+      address = "0x5EBfFD6eF6f588ff69873aa39B2159d646fC32e2";
+
     if (currentNetwork == "localhost")
       address = "0x5daCf1ad3714D4c4E5314d946C4fa359cE85D2C6";
 
