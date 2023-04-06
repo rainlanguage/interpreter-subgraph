@@ -1,34 +1,25 @@
+# subgraph
+/build
+/generated
+
+# foundry
+foundry.toml
+/cache_forge
+/out
+
+# npm
 node_modules
-.env
-coverage
-coverage.json
-typechain
-typechain-types
 
-#Hardhat files
-cache
-artifacts
-contracts
+# hardhat
+/typechain
+/artifacts
+/cache
 
-node_modules
-.env
-coverage
-coverage.json
-typechain
-typechain-types
-
-#graph
-build
-generated
-docker/data
-config/localhost.json
-scripts/deployConfig.json
-
-# Rain protocol files
+# rainprotocol
 /contracts
 /utils
-opmeta_schema.json
-schema
+/schema
 
-subgraph.yaml
-/schema.graphql
+
+.vscode
+docker/data

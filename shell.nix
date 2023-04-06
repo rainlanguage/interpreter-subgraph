@@ -45,12 +45,69 @@ let
     npm run generate-schema && npm run codegen && npm run build
   '';
 
+  compile = pkgs.writeShellScriptBin "compile" ''
+    forge build
+    hardhat compile --force
+  '';
+
+  install-submodules = pkgs.writeShellScriptBin "install-submodules" ''
+    mkdir -p lib
+
+    git -C lib clone https://github.com/foundry-rs/forge-std.git
+    git -C lib clone https://github.com/rainprotocol/rain.cooldown.git
+    git -C lib clone https://github.com/rainprotocol/rain.math.saturating.git
+    git -C lib clone https://github.com/rainprotocol/sol.lib.binmaskflag.git
+    git -C lib clone https://github.com/rainprotocol/sol.lib.datacontract.git
+    git -C lib clone https://github.com/rainprotocol/sol.metadata.git
+
+    git -C lib//sol.lib.datacontract checkout 80aaaa8 
+
+    git submodule add https://github.com/foundry-rs/forge-std.git lib/forge-std
+    git submodule add https://github.com/rainprotocol/rain.cooldown.git lib/rain.cooldown
+    git submodule add https://github.com/rainprotocol/rain.math.saturating.git lib/rain.math.saturating
+    git submodule add https://github.com/rainprotocol/sol.lib.binmaskflag.git lib/sol.lib.binmaskflag
+    git submodule add https://github.com/rainprotocol/sol.lib.datacontract.git lib/sol.lib.datacontract
+    git submodule add https://github.com/rainprotocol/sol.metadata.git lib/sol.metadata
+    
+    forge install --root lib/forge-std
+    forge install --root lib/rain.cooldown
+    forge install --root lib/rain.math.saturating
+    forge install --root lib/sol.lib.binmaskflag
+    forge install --root lib/sol.lib.datacontract
+    forge install --root lib/sol.metadata
+
+    forge build --root lib/forge-std
+    forge build --root lib/rain.cooldown
+    forge build --root lib/rain.math.saturating
+    forge build --root lib/sol.lib.binmaskflag
+    forge build --root lib/sol.lib.datacontract
+    forge build --root lib/sol.metadata
+  '';
+
+  copy-abis = pkgs.writeShellScriptBin "copy-abis" ''
+    mkdir -p abis
+    
+    cp artifacts/contracts/extrospection/Extrospection.sol/Extrospection.json abis
+    cp artifacts/contracts/interpreter/shared/Rainterpreter.sol/Rainterpreter.json abis
+    cp artifacts/contracts/interpreter/shared/RainterpreterExpressionDeployer.sol/RainterpreterExpressionDeployer.json abis
+    cp artifacts/contracts/interpreter/shared/RainterpreterStore.sol/RainterpreterStore.json abis
+
+    # This changed the name of the json to have the MetaV1 event and use it on those 
+    cp artifacts/lib/sol.metadata/src/IMetaV1.sol/IMetaV1.json abis/InterpreterCallerV1.json
+
+  '';
+
   init = pkgs.writeShellScriptBin "init" ''
+    npm install
+    rm -rf docker/data
     mkdir -p contracts && cp -r node_modules/@rainprotocol/rain-protocol/contracts .
+    mkdir -p schema && cp -r node_modules/@rainprotocol/rain-protocol/schema .
     mkdir -p utils && cp -r node_modules/@rainprotocol/rain-protocol/utils .
-    cp -r node_modules/@rainprotocol/rain-protocol/utils .
-    cp -r node_modules/@rainprotocol/rain-protocol/schema .
-    npx hardhat compile
+    cp node_modules/@rainprotocol/rain-protocol/foundry.toml .
+    mkdir -p contracts/test/orderbook && cp sg_test_contracts/*.sol contracts/test/orderbook/
+    install-submodules
+    compile
+    copy-abis
   '';
   
 in
@@ -69,12 +126,13 @@ pkgs.stdenv.mkDerivation {
   prepare-deploy-ci-mumbai
   prepare-deploy-ci-polygon 
   init
+  compile
+  install-submodules
+  copy-abis
  ];
 
  shellHook = ''
   export PATH=$( npm bin ):$PATH
   # keep it fresh
-  npm install --verbose --fetch-timeout 3000000
-  init
  '';
 }

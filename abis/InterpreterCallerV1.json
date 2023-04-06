@@ -1,36 +1,9 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "InterpreterCallerV1",
-  "sourceName": "contracts/interpreter/caller/InterpreterCallerV1.sol",
+  "contractName": "IMetaV1",
+  "sourceName": "lib/sol.metadata/src/IMetaV1.sol",
   "abi": [
     {
-      "inputs": [
-        {
-          "internalType": "bytes",
-          "name": "unmeta",
-          "type": "bytes"
-        }
-      ],
-      "name": "NotRainMetaV1",
-      "type": "error"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "expectedHash",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "bytes32",
-          "name": "actualHash",
-          "type": "bytes32"
-        }
-      ],
-      "name": "UnexpectedMetaHash",
-      "type": "error"
-    },
-    {
       "anonymous": false,
       "inputs": [
         {
@@ -41,22 +14,9 @@
         },
         {
           "indexed": false,
-          "internalType": "uint256[][]",
-          "name": "context",
-          "type": "uint256[][]"
-        }
-      ],
-      "name": "Context",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "sender",
-          "type": "address"
+          "internalType": "uint256",
+          "name": "subject",
+          "type": "uint256"
         },
         {
           "indexed": false,
@@ -65,7 +25,7 @@
           "type": "bytes"
         }
       ],
-      "name": "Meta",
+      "name": "MetaV1",
       "type": "event"
     }
   ],
