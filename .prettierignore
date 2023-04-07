@@ -1,5 +1,9 @@
 ## Deps
 node_modules
+lib
+out
+schema
+utils
 
 ## Hardhat
 cache
@@ -15,3 +19,4 @@ generated
 /docker/**/*
 /docker/*
 /docker/data/postgres
+/scripts

@@ -24,6 +24,7 @@ import {
 } from "../utils/deploy/interpreter/shared/rainterpreter/deploy";
 import { rainterpreterExpressionDeployerDeploy } from "../utils/deploy/interpreter/shared/rainterpreterExpressionDeployer/deploy";
 import {
+  generateEvaluableConfig,
   memoryOperand,
   MemoryType,
   op,
@@ -37,9 +38,15 @@ import { randomUint256 } from "../utils/bytes";
 import type { FetchResult } from "apollo-fetch";
 import type { ExpressionAddressEvent } from "../typechain/contracts/interpreter/shared/RainterpreterExpressionDeployer";
 import type { OrderConfigStruct } from "../typechain/contracts/orderbook/IOrderBookV1";
-import type { InterpreterCallerV1ConstructionConfigStruct } from "../typechain/contracts/flow/FlowCommon";
 import type { OrderBook, ReserveToken18 } from "../typechain";
-import type { EvaluableConfigStruct } from "../typechain/contracts/orderbook/OrderBook";
+import type {
+  AddOrderEvent,
+  DeployerDiscoverableMetaV1ConstructionConfigStruct,
+  EvaluableConfigStruct,
+} from "../typechain/contracts/orderbook/OrderBook";
+import { encodeMeta } from "../utils/orderBook/order";
+import assert from "assert";
+import { compareStructs } from "../utils";
 
 describe("InterpreterInstance entity", async () => {
   it("should query all the fields correctly after a new deploy of an ExpressionDeployer", async () => {
@@ -126,7 +133,7 @@ describe("InterpreterInstance entity", async () => {
       store
     );
 
-    const config_: InterpreterCallerV1ConstructionConfigStruct = {
+    const config_: DeployerDiscoverableMetaV1ConstructionConfigStruct = {
       meta: getRainMetaDocumentFromContract("orderbook"),
       deployer: expressionDeployer.address,
     };
@@ -144,10 +151,10 @@ describe("InterpreterInstance entity", async () => {
     const aliceInputVault = ethers.BigNumber.from(randomUint256());
     const aliceOutputVault = ethers.BigNumber.from(randomUint256());
 
-    const aliceOrder = ethers.utils.toUtf8Bytes("Order_A");
+    // TODO: This is a WRONG encoding meta (FIX: @naneez)
+    const aliceOrder = encodeMeta("Order_A");
 
     // Order_A
-
     const ratio_A = ethers.BigNumber.from("90" + eighteenZeros);
     const constants_A = [max_uint256, ratio_A];
     const aOpMax = op(
@@ -160,11 +167,11 @@ describe("InterpreterInstance entity", async () => {
     );
     // prettier-ignore
     const source_A = concat([
-       aOpMax,
-       aRatio,
-     ]);
+      aOpMax,
+      aRatio,
+    ]);
 
-    const EvaluableConfig_A: EvaluableConfigStruct = {
+    const EvaluableConfig_A = {
       deployer: expressionDeployer.address,
       sources: [source_A, []],
       constants: constants_A,
@@ -178,10 +185,28 @@ describe("InterpreterInstance entity", async () => {
         { token: tokenB.address, decimals: 18, vaultId: aliceOutputVault },
       ],
       evaluableConfig: EvaluableConfig_A,
-      data: aliceOrder,
+      meta: aliceOrder,
     };
 
     const txOrder_A = await orderBook.connect(alice).addOrder(orderConfig_A);
+
+    const {
+      sender: sender_A,
+      expressionDeployer: ExpressionDeployer_A,
+      order: order_A,
+      orderHash,
+    } = (await getEventArgs(
+      txOrder_A,
+      "AddOrder",
+      orderBook
+    )) as AddOrderEvent["args"];
+
+    assert(
+      ExpressionDeployer_A === EvaluableConfig_A.deployer,
+      "wrong expression deployer"
+    );
+    assert(sender_A === alice.address, "wrong sender");
+    compareStructs(order_A, orderConfig_A);
 
     await waitForSubgraphToBeSynced();
 

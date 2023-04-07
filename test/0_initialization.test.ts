@@ -1,4 +1,4 @@
-import { ethers } from "hardhat";
+import hre, { ethers } from "hardhat";
 import * as path from "path";
 import { ApolloFetch } from "apollo-fetch";
 
@@ -9,6 +9,7 @@ import {
   keylessDeploy,
   fetchSubgraph,
   waitForSubgraphToBeSynced,
+  waitForGraphNode,
 } from "./utils";
 import { deploy1820 } from "../utils/deploy/registry1820/deploy";
 
@@ -34,6 +35,11 @@ export let deployer: SignerWithAddress,
   signer4: SignerWithAddress;
 
 before("Deployment contracts and subgraph", async function () {
+  await waitForGraphNode();
+
+  // Mine every time to avoid last block (Do not remove, only for tests :P)
+  await hre.network.provider.send("hardhat_mine");
+
   const signers = await ethers.getSigners();
 
   // Signers (to avoid fetch again)
@@ -51,6 +57,12 @@ before("Deployment contracts and subgraph", async function () {
     deployer
   )) as Extrospection;
 
+  // Use the current block number on chain to avoid start from 0 block number
+  // with local testing
+  const blockNumber_ =
+    extrospection.deployTransaction?.blockNumber ??
+    (await deployer.provider.getBlockNumber());
+
   // Saving data in JSON
   const pathExampleConfig = path.resolve(__dirname, "../config/example.json");
   const file = fetchFile(pathExampleConfig);
@@ -62,8 +74,7 @@ before("Deployment contracts and subgraph", async function () {
 
   config.ERC1820Registry = registry1820.address;
 
-  config.ERC1820RegistryBlock =
-    registry1820.deployTransaction?.blockNumber ?? 0;
+  config.ERC1820RegistryBlock = blockNumber_;
 
   // Write address and block to configuration contracts file
   const pathConfigLocal = path.resolve(__dirname, "../config/localhost.json");

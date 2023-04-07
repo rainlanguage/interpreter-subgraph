@@ -392,3 +392,18 @@ export const getTxTimeblock = async (
   const timestamp = (await ethers.provider.getBlock(block)).timestamp;
   return [block, timestamp];
 };
+
+export const waitForGraphNode = async (): Promise<void> => {
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    try {
+      const response = await fetch("http://localhost:8030");
+      if (response.status === 200) {
+        break;
+      }
+    } catch (error) {
+      console.log("graph node not ready");
+      await delay(100);
+    }
+  }
+};

@@ -9,21 +9,24 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
       - uses: cachix/install-nix-action@v13
         with:
           nix_path: nixpkgs=channel:nixos-unstable
-
+      - name: install npm dependencies
+        run: |
+          nix-shell --run init
       - name: Build Docker Compose images
         run: |
-          nix-shell --run graph-node-down
-          nix-shell --run graph-node-up
-
+          nix-shell --run docker-down
+          nix-shell --run docker-up
       - name: Run Subgraph tests
-        run: nix-shell --run graph-test
-
+        run: nix-shell --run ci-test
       - name: Stop containers
-        run: nix-shell --run graph-node-down
+        run: nix-shell --run docker-down
 
   deploy:
     runs-on: ubuntu-latest
@@ -32,20 +35,25 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
       - uses: cachix/install-nix-action@v13
         with:
           nix_path: nixpkgs=channel:nixos-unstable
-      # Mumbai sg
-      - name: Prepare subgraph manifest
-        run: nix-shell --run prepare-deploy-ci-mumbai
+      - name: install npm dependencies
+        run: |
+          nix-shell --run init
       - name: Graph Authentication
         run: npx graph auth --product hosted-service $THE_GRAPH_API_TOKEN
-      - name: Graph Deployments
+      # Mumbai sg
+      - name: Prepare subgraph manifest to deploy on Mumbai
+        run: nix-shell --run prepare-deploy-ci-mumbai
+      - name: Graph Deployment to Mumbai
         run: npx graph deploy --product hosted-service rainprotocol/interpreter-registry
       # Polygon sg
-      - name: Prepare subgraph manifest
+      - name: Prepare subgraph manifest to deploy on Polygon
         run: nix-shell --run prepare-deploy-ci-polygon
-      - name: Graph Authentication
-        run: npx graph auth --product hosted-service $THE_GRAPH_API_TOKEN
-      - name: Graph Deployments
+      - name: Graph Deployment on Polygon
         run: npx graph deploy --product hosted-service rainprotocol/interpreter-registry-polygon

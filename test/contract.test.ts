@@ -1,3 +1,4 @@
+import assert from "assert";
 import { ethers } from "hardhat";
 import { expect } from "chai";
 import {
@@ -22,19 +23,23 @@ import { rainterpreterExpressionDeployerDeploy } from "../utils/deploy/interpret
 import { getRainMetaDocumentFromContract } from "../utils/meta";
 import { randomUint256 } from "../utils/bytes";
 import { max_uint256 } from "../utils/constants";
+import { encodeMeta } from "../utils/orderBook/order";
+import { compareStructs } from "../utils";
 
 // Types
 import type { FetchResult } from "apollo-fetch";
 import type { OrderBook, ReserveToken18 } from "../typechain";
-import type { InterpreterCallerV1ConstructionConfigStruct } from "../typechain/contracts/flow/FlowCommon";
-import type { MetaEvent } from "../typechain/contracts/interpreter/caller/InterpreterCallerV1";
 import { MemoryType, Opcode, memoryOperand, op } from "../utils/interpreter";
 import { concat } from "ethers/lib/utils";
-import { OrderConfigStruct } from "../typechain/contracts/orderbook/OrderBook";
+import {
+  AddOrderEvent,
+  DeployerDiscoverableMetaV1ConstructionConfigStruct,
+  MetaV1Event,
+  OrderConfigStruct,
+} from "../typechain/contracts/orderbook/OrderBook";
 import { basicDeploy } from "../utils/deploy/basicDeploy";
 import { ExpressionAddressEvent } from "../typechain/contracts/interpreter/shared/RainterpreterExpressionDeployer";
 import { getEventArgs } from "../utils/events";
-import { EvaluableConfigStruct } from "../typechain/contracts/lobby/Lobby";
 
 describe("Contract entity", async () => {
   it("should query the Contract after touch the ExpressionDeployer with OB", async () => {
@@ -47,7 +52,7 @@ describe("Contract entity", async () => {
       store
     );
 
-    const config_: InterpreterCallerV1ConstructionConfigStruct = {
+    const config_: DeployerDiscoverableMetaV1ConstructionConfigStruct = {
       meta: getRainMetaDocumentFromContract("orderbook"),
       deployer: expressionDeployer.address,
     };
@@ -61,14 +66,18 @@ describe("Contract entity", async () => {
 
     const { meta } = (await getEventArgs(
       orderBook.deployTransaction,
-      "Meta",
+      "MetaV1",
       orderBook
-    )) as MetaEvent["args"];
+    )) as MetaV1Event["args"];
+
+    const metaV1_ID = ethers.utils.keccak256(meta);
 
     const query = `
       {
         contract (id: "${orderBook.address.toLowerCase()}") {
-          meta
+          meta {
+            id
+          }
           deployTransaction {
             id
           }
@@ -85,7 +94,7 @@ describe("Contract entity", async () => {
 
     const data = response.data.contract;
 
-    expect(data.meta).to.be.equal(meta);
+    expect(data.meta.id).to.be.equal(metaV1_ID);
     expect(
       data.expressions,
       "The expression when touching the deployer is being added"
@@ -105,7 +114,7 @@ describe("Contract entity", async () => {
       store
     );
 
-    const config_: InterpreterCallerV1ConstructionConfigStruct = {
+    const config_: DeployerDiscoverableMetaV1ConstructionConfigStruct = {
       meta: getRainMetaDocumentFromContract("orderbook"),
       deployer: expressionDeployer.address,
     };
@@ -123,10 +132,10 @@ describe("Contract entity", async () => {
     const aliceInputVault = ethers.BigNumber.from(randomUint256());
     const aliceOutputVault = ethers.BigNumber.from(randomUint256());
 
-    const aliceOrder = ethers.utils.toUtf8Bytes("Order_A");
+    // TODO: This is a WRONG encoding meta (FIX: @naneez)
+    const aliceOrder = encodeMeta("Order_A");
 
     // Order_A
-
     const ratio_A = ethers.BigNumber.from("90" + eighteenZeros);
     const constants_A = [max_uint256, ratio_A];
     const aOpMax = op(
@@ -139,11 +148,11 @@ describe("Contract entity", async () => {
     );
     // prettier-ignore
     const source_A = concat([
-       aOpMax,
-       aRatio,
-     ]);
+      aOpMax,
+      aRatio,
+    ]);
 
-    const EvaluableConfig_A: EvaluableConfigStruct = {
+    const EvaluableConfig_A = {
       deployer: expressionDeployer.address,
       sources: [source_A, []],
       constants: constants_A,
@@ -157,18 +166,40 @@ describe("Contract entity", async () => {
         { token: tokenB.address, decimals: 18, vaultId: aliceOutputVault },
       ],
       evaluableConfig: EvaluableConfig_A,
-      data: aliceOrder,
+      meta: aliceOrder,
     };
 
     const txOrder_A = await orderBook.connect(alice).addOrder(orderConfig_A);
+
+    const {
+      sender: sender_A,
+      expressionDeployer: ExpressionDeployer_A,
+      order: order_A,
+    } = (await getEventArgs(
+      txOrder_A,
+      "AddOrder",
+      orderBook
+    )) as AddOrderEvent["args"];
+
+    assert(
+      ExpressionDeployer_A === EvaluableConfig_A.deployer,
+      "wrong expression deployer"
+    );
+    assert(
+      expressionDeployer.address === EvaluableConfig_A.deployer,
+      "wrong expression deployer"
+    );
+
+    assert(sender_A === alice.address, "wrong sender");
+    compareStructs(order_A, orderConfig_A);
 
     await waitForSubgraphToBeSynced();
 
     const { meta } = (await getEventArgs(
       orderBook.deployTransaction,
-      "Meta",
+      "MetaV1",
       orderBook
-    )) as MetaEvent["args"];
+    )) as MetaV1Event["args"];
 
     const { expression } = (await getEventArgs(
       txOrder_A,
@@ -176,10 +207,14 @@ describe("Contract entity", async () => {
       expressionDeployer
     )) as ExpressionAddressEvent["args"];
 
+    const metaV1_ID = ethers.utils.keccak256(meta);
+
     const query = `
       {
         contract (id: "${orderBook.address.toLowerCase()}") {
-          meta
+          meta {
+            id
+          }
           deployTransaction {
             id
           }
@@ -196,7 +231,7 @@ describe("Contract entity", async () => {
 
     const data = response.data.contract;
 
-    expect(data.meta).to.be.equal(meta);
+    expect(data.meta.id).to.be.equal(metaV1_ID);
     expect(data.deployTransaction.id).to.be.equal(
       orderBook.deployTransaction.hash
     );

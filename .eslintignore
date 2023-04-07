@@ -1,5 +1,6 @@
 ## Deps
 node_modules
+utils
 
 ## Hardhat
 cache
@@ -9,7 +10,8 @@ typechain
 
 ## Subgraph
 subgraph.template.yaml
+subgraph.yaml
 build
 generated
 docker/data
-scripts/**/*.js
+/scripts
