@@ -104,10 +104,25 @@ let
     mkdir -p schema && cp -r node_modules/@rainprotocol/rain-protocol/schema .
     mkdir -p utils && cp -r node_modules/@rainprotocol/rain-protocol/utils .
     cp node_modules/@rainprotocol/rain-protocol/foundry.toml .
-    mkdir -p contracts/test/orderbook && cp sg_test_contracts/*.sol contracts/test/orderbook/
     install-submodules
     compile
     copy-abis
+  '';
+
+  codegen = pkgs.writeShellScriptBin "codegen" ''
+    graph codegen
+  '';
+
+  docker-up = pkgs.writeShellScriptBin "docker-up" ''
+    docker-compose -f docker/docker-compose.yml up --build -d
+  '';
+
+  docker-down = pkgs.writeShellScriptBin "docker-down" ''
+    docker-compose -f docker/docker-compose.yml down
+  '';
+
+  ci-test = pkgs.writeShellScriptBin "ci-test" ''
+    npx hardhat test
   '';
   
 in
@@ -129,6 +144,10 @@ pkgs.stdenv.mkDerivation {
   compile
   install-submodules
   copy-abis
+  codegen
+  docker-up
+  docker-down
+  ci-test
  ];
 
  shellHook = ''

@@ -15,6 +15,8 @@ import {
   rainterpreterStoreDeploy,
 } from "../utils/deploy/interpreter/shared/rainterpreter/deploy";
 import { rainterpreterExpressionDeployerDeploy } from "../utils/deploy/interpreter/shared/rainterpreterExpressionDeployer/deploy";
+import { ethers } from "hardhat";
+import { getRainterpreterOpMetaBytes } from "../utils";
 
 describe("ExpressionDeployer entity", async () => {
   it("should query all the fields correctly after a new deploy of an ExpressionDeployer ", async () => {
@@ -34,6 +36,10 @@ describe("ExpressionDeployer entity", async () => {
     const { sender, opMeta } = await getDISpairEvent(expressionDeployer);
     const functionPointers = await interpreter.functionPointers();
 
+    const metaV1_ID = ethers.utils.keccak256(opMeta);
+
+    const opMetaBytes = getRainterpreterOpMetaBytes();
+
     const query = `
         {
           expressionDeployer (id: "${expressionDeployer.address.toLowerCase()}") {
@@ -48,7 +54,10 @@ describe("ExpressionDeployer entity", async () => {
             }
             bytecodeHash
             functionPointers
-            meta
+            opmeta
+            meta {
+              id
+            }
           }
         }
       `;
@@ -64,6 +73,7 @@ describe("ExpressionDeployer entity", async () => {
     expect(data.account.id).to.be.equal(sender.toLowerCase());
     expect(data.bytecodeHash).to.be.equal(expressionDeployerBytecodeHash);
     expect(data.functionPointers).to.be.equal(functionPointers);
-    expect(data.meta).to.be.equal(opMeta);
+    expect(data.opmeta).to.be.equal(opMetaBytes);
+    expect(data.meta.id).to.be.equal(metaV1_ID);
   });
 });

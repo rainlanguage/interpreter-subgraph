@@ -15,6 +15,8 @@ import {
   EXPRESSION_ADDRESS_EVENT,
   ExtrospectionPerNetwork,
   INTERPRETER_CALLER_META_EVENT,
+  OPMETA_MAGIC_NUMBER_HEX,
+  RAIN_META_DOCUMENT_HEX,
   decodeSources,
   generateTransaction,
   getAccount,
@@ -22,14 +24,19 @@ import {
   getExpressionDeployer,
   getInterpreter,
   getInterpreterInstance,
+  getRainMetaV1,
   getRainterpreterStore,
   getRainterpreterStoreInstance,
+  stringToArrayBuffer,
   // decodeSources,
   // getFactory,
   // NEWCHILD_EVENT,
 } from "./utils";
 
 import { InterpreterCallerV1 } from "../generated/templates";
+import { JSONValueKind, json, log } from "@graphprotocol/graph-ts";
+import { CBORDecoder } from "@rainprotocol/assemblyscript-cbor";
+import { ContentMeta } from "./metav1";
 
 export function handleDISpair(event: DISpair): void {
   const extrospection = ExtrospectionPerNetwork.get();
@@ -76,7 +83,6 @@ export function handleDISpair(event: DISpair): void {
   expressionDeployer.interpreter = interpreterInstance.id;
   expressionDeployer.store = storeInstance.id;
   expressionDeployer.account = account.id;
-  expressionDeployer.meta = event.params.opMeta.toHex();
   expressionDeployer.bytecodeHash = deployerBytecodeHash.toHex();
 
   const rainterpreterContract = Rainterpreter.bind(event.params.interpreter);
@@ -93,9 +99,68 @@ export function handleDISpair(event: DISpair): void {
 
   interpreter.save();
   interpreterInstance.save();
-  expressionDeployer.save();
   rainterpreterStore.save();
   storeInstance.save();
+
+  // Decode meta bytes
+  const metaV1 = getRainMetaV1(event.params.opMeta);
+
+  // Converts the emitted target from Bytes to a Hexadecimal value
+  let meta = event.params.opMeta.toHex();
+
+  // Decode the meta only if incluse the RainMeta magic number.
+  if (meta.includes(RAIN_META_DOCUMENT_HEX)) {
+    meta = meta.replace(RAIN_META_DOCUMENT_HEX, "");
+    const data = new CBORDecoder(stringToArrayBuffer(meta));
+    const res = data.parse();
+
+    const contentArr: ContentMeta[] = [];
+
+    if (res.isSequence) {
+      const dataString = res.toString();
+      const jsonArr = json.fromString(dataString).toArray();
+      for (let i = 0; i < jsonArr.length; i++) {
+        const jsonValue = jsonArr[i];
+
+        // if some value is not a JSON/Map, then is not following the RainMeta design.
+        // So, return here to avoid assignation.
+        if (jsonValue.kind != JSONValueKind.OBJECT) return;
+
+        const jsonContent = jsonValue.toObject();
+
+        // If some content is not valid, then skip it since is bad formed
+        if (!ContentMeta.validate(jsonContent)) return;
+
+        const content = new ContentMeta(jsonContent, metaV1.id);
+        contentArr.push(content);
+      }
+    } else if (res.isObj) {
+      const dataString = res.toString();
+      const jsonObj = json.fromString(dataString).toObject();
+
+      if (!ContentMeta.validate(jsonObj)) return;
+      const content = new ContentMeta(jsonObj, metaV1.id);
+      contentArr.push(content);
+      //
+    } else {
+      // If the response is NOT a Sequence or an Object, then the meta have an
+      // error or it's bad formed.
+      // In this case, we skip to continue the decoding and assignation process.
+      return;
+    }
+
+    for (let i = 0; i < contentArr.length; i++) {
+      const metaContent_ = contentArr[i].generate();
+
+      const magicNumber = metaContent_.magicNumber.toHex();
+      if (magicNumber == OPMETA_MAGIC_NUMBER_HEX) {
+        expressionDeployer.opmeta = metaContent_.payload;
+      }
+    }
+  }
+
+  expressionDeployer.meta = metaV1.id;
+  expressionDeployer.save();
 }
 
 export function handleNewExpression(event: NewExpression): void {
@@ -135,6 +200,8 @@ export function handleNewExpression(event: NewExpression): void {
     const log_expressionAddress_i = receipt.logs.findIndex(
       (log_) => log_.topics[0].toHex() == EXPRESSION_ADDRESS_EVENT
     );
+
+    log.info(`log_expressionAddress_i: ${log_expressionAddress_i}`, []);
 
     if (log_expressionAddress_i != -1) {
       // Getting entities required

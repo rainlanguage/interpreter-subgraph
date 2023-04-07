@@ -1,4 +1,10 @@
-import { Bytes, Address, dataSource, ethereum } from "@graphprotocol/graph-ts";
+import {
+  Bytes,
+  Address,
+  dataSource,
+  ethereum,
+  crypto,
+} from "@graphprotocol/graph-ts";
 import { Extrospection } from "../generated/ERC1820Registry/Extrospection";
 import {
   Account,
@@ -10,15 +16,19 @@ import {
   Transaction,
   RainterpreterStore,
   RainterpreterStoreInstance,
+  RainMetaV1,
 } from "../generated/schema";
+
+export const RAIN_META_DOCUMENT_HEX = "0xff0a89c674ee7874";
+export const OPMETA_MAGIC_NUMBER_HEX = "0xffe5282f43e495b4";
 
 // IERC1820_REGISTRY.interfaceHash("IExpressionDeployerV1")
 export let IERC1820_NAME_IEXPRESSION_DEPLOYER_V1_HASH =
   "0xf10faf5e29ad7057aa6922f7dc34fd1b591620d40c7a7f4443565469f249ec91";
 
-// InterpreterCallerMeta(address sender, bytes meta)
+// InterpreterCallerMeta: MetaV1 (address sender, bytes meta)
 export let INTERPRETER_CALLER_META_EVENT =
-  "0x20b33fd5188a57eebbb3ccd67ceef094e73dbda848ba098e82859bf860eb1d7f";
+  "0xbea766d03fa1efd3f81cc8634d08320bc62bb0ed9234ac59bbaafa5893fb6b13";
 
 // ExpressionAddress(address sender, address expression)
 export let EXPRESSION_ADDRESS_EVENT =
@@ -40,7 +50,7 @@ export class ExtrospectionPerNetwork {
       address = "0x5EBfFD6eF6f588ff69873aa39B2159d646fC32e2";
 
     if (currentNetwork == "localhost")
-      address = "0x5daCf1ad3714D4c4E5314d946C4fa359cE85D2C6";
+      address = "0xb0b164F84dc89D319824e7862474D1112e44D931";
 
     return Extrospection.bind(Address.fromString(address));
   }
@@ -174,4 +184,55 @@ export function generateTransaction(event_: ethereum.Event): Transaction {
   }
 
   return transaction;
+}
+
+export function getRainMetaV1(meta_: Bytes): RainMetaV1 {
+  const metaV1_ID = getKeccak256FromBytes(meta_);
+
+  let metaV1 = RainMetaV1.load(metaV1_ID);
+
+  if (!metaV1) {
+    metaV1 = new RainMetaV1(metaV1_ID);
+    metaV1.metaBytes = meta_;
+    metaV1.save();
+  }
+
+  return metaV1;
+}
+
+export function getKeccak256FromBytes(data_: Bytes): Bytes {
+  return Bytes.fromByteArray(crypto.keccak256(Bytes.fromByteArray(data_)));
+}
+
+export function isHexadecimalString(str: string): boolean {
+  // Check if string is empty
+  if (str.length == 0) {
+    return false;
+  }
+
+  // Check if each character is a valid hexadecimal character
+  for (let i = 0; i < str.length; i++) {
+    let charCode = str.charCodeAt(i);
+    if (
+      !(
+        (charCode >= 48 && charCode <= 57) || // 0-9
+        (charCode >= 65 && charCode <= 70) || // A-F
+        (charCode >= 97 && charCode <= 102)
+      )
+    ) {
+      // a-f
+      return false;
+    }
+  }
+
+  return true;
+}
+
+export function stringToArrayBuffer(val: string): ArrayBuffer {
+  const buff = new ArrayBuffer(val.length / 2);
+  const view = new DataView(buff);
+  for (let i = 0, j = 0; i < val.length; i = i + 2, j++) {
+    view.setUint8(j, u8(Number.parseInt(`${val.at(i)}${val.at(i + 1)}`, 16)));
+  }
+  return buff;
 }
