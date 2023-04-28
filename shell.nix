@@ -65,7 +65,12 @@ let
     git -C lib clone https://github.com/rainprotocol/sol.lib.datacontract.git
     git -C lib clone https://github.com/rainprotocol/sol.metadata.git
 
-    git -C lib//sol.lib.datacontract checkout 80aaaa8 
+    git -C lib/forge-std checkout 2b58ecb
+    git -C lib/rain.cooldown checkout 621c02d
+    git -C lib/rain.math.saturating checkout 8d8406a
+    git -C lib/sol.lib.binmaskflag checkout 214473a
+    git -C lib/sol.lib.datacontract checkout 80aaaa8
+    git -C lib/sol.metadata checkout fdb9a5f
 
     git submodule add https://github.com/foundry-rs/forge-std.git lib/forge-std
     git submodule add https://github.com/rainprotocol/rain.cooldown.git lib/rain.cooldown
@@ -114,6 +119,22 @@ let
     copy-abis
   '';
 
+  flush-all = pkgs.writeShellScriptBin "flush-all" ''
+    rm -rf cache
+    rm -rf cache_forge
+    rm -rf node_modules
+    rm -rf artifacts
+    rm -rf build
+    rm -rf contracts
+    rm -rf generated
+    rm -rf typechain
+    rm -rf schema
+    rm -rf utils
+    rm -rf out
+    rm -rf foundry.toml
+    rm -rf docker/data
+  '';
+
   codegen = pkgs.writeShellScriptBin "codegen" ''
     graph codegen
   '';
@@ -154,6 +175,7 @@ pkgs.stdenv.mkDerivation {
   docker-up
   docker-down
   ci-test
+  flush-all
  ];
 
  shellHook = ''
