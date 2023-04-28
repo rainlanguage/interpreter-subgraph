@@ -43,6 +43,10 @@ export class ExtrospectionPerNetwork {
     let address = "";
 
     // TODO: Implement keyless deploy + CREATE2 opcode to have the same address on all chains
+
+    if (currentNetwork == "mainnet")
+      address = "0x842056B68aa8C3B14C09ba6eB69618f854E168C7";
+
     if (currentNetwork == "mumbai")
       address = "0x95A5aC80025128a220D577D77E400191087a3B83";
 
