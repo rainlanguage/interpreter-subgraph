@@ -57,3 +57,8 @@ jobs:
         run: nix-shell --run prepare-deploy-ci-polygon
       - name: Graph Deployment on Polygon
         run: npx graph deploy --product hosted-service rainprotocol/interpreter-registry-polygon
+      # ethereum sg
+      - name: Prepare subgraph manifest to deploy on ethereum
+        run: nix-shell --run prepare-deploy-ci-ethereum
+      - name: Graph Deployment on ethereum
+        run: npx graph deploy --product hosted-service rainprotocol/interpreter-registry-ethereum

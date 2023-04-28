@@ -44,6 +44,11 @@ let
     npx mustache config/polygon.json subgraph.template.yaml subgraph.yaml
     npm run generate-schema && npm run codegen && npm run build
   '';
+  
+  prepare-deploy-ci-ethereum = pkgs.writeShellScriptBin "prepare-deploy-ci-ethereum" ''
+    npx mustache config/ethereum.json subgraph.template.yaml subgraph.yaml
+    npm run generate-schema && npm run codegen && npm run build
+  '';
 
   compile = pkgs.writeShellScriptBin "compile" ''
     forge build
@@ -139,7 +144,8 @@ pkgs.stdenv.mkDerivation {
   graph-test
   deploy-subgraph
   prepare-deploy-ci-mumbai
-  prepare-deploy-ci-polygon 
+  prepare-deploy-ci-polygon
+  prepare-deploy-ci-ethereum
   init
   compile
   install-submodules
