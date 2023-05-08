@@ -1,9 +1,11 @@
 import { JSONValueKind, json } from "@graphprotocol/graph-ts";
 import { MetaV1 } from "../generated/templates/InterpreterCallerV1/InterpreterCallerV1";
 import {
+  CONTRACT_META_MAGIC_NUMBER_HEX,
   RAIN_META_DOCUMENT_HEX,
   generateTransaction,
   getContract,
+  getKeccak256FromBytes,
   getRainMetaV1,
   stringToArrayBuffer,
 } from "./utils";
@@ -65,7 +67,13 @@ export function handleMetaV1(event: MetaV1): void {
     }
 
     for (let i = 0; i < contentArr.length; i++) {
-      contentArr[i].generate();
+      const metaContent_ = contentArr[i].generate();
+
+      const magicNumber = metaContent_.magicNumber.toHex();
+      if (magicNumber == CONTRACT_META_MAGIC_NUMBER_HEX) {
+        contract.contractMeta = metaContent_.payload;
+        contract.contractMetaHash = getKeccak256FromBytes(metaContent_.payload);
+      }
     }
   }
 

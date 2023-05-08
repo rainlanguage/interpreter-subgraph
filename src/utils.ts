@@ -21,6 +21,7 @@ import {
 
 export const RAIN_META_DOCUMENT_HEX = "0xff0a89c674ee7874";
 export const OPMETA_MAGIC_NUMBER_HEX = "0xffe5282f43e495b4";
+export const CONTRACT_META_MAGIC_NUMBER_HEX = "0xffc21bbf86cc199b";
 
 // IERC1820_REGISTRY.interfaceHash("IExpressionDeployerV1")
 export let IERC1820_NAME_IEXPRESSION_DEPLOYER_V1_HASH =

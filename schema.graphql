@@ -12,10 +12,12 @@ type Contract @entity {
   "Bytecode hash of this contract"
   bytecodeHash: String
   deployTransaction: Transaction
-  "Contract meta"
+  "The meta emmited"
   meta: RainMetaV1
   "Expressions deployed via this contract."
   expressions: [Expression!] @derivedFrom(field: "sender")
+  contractMeta: Bytes
+  contractMetaHash: Bytes
 }
 
 type ExpressionDeployer @entity {
@@ -33,7 +35,9 @@ type ExpressionDeployer @entity {
   functionPointers: String
   "Raw opmeta"
   opmeta: Bytes
-  "Contract meta"
+  "Raw opmeta hash"
+  opmetaHash: Bytes
+  "Op meta"
   meta: RainMetaV1
 }
 
