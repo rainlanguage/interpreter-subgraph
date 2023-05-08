@@ -24,6 +24,7 @@ import {
   getExpressionDeployer,
   getInterpreter,
   getInterpreterInstance,
+  getKeccak256FromBytes,
   getRainMetaV1,
   getRainterpreterStore,
   getRainterpreterStoreInstance,
@@ -155,6 +156,9 @@ export function handleDISpair(event: DISpair): void {
       const magicNumber = metaContent_.magicNumber.toHex();
       if (magicNumber == OPMETA_MAGIC_NUMBER_HEX) {
         expressionDeployer.opmeta = metaContent_.payload;
+        expressionDeployer.opmetaHash = getKeccak256FromBytes(
+          metaContent_.payload
+        );
       }
     }
   }
