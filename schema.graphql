@@ -23,6 +23,7 @@ type Contract @entity {
 type ExpressionDeployer @entity {
   "The address of this deployer."
   id: ID!
+  deployTransaction: Transaction
   "Bytecode hash of this Deployer"
   bytecodeHash: String
   "The interpreter instance this deployer uses."
