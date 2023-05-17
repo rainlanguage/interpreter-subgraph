@@ -84,6 +84,9 @@ describe("Contract entity", async () => {
           expressions {
             id
           }
+          initialDeployer {
+            id
+          }
         }
       }
     `;
@@ -101,6 +104,9 @@ describe("Contract entity", async () => {
     ).to.be.empty;
     expect(data.deployTransaction.id).to.be.equal(
       orderBook.deployTransaction.hash
+    );
+    expect(data.initialDeployer.id).to.be.equal(
+      expressionDeployer.address.toLowerCase()
     );
   });
 

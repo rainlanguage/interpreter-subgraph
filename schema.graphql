@@ -12,6 +12,8 @@ type Contract @entity {
   "Bytecode hash of this contract"
   bytecodeHash: String
   deployTransaction: Transaction
+  "The deployer used when added/deployed the contract"
+  initialDeployer: ExpressionDeployer
   "The meta emmited"
   meta: RainMetaV1
   "Expressions deployed via this contract."
