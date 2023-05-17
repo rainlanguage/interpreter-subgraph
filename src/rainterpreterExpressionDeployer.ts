@@ -35,7 +35,7 @@ import {
 } from "./utils";
 
 import { InterpreterCallerV1 } from "../generated/templates";
-import { JSONValueKind, json, log } from "@graphprotocol/graph-ts";
+import { JSONValueKind, json } from "@graphprotocol/graph-ts";
 import { CBORDecoder } from "@rainprotocol/assemblyscript-cbor";
 import { ContentMeta } from "./metav1";
 
@@ -193,19 +193,25 @@ export function handleNewExpression(event: NewExpression): void {
         InterpreterCallerV1.create(log_callerMeta.address);
 
         const sourcesL = event.params.sources.length;
+        const constantsL = event.params.constants.length;
         const minOutputsL = event.params.minOutputs.length;
 
-        // If sources and minOutputsL are empty. do not create the Expressio Entity
-        if (!sourcesL && !minOutputsL) return;
+        // If sources, constants and minOutputsL are empties, it consider that a
+        // caller contract is touching the deployer.
+        if (!sourcesL && !constantsL && !minOutputsL) {
+          if (contract && !contract.initialDeployer) {
+            contract.initialDeployer = event.address.toHex();
+            contract.save();
+          }
+
+          return;
+        }
       }
     }
 
-    // TODO: ADD EXPRESSION (ONLY IF sources and output are filled)
     const log_expressionAddress_i = receipt.logs.findIndex(
       (log_) => log_.topics[0].toHex() == EXPRESSION_ADDRESS_EVENT
     );
-
-    log.info(`log_expressionAddress_i: ${log_expressionAddress_i}`, []);
 
     if (log_expressionAddress_i != -1) {
       // Getting entities required
