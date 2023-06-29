@@ -1,0 +1,14 @@
+{
+  "name": "prb-frac",
+  "desc": "Yields the excess beyond the floor of x as 18 decimal fixed point.",
+  "operand": 0,
+  "inputs": {
+    "parameters": [
+      {
+        "name": "x"
+      }
+    ]
+  },
+  "outputs": 1,
+  "aliases": ["decimal18-frac"]
+}

@@ -1,0 +1,34 @@
+{
+  "name": "tier-v2-report-time-for-tier",
+  "desc": "The TierV2 level of an account, optionally providing additional context values.",
+  "operand": [
+    {
+      "name": "inputs",
+      "bits": [0, 7],
+      "validRange": [[3], [4], [11]],
+      "computation": "arg - 3"
+    }
+  ],
+  "inputs": {
+    "bits": [0, 7],
+    "computation": "bits + 3",
+    "parameters": [
+      {
+        "name": "tier-v2-address"
+      },
+      {
+        "name": "account"
+      },
+      {
+        "name": "tier"
+      },
+      {
+        "name": "context",
+        "desc": "The contextual values",
+        "spread": true
+      }
+    ]
+  },
+  "outputs": 1,
+  "aliases": ["tier-report-time-for-tier"]
+}

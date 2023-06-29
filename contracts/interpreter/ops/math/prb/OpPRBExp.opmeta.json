@@ -1,0 +1,14 @@
+{
+  "name": "prb-exp",
+  "desc": "Calculates the natural exponent of x as 18 decimal fixed point.",
+  "operand": 0,
+  "inputs": {
+    "parameters": [
+      {
+        "name": "x"
+      }
+    ]
+  },
+  "outputs": 1,
+  "aliases": ["decimal18-exp"]
+}

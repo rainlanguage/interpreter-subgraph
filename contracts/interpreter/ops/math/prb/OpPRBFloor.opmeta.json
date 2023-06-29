@@ -1,0 +1,14 @@
+{
+  "name": "prb-floor",
+  "desc": "Yields the greatest whole 18 decimal fixed point number less than or equal to x.",
+  "operand": 0,
+  "inputs": {
+    "parameters": [
+      {
+        "name": "x"
+      }
+    ]
+  },
+  "outputs": 1,
+  "aliases": ["decimal18-floor"]
+}

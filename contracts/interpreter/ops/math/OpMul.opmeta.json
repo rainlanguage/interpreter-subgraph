@@ -1,0 +1,22 @@
+{
+  "name": "mul",
+  "desc": "Multiplies N integer values.",
+  "operand": [
+    {
+      "name": "inputs",
+      "bits": [0, 7],
+      "validRange": [[2, 255]]
+    }
+  ],
+  "inputs": {
+    "bits": [0, 7],
+    "parameters": [
+      {
+        "name": "input",
+        "spread": true
+      }
+    ]
+  },
+  "outputs": 1,
+  "aliases": ["int-mul"]
+}

@@ -1,0 +1,30 @@
+{
+  "name": "tier-v2-report",
+  "desc": "The TierV2 report for an account, optionally providing context values.",
+  "operand": [
+    {
+      "name": "inputs",
+      "bits": [0, 7],
+      "validRange": [[2], [3], [10]],
+      "computation": "arg - 2"
+    }
+  ],
+  "inputs": {
+    "bits": [0, 7],
+    "computation": "bits + 2",
+    "parameters": [
+      {
+        "name": "tier-address"
+      },
+      {
+        "name": "account"
+      },
+      {
+        "name": "context",
+        "desc": "The contextual values",
+        "spread": true
+      }
+    ]
+  },
+  "outputs": 1
+}

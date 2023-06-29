@@ -1,0 +1,146 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "SeedDance",
+  "sourceName": "contracts/dance/SeedDance.sol",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "Commitment",
+          "name": "commitment",
+          "type": "uint256"
+        }
+      ],
+      "name": "Commit",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "Secret",
+          "name": "secret",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "Seed",
+          "name": "newSeed",
+          "type": "uint256"
+        }
+      ],
+      "name": "Reveal",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "Seed",
+          "name": "initialSeed",
+          "type": "uint256"
+        }
+      ],
+      "name": "Start",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "Seed",
+          "name": "seed_",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "start_",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "baseDuration",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint32",
+              "name": "maxExtraTime",
+              "type": "uint32"
+            }
+          ],
+          "internalType": "struct TimeBound",
+          "name": "timeBound_",
+          "type": "tuple"
+        },
+        {
+          "internalType": "address",
+          "name": "owner_",
+          "type": "address"
+        }
+      ],
+      "name": "canRevealUntil",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "until_",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "danceStartedAt",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "sharedSeed",
+      "outputs": [
+        {
+          "internalType": "Seed",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x608060405234801561001057600080fd5b5061025a806100206000396000f3fe608060405234801561001057600080fd5b50600436106100415760003560e01c80637fbc62af14610046578063949712601461006c57806398d4e2e914610091575b600080fd5b610059610054366004610136565b61009a565b6040519081526020015b60405180910390f35b60015461007c9063ffffffff1681565b60405163ffffffff9091168152602001610063565b61005960005481565b828015610115576000836020015163ffffffff166100f5878573ffffffffffffffffffffffffffffffffffffffff16604080516020808201949094528082019290925280518083038201815260609092019052805191012090565b816101025761010261022b565b855163ffffffff16919006019190910190505b949350505050565b803563ffffffff8116811461013157600080fd5b919050565b60008060008084860360a081121561014d57600080fd5b853594506020860135935060407fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffc08201121561018857600080fd5b506040516040810181811067ffffffffffffffff821117156101d3577f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b80604052506101e46040870161011d565b81526101f26060870161011d565b60208201529150608085013573ffffffffffffffffffffffffffffffffffffffff8116811461022057600080fd5b939692955090935050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601260045260246000fd",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100415760003560e01c80637fbc62af14610046578063949712601461006c57806398d4e2e914610091575b600080fd5b610059610054366004610136565b61009a565b6040519081526020015b60405180910390f35b60015461007c9063ffffffff1681565b60405163ffffffff9091168152602001610063565b61005960005481565b828015610115576000836020015163ffffffff166100f5878573ffffffffffffffffffffffffffffffffffffffff16604080516020808201949094528082019290925280518083038201815260609092019052805191012090565b816101025761010261022b565b855163ffffffff16919006019190910190505b949350505050565b803563ffffffff8116811461013157600080fd5b919050565b60008060008084860360a081121561014d57600080fd5b853594506020860135935060407fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffc08201121561018857600080fd5b506040516040810181811067ffffffffffffffff821117156101d3577f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b80604052506101e46040870161011d565b81526101f26060870161011d565b60208201529150608085013573ffffffffffffffffffffffffffffffffffffffff8116811461022057600080fd5b939692955090935050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601260045260246000fd",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

@@ -1,0 +1,14 @@
+{
+  "name": "prb-exp2",
+  "desc": "Calculates the binary exponent of x using the binary fraction method as 18 decimal fixed point.",
+  "operand": 0,
+  "inputs": {
+    "parameters": [
+      {
+        "name": "x"
+      }
+    ]
+  },
+  "outputs": 1,
+  "aliases": ["decimal18-exp2"]
+}

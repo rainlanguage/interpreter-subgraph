@@ -1,0 +1,14 @@
+{
+  "name": "sale-v2-sale-status",
+  "desc": "The sale status of a SaleV2.",
+  "operand": 0,
+  "inputs": {
+    "parameters": [
+      {
+        "name": "sale-address"
+      }
+    ]
+  },
+  "outputs": 1,
+  "aliases": ["sale-v2-status"]
+}

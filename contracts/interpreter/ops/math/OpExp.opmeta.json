@@ -1,0 +1,22 @@
+{
+  "name": "exp",
+  "desc": "Raises multiple integer values as powers of each other, e.g. x ^ y ^ z.",
+  "operand": [
+    {
+      "name": "inputs",
+      "bits": [0, 7],
+      "validRange": [[2, 255]]
+    }
+  ],
+  "inputs": {
+    "bits": [0, 7],
+    "parameters": [
+      {
+        "name": "input",
+        "spread": true
+      }
+    ]
+  },
+  "outputs": 1,
+  "aliases": ["int-pow"]
+}
