@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { waitForSubgraphToBeSynced } from "./subgraph-utils";
+import { waitForSubgraphToBeSynced } from "./utils";
 
 import { subgraph, extrospection } from "./0_initialization.test";
 

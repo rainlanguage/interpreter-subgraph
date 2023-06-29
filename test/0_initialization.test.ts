@@ -10,7 +10,7 @@ import {
   fetchSubgraph,
   waitForSubgraphToBeSynced,
   waitForGraphNode,
-} from "./subgraph-utils";
+} from "./utils";
 import { deploy1820 } from "../utils/deploy/registry1820/deploy";
 
 // Types

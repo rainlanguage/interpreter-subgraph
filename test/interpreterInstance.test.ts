@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { getEventArgs, waitForSubgraphToBeSynced } from "./subgraph-utils";
+import { getEventArgs, waitForSubgraphToBeSynced } from "./utils";
 import { concat } from "ethers/lib/utils";
 
 import {

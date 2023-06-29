@@ -1,7 +1,7 @@
 import assert from "assert";
 import { ethers } from "hardhat";
 import { expect } from "chai";
-import { waitForSubgraphToBeSynced } from "./subgraph-utils";
+import { waitForSubgraphToBeSynced } from "./utils";
 
 import {
   // Subgraph
