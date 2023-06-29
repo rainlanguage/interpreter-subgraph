@@ -1,10 +1,6 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
-import {
-  waitForSubgraphToBeSynced,
-  // getEventArgs,
-  eighteenZeros,
-} from "./utils";
+import { waitForSubgraphToBeSynced } from "./subgraph-utils";
 
 import {
   // Subgraph
@@ -22,18 +18,12 @@ import {
 import { rainterpreterExpressionDeployerDeploy } from "../utils/deploy/interpreter/shared/rainterpreterExpressionDeployer/deploy";
 import { getRainMetaDocumentFromContract } from "../utils/meta";
 import { randomUint256 } from "../utils/bytes";
-import { max_uint256 } from "../utils/constants";
+import { eighteenZeros, max_uint256 } from "../utils/constants";
 
 // Types
 import type { FetchResult } from "apollo-fetch";
 import type { OrderBook, ReserveToken18 } from "../typechain";
-import {
-  MemoryType,
-  Opcode,
-  generateEvaluableConfig,
-  memoryOperand,
-  op,
-} from "../utils/interpreter";
+import { MemoryType, Opcode, memoryOperand, op } from "../utils/interpreter";
 import { concat } from "ethers/lib/utils";
 import {
   AddOrderEvent,
@@ -43,7 +33,6 @@ import {
 import { basicDeploy } from "../utils/deploy/basicDeploy";
 import { ExpressionAddressEvent } from "../typechain/contracts/interpreter/shared/RainterpreterExpressionDeployer";
 import { getEventArgs } from "../utils/events";
-import { EvaluableConfigStruct } from "../typechain/contracts/lobby/Lobby";
 import { encodeMeta } from "../utils/orderBook/order";
 import assert from "assert";
 import { compareStructs } from "../utils";
@@ -120,7 +109,6 @@ describe("Expression entity", async () => {
       sender: sender_A,
       expressionDeployer: ExpressionDeployer_A,
       order: order_A,
-      orderHash,
     } = (await getEventArgs(
       txOrder_A,
       "AddOrder",

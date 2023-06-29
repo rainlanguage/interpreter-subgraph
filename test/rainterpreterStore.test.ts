@@ -1,12 +1,7 @@
 import { expect } from "chai";
-import { waitForSubgraphToBeSynced } from "./utils";
+import { waitForSubgraphToBeSynced } from "./subgraph-utils";
 
-import {
-  // Subgraph
-  subgraph,
-  //
-  extrospection,
-} from "./0_initialization.test";
+import { subgraph, extrospection } from "./0_initialization.test";
 
 // Types
 import type { FetchResult } from "apollo-fetch";

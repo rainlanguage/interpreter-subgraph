@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { waitForSubgraphToBeSynced, getDISpairEvent } from "./utils";
+import { waitForSubgraphToBeSynced, getDISpairEvent } from "./subgraph-utils";
 
 import {
   extrospection,

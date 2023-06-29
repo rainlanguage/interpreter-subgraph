@@ -1,11 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import {
-  eighteenZeros,
-  getEventArgs,
-  max_uint256,
-  waitForSubgraphToBeSynced,
-} from "./utils";
+import { getEventArgs, waitForSubgraphToBeSynced } from "./subgraph-utils";
 import { concat } from "ethers/lib/utils";
 
 import {
@@ -24,7 +19,6 @@ import {
 } from "../utils/deploy/interpreter/shared/rainterpreter/deploy";
 import { rainterpreterExpressionDeployerDeploy } from "../utils/deploy/interpreter/shared/rainterpreterExpressionDeployer/deploy";
 import {
-  generateEvaluableConfig,
   memoryOperand,
   MemoryType,
   op,
@@ -37,16 +31,15 @@ import { randomUint256 } from "../utils/bytes";
 // Types
 import type { FetchResult } from "apollo-fetch";
 import type { ExpressionAddressEvent } from "../typechain/contracts/interpreter/shared/RainterpreterExpressionDeployer";
-import type { OrderConfigStruct } from "../typechain/contracts/orderbook/IOrderBookV1";
 import type { OrderBook, ReserveToken18 } from "../typechain";
 import type {
   AddOrderEvent,
   DeployerDiscoverableMetaV1ConstructionConfigStruct,
-  EvaluableConfigStruct,
+  OrderConfigStruct,
 } from "../typechain/contracts/orderbook/OrderBook";
 import { encodeMeta } from "../utils/orderBook/order";
 import assert from "assert";
-import { compareStructs } from "../utils";
+import { compareStructs, eighteenZeros, max_uint256 } from "../utils";
 
 describe("InterpreterInstance entity", async () => {
   it("should query all the fields correctly after a new deploy of an ExpressionDeployer", async () => {
@@ -194,7 +187,6 @@ describe("InterpreterInstance entity", async () => {
       sender: sender_A,
       expressionDeployer: ExpressionDeployer_A,
       order: order_A,
-      orderHash,
     } = (await getEventArgs(
       txOrder_A,
       "AddOrder",

@@ -10,13 +10,15 @@ import {
   fetchSubgraph,
   waitForSubgraphToBeSynced,
   waitForGraphNode,
-} from "./utils";
+} from "./subgraph-utils";
 import { deploy1820 } from "../utils/deploy/registry1820/deploy";
 
 // Types
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import type { Contract } from "ethers";
-import type { Extrospection } from "../typechain";
+// import type { Extrospection } from "../typechain";
+//
+type Extrospection = any;
 
 const subgraphName = "rainprotocol/interpreter-registry-test";
 
