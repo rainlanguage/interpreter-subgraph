@@ -1,18 +1,6 @@
-[submodule "lib/forge-std"]
-	path = lib/forge-std
-	url = https://github.com/foundry-rs/forge-std.git
-[submodule "lib/rain.cooldown"]
-	path = lib/rain.cooldown
-	url = https://github.com/rainprotocol/rain.cooldown.git
-[submodule "lib/rain.math.saturating"]
-	path = lib/rain.math.saturating
-	url = https://github.com/rainprotocol/rain.math.saturating.git
-[submodule "lib/sol.lib.binmaskflag"]
-	path = lib/sol.lib.binmaskflag
-	url = https://github.com/rainprotocol/sol.lib.binmaskflag.git
-[submodule "lib/sol.lib.datacontract"]
-	path = lib/sol.lib.datacontract
-	url = https://github.com/rainprotocol/sol.lib.datacontract.git
-[submodule "lib/sol.metadata"]
-	path = lib/sol.metadata
-	url = https://github.com/rainprotocol/sol.metadata.git
+[submodule "rain-protocol"]
+	path = rain-protocol
+	url = https://github.com/rainprotocol/rain-protocol.git
+[submodule "rain.extrospection"]
+	path = rain.extrospection
+	url = https://github.com/rainprotocol/rain.extrospection.git
