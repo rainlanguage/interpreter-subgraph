@@ -1,7 +1,5 @@
 import type { HardhatUserConfig } from "hardhat/types";
-import "@typechain/hardhat";
 import "@nomiclabs/hardhat-waffle";
-import "@nomicfoundation/hardhat-foundry";
 
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -25,9 +23,6 @@ function createLocalhostConfig() {
 }
 
 const config: HardhatUserConfig = {
-  typechain: {
-    outDir: "typechain", // overrides upstream 'fix' for another issue which changed this to 'typechain-types'
-  },
   networks: {
     hardhat: {
       blockGasLimit: 100000000,
@@ -78,12 +73,6 @@ const config: HardhatUserConfig = {
   },
   paths: {
     tests: MOCHA_TESTS_PATH,
-  },
-  verificationApi: {
-    mumbai: {
-      apiKey: process.env["POLYGONSCAN_KEY"],
-      apiUrl: "https://api-testnet.polygonscan.com/api",
-    },
   },
 };
 export default config;
