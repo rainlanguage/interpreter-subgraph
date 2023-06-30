@@ -45,14 +45,15 @@ export class ExtrospectionPerNetwork {
 
     // TODO: Implement keyless deploy + CREATE2 opcode to have the same address on all chains
 
+    // Mainnet is Ethereum
     if (currentNetwork == "mainnet")
-      address = "0x842056B68aa8C3B14C09ba6eB69618f854E168C7";
+      address = "0x95134A414198CE0F1dFaa1c1dE499f627E37BE84";
 
     if (currentNetwork == "mumbai")
-      address = "0x95A5aC80025128a220D577D77E400191087a3B83";
+      address = "0xB4A2f2FF9AD323Bf2b42C15B33bDB34695427EA0";
 
     if (currentNetwork == "matic" || currentNetwork == "polygon")
-      address = "0x5EBfFD6eF6f588ff69873aa39B2159d646fC32e2";
+      address = "0x674604327916790057eE5853D2F4F98efd6D4266";
 
     if (currentNetwork == "localhost")
       address = "0x290f5d8E9858C7299bdC14Ce473f92945d5607F7";
