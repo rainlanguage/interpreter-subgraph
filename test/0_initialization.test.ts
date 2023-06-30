@@ -37,7 +37,7 @@ export let deployer: SignerWithAddress,
   signer4: SignerWithAddress;
 
 before("Deployment contracts and subgraph", async function () {
-  await waitForGraphNode();
+  // await waitForGraphNode();
 
   // Mine every time to avoid last block (Do not remove, only for tests :P)
   await hre.network.provider.send("hardhat_mine");
@@ -56,15 +56,8 @@ before("Deployment contracts and subgraph", async function () {
   registry1820 = await deploy1820(deployer);
   extrospection = await keylessDeploy(ExtrospectionInfo, deployer);
 
-  const pave = new ethers.Contract(
-    extrospection.address,
-    extrospection.interface,
-    extrospection.signer
-  );
-
-  console.log("address: ", extrospection.address);
-  const pavexd = await extrospection.bytecodeHash(registry1820.address);
-  console.log("PAVE: ", pavexd);
+  // 0x104BD757324a26d4Ceb0F505157FBEaE75dE9DE8
+  console.log("extrospection_address: ", extrospection.address);
 
   // Use the current block number on chain to avoid start from 0 block number
   // with local testing
