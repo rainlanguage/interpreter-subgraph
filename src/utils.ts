@@ -56,7 +56,7 @@ export class ExtrospectionPerNetwork {
       address = "0x598239B32D2e16e1ae4d0BbD9Ceb0Ee88fb6cC14";
 
     if (currentNetwork == "localhost")
-      address = "0x104BD757324a26d4Ceb0F505157FBEaE75dE9DE8";
+      address = "0xda752b21c6eE291E62bCDEc08322724740B1238b";
 
     return Extrospection.bind(Address.fromString(address));
   }
