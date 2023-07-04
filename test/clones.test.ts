@@ -1,55 +1,59 @@
 import { expect } from "chai";
-import {
-  waitForSubgraphToBeSynced,
-  getDISpairEvent,
-  getEventArgs,
-} from "./utils";
-
+import { waitForSubgraphToBeSynced } from "./utils";
 import {
   // Subgraph
   subgraph,
   deployer,
+  extrospection,
 } from "./0_initialization.test";
 
-// Types
-import type { FetchResult } from "apollo-fetch";
-
-import {
-  rainterpreterDeploy,
-  rainterpreterStoreDeploy,
-} from "../utils/deploy/interpreter/shared/rainterpreter/deploy";
-import { rainterpreterExpressionDeployerDeploy } from "../utils/deploy/interpreter/shared/rainterpreterExpressionDeployer/deploy";
 import { flowCloneFactory } from "../utils/deploy/factory/cloneFactory";
-import { CloneFactory, Flow } from "../typechain";
-
 import {
   deployFlowClone,
   flowImplementation,
 } from "../utils/deploy/flow/basic/deploy";
 import { opMetaHash, standardEvaluableConfig } from "../utils";
 import { rainlang } from "../utils/extensions/rainlang";
-import { FlowConfig } from "../utils/types/flow";
-import { InitializeEvent } from "../typechain/contracts/flow/basic/Flow";
+
+// Types
+import type { FetchResult } from "apollo-fetch";
+import type { CloneFactory, Flow } from "../typechain";
+import type { FlowConfig } from "../utils/types/flow";
 
 // describe.only("clones checks", async () => {
-describe("clones contract tests", async () => {
-  it("should not break the subgraph when cloning a contract", async () => {
-    // const interpreter = await rainterpreterDeploy();
-    // const store = await rainterpreterStoreDeploy();
-    // // Deploy the expression deployer to get the event
-    // const expressionDeployer = await rainterpreterExpressionDeployerDeploy(
-    //   interpreter,
-    //   store
-    // );
-    // console.log(expressionDeployer.address);
-
+describe.only("Clones/proxies contract tests", async () => {
+  it("should generate the contract entity from a proxy contract using a DISpair", async () => {
     const cloneFactory: CloneFactory = await flowCloneFactory();
-    console.log("CloneFActory: ", cloneFactory.address);
 
     const implementation: Flow = await flowImplementation();
-    console.log("Flow imp: ", implementation.address);
+    const implementationHash = await extrospection.bytecodeHash(
+      implementation.address
+    );
 
-    ///
+    // Checking the implementation
+    await waitForSubgraphToBeSynced();
+
+    const query_0 = `
+      {
+        contract (id: "${implementation.address.toLowerCase()}") {
+          bytecodeHash
+          type
+          implementation {
+            id
+          }
+        }
+      }
+    `;
+
+    const response_0 = (await subgraph({
+      query: query_0,
+    })) as FetchResult;
+
+    const data_0 = response_0.data.contract;
+
+    expect(data_0.bytecodeHash).to.be.equal(implementationHash);
+    expect(data_0.type).to.be.equal("contract");
+    expect(data_0.implementation).to.be.null;
 
     const { sources: sourceFlowIO, constants: constantsFlowIO } =
       await standardEvaluableConfig(
@@ -104,18 +108,33 @@ describe("clones contract tests", async () => {
       flowConfig
     );
 
-    const { sender, config } = (await getEventArgs(
-      flow.deployTransaction,
-      "Initialize",
-      flow
-    )) as InitializeEvent["args"];
+    const flowHash = await extrospection.bytecodeHash(flow.address);
 
-    //
-    console.log("flow: ", flow.address);
-    console.log("sender: ", sender);
-    console.log(config);
-
-    //
+    // Checking the proxy
     await waitForSubgraphToBeSynced();
+
+    const query_1 = `
+    {
+      contract (id: "${flow.address.toLowerCase()}") {
+        bytecodeHash
+        type
+        implementation {
+          id
+        }
+      }
+    }
+  `;
+
+    const response_1 = (await subgraph({
+      query: query_1,
+    })) as FetchResult;
+
+    const data_1 = response_1.data.contract;
+
+    expect(data_1.bytecodeHash).to.be.equal(flowHash);
+    expect(data_1.type).to.be.equal("proxy");
+    expect(data_1.implementation.id).to.be.equal(
+      implementation.address.toLowerCase()
+    );
   });
 });
