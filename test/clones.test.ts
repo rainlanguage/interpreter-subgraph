@@ -20,8 +20,7 @@ import type { FetchResult } from "apollo-fetch";
 import type { CloneFactory, Flow } from "../typechain";
 import type { FlowConfig } from "../utils/types/flow";
 
-// describe.only("clones checks", async () => {
-describe.only("Clones/proxies contract tests", async () => {
+describe("Clones/proxies contract tests", async () => {
   it("should generate the contract entity from a proxy contract using a DISpair", async () => {
     const cloneFactory: CloneFactory = await flowCloneFactory();
 
