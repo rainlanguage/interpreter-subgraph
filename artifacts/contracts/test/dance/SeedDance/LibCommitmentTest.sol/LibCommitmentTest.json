@@ -1,0 +1,67 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "LibCommitmentTest",
+  "sourceName": "contracts/test/dance/SeedDance/LibCommitmentTest.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "Commitment",
+          "name": "a_",
+          "type": "uint256"
+        },
+        {
+          "internalType": "Commitment",
+          "name": "b_",
+          "type": "uint256"
+        }
+      ],
+      "name": "eq",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "eq_",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "Secret",
+          "name": "secret_",
+          "type": "uint256"
+        }
+      ],
+      "name": "fromSecret",
+      "outputs": [
+        {
+          "internalType": "Commitment",
+          "name": "commitment_",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "nil",
+      "outputs": [
+        {
+          "internalType": "Commitment",
+          "name": "nil_",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x608060405234801561001057600080fd5b5061012e806100206000396000f3fe608060405234801561001057600080fd5b50600436106100415760003560e01c80632c22f45514610046578063320cbc3f1461005c57806332148d731461006f575b600080fd5b60005b6040519081526020015b60405180910390f35b61004961006a3660046100f3565b610091565b61008161007d36600461010c565b1490565b6040519015158152602001610053565b600061009c826100a2565b92915050565b6000816040516020016100b791815260200190565b604080517fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0818403018152919052805160209091012092915050565b60006020828403121561010557600080fd5b5035919050565b6000806040838503121561011f57600080fd5b5050803592602090910135915056",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100415760003560e01c80632c22f45514610046578063320cbc3f1461005c57806332148d731461006f575b600080fd5b60005b6040519081526020015b60405180910390f35b61004961006a3660046100f3565b610091565b61008161007d36600461010c565b1490565b6040519015158152602001610053565b600061009c826100a2565b92915050565b6000816040516020016100b791815260200190565b604080517fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0818403018152919052805160209091012092915050565b60006020828403121561010557600080fd5b5035919050565b6000806040838503121561011f57600080fd5b5050803592602090910135915056",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

@@ -9,6 +9,7 @@ import {
   Expression,
   InterpreterInstance,
   StateConfig,
+  ExpressionDeployer,
 } from "../generated/schema";
 import { Rainterpreter } from "../generated/templates/RainterpreterExpressionDeployerTemplate/Rainterpreter";
 import {
@@ -35,12 +36,50 @@ import {
 } from "./utils";
 
 import { InterpreterCallerV1 } from "../generated/templates";
-import { JSONValueKind, json } from "@graphprotocol/graph-ts";
+import { JSONValueKind, json, store, log } from "@graphprotocol/graph-ts";
 import { CBORDecoder } from "@rainprotocol/assemblyscript-cbor";
 import { ContentMeta } from "./metav1";
 
 export function handleDISpair(event: DISpair): void {
   const extrospection = ExtrospectionPerNetwork.get();
+  ////
+
+  const isAllowedInterpreter =
+    extrospection.scanOnlyAllowedInterpreterEVMOpcodes(
+      event.params.interpreter
+    );
+
+  log.info(
+    `XD_1: Address: ${event.params.interpreter.toHex()} - allowed: ${isAllowedInterpreter}`,
+    []
+  );
+  // If not allowed, then should deleted the ExpressionDeployer entity related
+  // from the Subgraph store. This because the ExpressionDeployer is naturally
+  // connected to his Interpreter and it should be no displayed.
+  if (!isAllowedInterpreter) {
+    // Loading the deployer to remove from the store
+    const deployerToRemove = ExpressionDeployer.load(
+      event.params.deployer.toHex()
+    );
+
+    if (deployerToRemove) {
+      // Getting the Transaction related to the deployer, since should be
+      // removed as well.
+      const transactionToRemove = deployerToRemove.deployTransaction;
+      if (transactionToRemove) {
+        // Use the store to remove the Transaction entity
+        store.remove("Transaction", transactionToRemove);
+      }
+
+      // Use the store to remove the ExpressionDeployer entity
+      store.remove("ExpressionDeployer", deployerToRemove.id);
+    }
+
+    // Finish the function call;
+    return;
+  }
+
+  ////
   const interpreterBytecodeHash = extrospection.bytecodeHash(
     event.params.interpreter
   );

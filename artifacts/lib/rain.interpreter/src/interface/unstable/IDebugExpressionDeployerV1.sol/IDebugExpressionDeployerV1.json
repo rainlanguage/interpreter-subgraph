@@ -1,0 +1,65 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "IDebugExpressionDeployerV1",
+  "sourceName": "lib/rain.interpreter/src/interface/unstable/IDebugExpressionDeployerV1.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "bytes[]",
+          "name": "sources",
+          "type": "bytes[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "constants",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "FullyQualifiedNamespace",
+          "name": "namespace",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256[][]",
+          "name": "context",
+          "type": "uint256[][]"
+        },
+        {
+          "internalType": "SourceIndex",
+          "name": "sourceIndex",
+          "type": "uint16"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "initialStack",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minOutputs",
+          "type": "uint256"
+        }
+      ],
+      "name": "offchainDebugEval",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "finalStack",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "kvs",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

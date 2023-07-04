@@ -1,0 +1,19 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "Fallback",
+  "sourceName": "contracts/test/fallback/Fallback.sol",
+  "abi": [
+    {
+      "stateMutability": "payable",
+      "type": "fallback"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    }
+  ],
+  "bytecode": "0x6080604052348015600f57600080fd5b50600c80601d6000396000f3fe608060405236600a57005b00",
+  "deployedBytecode": "0x608060405236600a57005b00",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

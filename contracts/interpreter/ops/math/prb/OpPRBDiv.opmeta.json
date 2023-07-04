@@ -1,0 +1,17 @@
+{
+  "name": "prb-div",
+  "desc": "Divides two 18 decimal fixed point numbers. Rounds towards zero.",
+  "operand": 0,
+  "inputs": {
+    "parameters": [
+      {
+        "name": "x"
+      },
+      {
+        "name": "y"
+      }
+    ]
+  },
+  "outputs": 1,
+  "aliases": ["decimal18-div"]
+}

@@ -45,17 +45,18 @@ export class ExtrospectionPerNetwork {
 
     // TODO: Implement keyless deploy + CREATE2 opcode to have the same address on all chains
 
+    // Mainnet is Ethereum
     if (currentNetwork == "mainnet")
-      address = "0x842056B68aa8C3B14C09ba6eB69618f854E168C7";
+      address = "0xbBa1972733136122F5eEF820567b35C0F3E91ac9";
 
     if (currentNetwork == "mumbai")
-      address = "0x95A5aC80025128a220D577D77E400191087a3B83";
+      address = "0x2C9F3204590765AEfa7BEe01bccb540a7D06e967";
 
     if (currentNetwork == "matic" || currentNetwork == "polygon")
-      address = "0x5EBfFD6eF6f588ff69873aa39B2159d646fC32e2";
+      address = "0x598239B32D2e16e1ae4d0BbD9Ceb0Ee88fb6cC14";
 
     if (currentNetwork == "localhost")
-      address = "0xb0b164F84dc89D319824e7862474D1112e44D931";
+      address = "0xda752b21c6eE291E62bCDEc08322724740B1238b";
 
     return Extrospection.bind(Address.fromString(address));
   }
@@ -154,14 +155,34 @@ export function getAccount(address_: string): Account {
 
 export function getContract(address_: string): Contract {
   let contract = Contract.load(address_);
+
   if (!contract) {
-    contract = new Contract(address_);
     const extrospection = ExtrospectionPerNetwork.get();
     const bytecodeHash = extrospection.bytecodeHash(
       Address.fromString(address_)
     );
 
+    contract = new Contract(address_);
     contract.bytecodeHash = bytecodeHash.toHexString();
+    contract.type = "contract";
+
+    // Checking if this address is a minimal proxy.
+    const response = extrospection.isERC1167Proxy(Address.fromString(address_));
+    const isERC1167Proxy = response.getResult();
+
+    // If true, then address provided is an ERC1167 Proxy
+    if (isERC1167Proxy) {
+      // Obtaining the implementation address of the proxy
+      const implementation = response.getImplementationAddress();
+
+      // At this point, the implementation can be already created, but there is
+      // not guaranteed of that. So, this is like a checker to atleast always have
+      // the implementation entity of this contract.
+      const impContract = getContract(implementation.toHex());
+
+      contract.type = "proxy";
+      contract.implementation = impContract.id;
+    }
 
     contract.save();
   }

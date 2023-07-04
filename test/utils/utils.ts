@@ -12,35 +12,28 @@ import type {
   FixedNumber,
   ContractTransaction,
 } from "ethers";
-import type {
-  Factory,
-  ImplementationEvent,
-  NewChildEvent,
-} from "../../typechain/contracts/factory/Factory";
+
 import type { RainterpreterExpressionDeployer } from "../../typechain";
-import type { DISpairEvent } from "../../typechain/contracts/interpreter/deploy/IExpressionDeployerV1";
+import type { DISpairEvent } from "../../typechain/contracts/interpreter/shared/RainterpreterExpressionDeployer";
 
 // Interfaces
 interface SyncedSubgraphType {
   synced: boolean;
 }
 
-// Helper values
-export const wait = 1000;
-
-export const sixZeros = "000000";
-export const sixteenZeros = "0000000000000000";
-export const eighteenZeros = "000000000000000000";
-export const max_uint256 = ethers.BigNumber.from(
-  "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
-);
-
-export const zeroAddress = ethers.constants.AddressZero;
-
-// BigNumbers
-export const ONE = ethers.BigNumber.from("1" + eighteenZeros);
-export const RESERVE_ONE = ethers.BigNumber.from("1" + sixZeros);
-export const ZERO_BN = ethers.BigNumber.from("0");
+/**
+ * Execute Child Processes
+ * @param cmd Command to execute
+ * @returns The command ran it
+ */
+export const exec = (cmd: string): string | Buffer => {
+  const srcDir = path.join(__dirname, "..");
+  try {
+    return execSync(cmd, { cwd: srcDir, stdio: "inherit" });
+  } catch (e) {
+    throw new Error(`Failed to run command \`${cmd}\``);
+  }
+};
 
 // Fixed number (Decimal)
 export const oneHundredFN = ethers.FixedNumber.from(100, "fixed128x32");
@@ -79,20 +72,6 @@ export const fixedNumber = (
   format = "fixed128x32"
 ): FixedNumber => {
   return ethers.FixedNumber.from(value, format);
-};
-
-/**
- * Execute Child Processes
- * @param cmd Command to execute
- * @returns The command ran it
- */
-export const exec = (cmd: string): string | Buffer => {
-  const srcDir = path.join(__dirname, "..");
-  try {
-    return execSync(cmd, { cwd: srcDir, stdio: "inherit" });
-  } catch (e) {
-    throw new Error(`Failed to run command \`${cmd}\``);
-  }
 };
 
 // Subgraph Management
@@ -210,59 +189,6 @@ export const waitForSubgraphToBeSynced = async (
   return resp;
 };
 
-/**
- * Get the implementation address correpond to a Factory contract
- * @param factory The factory contract that have the implementation. For ex: a TrustFactory or SaleFactory
- * @returns The implementation address
- */
-export const getImplementation = async (factory: Factory): Promise<string> => {
-  const { implementation } = (await getEventArgs(
-    factory.deployTransaction,
-    "Implementation",
-    factory
-  )) as ImplementationEvent["args"];
-
-  if (!ethers.utils.isAddress(implementation)) {
-    throw new Error(
-      `invalid implementation address: ${implementation} (${implementation.length} chars)`
-    );
-  }
-
-  return implementation;
-};
-
-/**
- * Get the child address created by a factory contract in the correspond `transaction`
- * @param factory factory The factory contract that create the child. For ex: a TrustFactory or SaleFactory
- * @param transaction Transaction where the child was created
- * @returns Child address
- */
-export const getChild = async (
-  factory: Factory,
-  transaction: ContractTransaction
-): Promise<string> => {
-  const { child } = (await getEventArgs(
-    transaction,
-    "NewChild",
-    factory
-  )) as NewChildEvent["args"];
-
-  if (!ethers.utils.isAddress(child)) {
-    throw new Error(`invalid address: ${child} (${child.length} chars)`);
-  }
-
-  return child;
-};
-
-export async function getDISpairEvent(
-  expressionDeployer_: RainterpreterExpressionDeployer
-) {
-  return (await getEventArgs(
-    expressionDeployer_.deployTransaction,
-    "DISpair",
-    expressionDeployer_
-  )) as DISpairEvent["args"];
-}
 export async function getDISpairEvent(
   expressionDeployer_: RainterpreterExpressionDeployer
 ) {

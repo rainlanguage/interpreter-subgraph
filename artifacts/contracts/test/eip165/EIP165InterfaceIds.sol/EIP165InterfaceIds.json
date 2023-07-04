@@ -1,0 +1,102 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "EIP165InterfaceIds",
+  "sourceName": "contracts/test/eip165/EIP165InterfaceIds.sol",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "IERC165InterfaceId",
+      "outputs": [
+        {
+          "internalType": "bytes4",
+          "name": "",
+          "type": "bytes4"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "IExpressionDeployerV1InterfaceId",
+      "outputs": [
+        {
+          "internalType": "bytes4",
+          "name": "",
+          "type": "bytes4"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "IInterpreterCallerV1InterfaceId",
+      "outputs": [
+        {
+          "internalType": "bytes4",
+          "name": "",
+          "type": "bytes4"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "IInterpreterCallerV2InterfaceId",
+      "outputs": [
+        {
+          "internalType": "bytes4",
+          "name": "",
+          "type": "bytes4"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "IInterpreterExternV1InterfaceId",
+      "outputs": [
+        {
+          "internalType": "bytes4",
+          "name": "",
+          "type": "bytes4"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "IInterpreterStoreV1InterfaceId",
+      "outputs": [
+        {
+          "internalType": "bytes4",
+          "name": "",
+          "type": "bytes4"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "IInterpreterV1InterfaceId",
+      "outputs": [
+        {
+          "internalType": "bytes4",
+          "name": "",
+          "type": "bytes4"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x608060405234801561001057600080fd5b50610182806100206000396000f3fe608060405234801561001057600080fd5b506004361061007d5760003560e01c80638115866b1161005b5780638115866b1461010d5780638423359214610105578063965074b514610134578063cbe9b7d11461015b57600080fd5b80630ec17df814610082578063750fa0aa146100de57806375cfcf3014610105575b600080fd5b6100a97f5511cb670000000000000000000000000000000000000000000000000000000081565b6040517fffffffff00000000000000000000000000000000000000000000000000000000909116815260200160405180910390f35b6100a97ff2f4e56c0000000000000000000000000000000000000000000000000000000081565b6100a9600081565b6100a97f9e263f0a0000000000000000000000000000000000000000000000000000000081565b6100a97fb65ad6830000000000000000000000000000000000000000000000000000000081565b6100a97f01ffc9a7000000000000000000000000000000000000000000000000000000008156",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061007d5760003560e01c80638115866b1161005b5780638115866b1461010d5780638423359214610105578063965074b514610134578063cbe9b7d11461015b57600080fd5b80630ec17df814610082578063750fa0aa146100de57806375cfcf3014610105575b600080fd5b6100a97f5511cb670000000000000000000000000000000000000000000000000000000081565b6040517fffffffff00000000000000000000000000000000000000000000000000000000909116815260200160405180910390f35b6100a97ff2f4e56c0000000000000000000000000000000000000000000000000000000081565b6100a9600081565b6100a97f9e263f0a0000000000000000000000000000000000000000000000000000000081565b6100a97fb65ad6830000000000000000000000000000000000000000000000000000000081565b6100a97f01ffc9a7000000000000000000000000000000000000000000000000000000008156",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

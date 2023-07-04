@@ -3,7 +3,7 @@ import { type Signer, utils, BigNumber } from "ethers";
 import { type SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 export const keylessDeploy = async (
-  contractName: string,
+  contractInfo: { abi: any; bytecode: any },
   signer: Signer | SignerWithAddress,
   args: any = []
 ) => {
@@ -15,7 +15,12 @@ export const keylessDeploy = async (
   const { chainId } = await provider.getNetwork();
   const { maxFeePerGas, maxPriorityFeePerGas } = await estimateFeeData(chainId);
 
-  const factory = await ethers.getContractFactory(contractName);
+  const factory = new ethers.ContractFactory(
+    contractInfo.abi,
+    contractInfo.bytecode,
+    signer
+  );
+  // const factory = await ethers.getContractFactory(contractName);
   const txReq = factory.getDeployTransaction(...args);
 
   const gasLimit = await provider.estimateGas(txReq);

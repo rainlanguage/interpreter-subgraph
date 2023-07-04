@@ -1,0 +1,14 @@
+{
+  "name": "prb-log10",
+  "desc": "Calculates the common logarithm of x as 18 decimal fixed point.",
+  "operand": 0,
+  "inputs": {
+    "parameters": [
+      {
+        "name": "x"
+      }
+    ]
+  },
+  "outputs": 1,
+  "aliases": ["decimal18-log10"]
+}

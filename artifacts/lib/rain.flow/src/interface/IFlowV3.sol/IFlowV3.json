@@ -1,0 +1,378 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "IFlowV3",
+  "sourceName": "lib/rain.flow/src/interface/IFlowV3.sol",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "components": [
+                {
+                  "internalType": "contract IExpressionDeployerV1",
+                  "name": "deployer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes[]",
+                  "name": "sources",
+                  "type": "bytes[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "constants",
+                  "type": "uint256[]"
+                }
+              ],
+              "internalType": "struct EvaluableConfig",
+              "name": "dummyConfig",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "contract IExpressionDeployerV1",
+                  "name": "deployer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes[]",
+                  "name": "sources",
+                  "type": "bytes[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "constants",
+                  "type": "uint256[]"
+                }
+              ],
+              "internalType": "struct EvaluableConfig[]",
+              "name": "config",
+              "type": "tuple[]"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct FlowConfig",
+          "name": "config",
+          "type": "tuple"
+        }
+      ],
+      "name": "Initialize",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "contract IInterpreterV1",
+              "name": "interpreter",
+              "type": "address"
+            },
+            {
+              "internalType": "contract IInterpreterStoreV1",
+              "name": "store",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "expression",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct Evaluable",
+          "name": "evaluable",
+          "type": "tuple"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "callerContext",
+          "type": "uint256[]"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "signer",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "context",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "bytes",
+              "name": "signature",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct SignedContextV1[]",
+          "name": "signedContexts",
+          "type": "tuple[]"
+        }
+      ],
+      "name": "flow",
+      "outputs": [
+        {
+          "components": [
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "from",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct ERC20Transfer[]",
+              "name": "erc20",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "from",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "id",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct ERC721Transfer[]",
+              "name": "erc721",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "from",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "id",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct ERC1155Transfer[]",
+              "name": "erc1155",
+              "type": "tuple[]"
+            }
+          ],
+          "internalType": "struct FlowTransferV1",
+          "name": "flowTransfer",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "contract IInterpreterV1",
+              "name": "interpreter",
+              "type": "address"
+            },
+            {
+              "internalType": "contract IInterpreterStoreV1",
+              "name": "store",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "expression",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct Evaluable",
+          "name": "evaluable",
+          "type": "tuple"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "callerContext",
+          "type": "uint256[]"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "signer",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "context",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "bytes",
+              "name": "signature",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct SignedContextV1[]",
+          "name": "signedContexts",
+          "type": "tuple[]"
+        }
+      ],
+      "name": "previewFlow",
+      "outputs": [
+        {
+          "components": [
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "from",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct ERC20Transfer[]",
+              "name": "erc20",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "from",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "id",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct ERC721Transfer[]",
+              "name": "erc721",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "from",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "id",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct ERC1155Transfer[]",
+              "name": "erc1155",
+              "type": "tuple[]"
+            }
+          ],
+          "internalType": "struct FlowTransferV1",
+          "name": "flowTransfer",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

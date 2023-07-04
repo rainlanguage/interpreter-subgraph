@@ -1,0 +1,49 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "Cooldown",
+  "sourceName": "lib/rain.cooldown/src/Cooldown.sol",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "cooldownDuration",
+          "type": "uint256"
+        }
+      ],
+      "name": "CooldownInitialize",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "cooldownExpiry",
+          "type": "uint256"
+        }
+      ],
+      "name": "CooldownTriggered",
+      "type": "event"
+    }
+  ],
+  "bytecode": "0x6080604052348015600f57600080fd5b50600980601d6000396000f3fe6080604052600080fd",
+  "deployedBytecode": "0x6080604052600080fd",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

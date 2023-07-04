@@ -20,6 +20,11 @@ type Contract @entity {
   expressions: [Expression!] @derivedFrom(field: "sender")
   contractMeta: Bytes
   contractMetaHash: Bytes
+
+  "The type of this contract. Eg: contract or proxy"
+  type: String!
+  "Optional implementation contract if the contract type is an implementation"
+  implementation: Contract
 }
 
 type ExpressionDeployer @entity {

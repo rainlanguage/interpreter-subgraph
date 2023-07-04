@@ -1,11 +1,7 @@
 import assert from "assert";
 import { ethers } from "hardhat";
 import { expect } from "chai";
-import {
-  waitForSubgraphToBeSynced,
-  // getEventArgs,
-  eighteenZeros,
-} from "./utils";
+import { waitForSubgraphToBeSynced } from "./utils";
 
 import {
   // Subgraph
@@ -22,7 +18,7 @@ import {
 import { rainterpreterExpressionDeployerDeploy } from "../utils/deploy/interpreter/shared/rainterpreterExpressionDeployer/deploy";
 import { getRainMetaDocumentFromContract } from "../utils/meta";
 import { randomUint256 } from "../utils/bytes";
-import { max_uint256 } from "../utils/constants";
+import { eighteenZeros, max_uint256 } from "../utils/constants";
 import { encodeMeta } from "../utils/orderBook/order";
 import { compareStructs } from "../utils";
 

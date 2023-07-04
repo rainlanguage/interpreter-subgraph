@@ -1,0 +1,22 @@
+{
+  "name": "sub",
+  "desc": "Subtracts N values. Values can be either decimal or integer, but not a mix of both.",
+  "operand": [
+    {
+      "name": "inputs",
+      "bits": [0, 7],
+      "validRange": [[2, 255]]
+    }
+  ],
+  "inputs": {
+    "bits": [0, 7],
+    "parameters": [
+      {
+        "name": "input",
+        "spread": true
+      }
+    ]
+  },
+  "outputs": 1,
+  "aliases": ["int-sub", "decimal18-sub"]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "prb-sqrt",
+  "desc": "Calculates the square root of x, as 18 decimal fixed point, rounding down.",
+  "operand": 0,
+  "inputs": {
+    "parameters": [
+      {
+        "name": "x"
+      }
+    ]
+  },
+  "outputs": 1,
+  "aliases": ["decimal18-sqrt"]
+}

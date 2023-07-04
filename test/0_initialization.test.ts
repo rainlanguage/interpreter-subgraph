@@ -12,11 +12,13 @@ import {
   waitForGraphNode,
 } from "./utils";
 import { deploy1820 } from "../utils/deploy/registry1820/deploy";
+import ExtrospectionInfo from "./utils/Extrospection.sol/Extrospection.json";
 
 // Types
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import type { Contract } from "ethers";
-import type { Extrospection } from "../typechain";
+// import type { Extrospection } from "../typechain";
+//
 
 const subgraphName = "rainprotocol/interpreter-registry-test";
 
@@ -24,7 +26,7 @@ const subgraphName = "rainprotocol/interpreter-registry-test";
 export let subgraph: ApolloFetch;
 
 // Export Contract
-export let registry1820: Contract, extrospection: Extrospection;
+export let registry1820: Contract, extrospection: Contract;
 
 // Export signers
 export let deployer: SignerWithAddress,
@@ -52,10 +54,10 @@ before("Deployment contracts and subgraph", async function () {
 
   // Deploying Registry1820 contract
   registry1820 = await deploy1820(deployer);
-  extrospection = (await keylessDeploy(
-    "Extrospection",
-    deployer
-  )) as Extrospection;
+  extrospection = await keylessDeploy(ExtrospectionInfo, deployer);
+
+  // 0xda752b21c6eE291E62bCDEc08322724740B1238b
+  console.log("extrospection_address: ", extrospection.address);
 
   // Use the current block number on chain to avoid start from 0 block number
   // with local testing

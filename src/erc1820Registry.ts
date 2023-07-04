@@ -5,7 +5,6 @@ import {
   IERC1820_NAME_IEXPRESSION_DEPLOYER_V1_HASH,
   generateTransaction,
 } from "./utils";
-
 export function handleInterfaceImplementerSet(
   event: InterfaceImplementerSet
 ): void {

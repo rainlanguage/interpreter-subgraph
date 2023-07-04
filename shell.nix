@@ -109,14 +109,14 @@ let
 
   init = pkgs.writeShellScriptBin "init" ''
     npm install
-    rm -rf docker/data
-    mkdir -p contracts && cp -r node_modules/@rainprotocol/rain-protocol/contracts .
-    mkdir -p schema && cp -r node_modules/@rainprotocol/rain-protocol/schema .
-    mkdir -p utils && cp -r node_modules/@rainprotocol/rain-protocol/utils .
-    cp node_modules/@rainprotocol/rain-protocol/foundry.toml .
-    install-submodules
-    compile
-    copy-abis
+    # rm -rf docker/data
+    # mkdir -p contracts && cp -r node_modules/@rainprotocol/rain-protocol/contracts .
+    # mkdir -p schema && cp -r node_modules/@rainprotocol/rain-protocol/schema .
+    # mkdir -p utils && cp -r node_modules/@rainprotocol/rain-protocol/utils .
+    # cp node_modules/@rainprotocol/rain-protocol/foundry.toml .
+    # install-submodules
+    # compile
+    # copy-abis
   '';
 
   flush-all = pkgs.writeShellScriptBin "flush-all" ''
@@ -148,7 +148,8 @@ let
   '';
 
   ci-test = pkgs.writeShellScriptBin "ci-test" ''
-    npx hardhat test
+    # Relevant the flag, don't delete
+    npx hardhat test --no-compile
   '';
   
 in

@@ -1,0 +1,14 @@
+{
+  "name": "prb-log2",
+  "desc": "Calculates the binary logarithm of x as 18 decimal fixed point.",
+  "operand": 0,
+  "inputs": {
+    "parameters": [
+      {
+        "name": "x"
+      }
+    ]
+  },
+  "outputs": 1,
+  "aliases": ["decimal18-log2"]
+}

@@ -1,0 +1,80 @@
+{
+  "name": "Stake",
+  "abiName": "Stake",
+  "desc": "Stake contract which allows for staking a ERC20 token as an asset.",
+  "alias": "stake",
+  "source": "https://github.com/rainprotocol/rain-protocol",
+  "methods": [
+    {
+      "name": "initialize",
+      "abiName": "initialize",
+      "desc": "Initialize a new Stake contract.",
+      "inputs": [
+        {
+          "name": "Asset",
+          "abiName": "asset",
+          "desc": "The underlying ERC20 asset for the 4626 vault.",
+          "path": "[15].inputs[1].components[0]"
+        },
+        {
+          "name": "Name",
+          "abiName": "name",
+          "desc": "ERC20 name of the 4626 share token to be minted.",
+          "path": "[15].inputs[1].components[1]"
+        },
+        {
+          "name": "Symbol",
+          "abiName": "symbol",
+          "desc": "ERC20 symbol of the 4626 share token to be minted.",
+          "path": "[15].inputs[1].components[2]"
+        }
+      ],
+      "expressions": [
+        {
+          "name": "Stake Desposits and Withdrawal Range",
+          "abiName": "evaluableConfig",
+          "desc": "An expression to calculate max deposits and withdrawals.",
+          "path": "[15].inputs[1].components[3]",
+          "signedContext": true,
+          "callerContext": true,
+          "contextColumns": [
+            {
+              "name": "Base",
+              "desc": "Base context column",
+              "alias": "base",
+              "columnIndex": 0,
+              "cells": [
+                {
+                  "name": "Caller",
+                  "desc": "The contract or EOA that called transfer",
+                  "alias": "caller",
+                  "cellIndex": 0
+                },
+                {
+                  "name": "This Contract",
+                  "desc": "The address of the Stake contract this expression is for",
+                  "alias": "this-contract",
+                  "cellIndex": 1
+                }
+              ]
+            },
+            {
+              "name": "Vault action",
+              "desc": "Information about the vault action.",
+              "alias": "vault-action",
+              "columnIndex": 1,
+              "cells": [
+                {
+                  "name": "Account",
+                  "desc": "The account that the vault action is for.",
+                  "alias": "account",
+                  "cellIndex": 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
