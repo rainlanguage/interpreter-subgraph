@@ -5,11 +5,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: ERC1820Registry
-    network: localhost
+    network: mumbai
     source:
       address: "0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24"
       abi: ERC1820Registry
-      startBlock: 5
+      startBlock: 37451629
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -32,7 +32,7 @@ dataSources:
 templates:
   - kind: ethereum/contract
     name: RainterpreterExpressionDeployerTemplate
-    network: localhost
+    network: mumbai
     source:
       abi: RainterpreterExpressionDeployer
     mapping:
@@ -59,7 +59,7 @@ templates:
       file: ./src/rainterpreterExpressionDeployer.ts
   - kind: ethereum/contract
     name: InterpreterCallerV1
-    network: localhost
+    network: mumbai
     source:
       abi: InterpreterCallerV1
     mapping:

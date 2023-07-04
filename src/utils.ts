@@ -155,14 +155,34 @@ export function getAccount(address_: string): Account {
 
 export function getContract(address_: string): Contract {
   let contract = Contract.load(address_);
+
   if (!contract) {
-    contract = new Contract(address_);
     const extrospection = ExtrospectionPerNetwork.get();
     const bytecodeHash = extrospection.bytecodeHash(
       Address.fromString(address_)
     );
 
+    contract = new Contract(address_);
     contract.bytecodeHash = bytecodeHash.toHexString();
+    contract.type = "contract";
+
+    // Checking if this address is a minimal proxy.
+    const response = extrospection.isERC1167Proxy(Address.fromString(address_));
+    const isERC1167Proxy = response.getResult();
+
+    // If true, then address provided is an ERC1167 Proxy
+    if (isERC1167Proxy) {
+      // Obtaining the implementation address of the proxy
+      const implementation = response.getImplementationAddress();
+
+      // At this point, the implementation can be already created, but there is
+      // not guaranteed of that. So, this is like a checker to atleast always have
+      // the implementation entity of this contract.
+      const impContract = getContract(implementation.toHex());
+
+      contract.type = "proxy";
+      contract.implementation = impContract.id;
+    }
 
     contract.save();
   }
