@@ -4,6 +4,7 @@ import {
   dataSource,
   ethereum,
   crypto,
+  log,
 } from "@graphprotocol/graph-ts";
 import { Extrospection } from "../generated/ERC1820Registry/Extrospection";
 import {
@@ -43,6 +44,8 @@ export class ExtrospectionPerNetwork {
     const currentNetwork = dataSource.network();
     let address = "";
 
+    log.debug(`Extrospection_debug: Current network ${currentNetwork}`, []);
+
     // TODO: Implement keyless deploy + CREATE2 opcode to have the same address on all chains
 
     // Mainnet is Ethereum
@@ -57,6 +60,8 @@ export class ExtrospectionPerNetwork {
 
     if (currentNetwork == "localhost")
       address = "0xda752b21c6eE291E62bCDEc08322724740B1238b";
+
+    log.debug(`Extrospection_debug: Current address ${address}`, []);
 
     return Extrospection.bind(Address.fromString(address));
   }
