@@ -50,16 +50,16 @@ export class ExtrospectionPerNetwork {
 
     // Mainnet is Ethereum
     if (currentNetwork == "mainnet")
-      address = "0xbBa1972733136122F5eEF820567b35C0F3E91ac9";
+      address = "0xbba1972733136122f5eef820567b35c0f3e91ac9";
 
     if (currentNetwork == "mumbai")
-      address = "0x2C9F3204590765AEfa7BEe01bccb540a7D06e967";
+      address = "0x2c9f3204590765aefa7bee01bccb540a7d06e967";
 
     if (currentNetwork == "matic" || currentNetwork == "polygon")
-      address = "0x598239B32D2e16e1ae4d0BbD9Ceb0Ee88fb6cC14";
+      address = "0x598239b32d2e16e1ae4d0bbd9ceb0ee88fb6cc14";
 
     if (currentNetwork == "localhost")
-      address = "0xda752b21c6eE291E62bCDEc08322724740B1238b";
+      address = "0xda752b21c6ee291e62bcdec08322724740b1238b";
 
     log.debug(`Extrospection_debug: Current address ${address}`, []);
 
