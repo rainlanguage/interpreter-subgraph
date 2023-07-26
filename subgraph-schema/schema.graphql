@@ -139,6 +139,8 @@ type RainMetaV1 @entity {
 type MetaContentV1 @entity {
   "The hash of the Map Rain Meta document or CBOR Item"
   id: Bytes! # Hash of the whole stringify data.
+  "Original item/document data bytes"
+  encodedData: Bytes!
   "The payload present on the index 0 of the Rain meta Document"
   payload: Bytes!
   "The magic number that is used to track the payload"
