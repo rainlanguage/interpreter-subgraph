@@ -4,17 +4,25 @@ import {
   JSONValue,
   JSONValueKind,
   TypedMap,
+  crypto,
+  log,
 } from "@graphprotocol/graph-ts";
 import { getKeccak256FromBytes, isHexadecimalString } from "./utils";
 import { MetaContentV1 } from "../generated/schema";
+import { CBOREncoder } from "@rainprotocol/assemblyscript-cbor";
 
 export class ContentMeta {
   rainMetaId: Bytes;
+  encodedData: Bytes = Bytes.empty();
   payload: Bytes = Bytes.empty();
   magicNumber: BigInt = BigInt.zero();
   contentType: string = "";
   contentEncoding: string = "";
   contentLanguage: string = "";
+
+  private contentTypeAdded: boolean = false;
+  private contentEncodingAdded: boolean = false;
+  private contentLanguageAdded: boolean = false;
 
   constructor(
     metaContentV1Object_: TypedMap<string, JSONValue>,
@@ -46,9 +54,20 @@ export class ContentMeta {
     if (magicNumber) this.magicNumber = magicNumber.toBigInt();
 
     // Keys optionals
-    if (contentType) this.contentType = contentType.toString();
-    if (contentEncoding) this.contentEncoding = contentEncoding.toString();
-    if (contentLanguage) this.contentLanguage = contentLanguage.toString();
+    if (contentType) {
+      this.contentTypeAdded = true;
+      this.contentType = contentType.toString();
+    }
+
+    if (contentEncoding) {
+      this.contentEncodingAdded = true;
+      this.contentEncoding = contentEncoding.toString();
+    }
+
+    if (contentLanguage) {
+      this.contentLanguageAdded = true;
+      this.contentLanguage = contentLanguage.toString();
+    }
   }
 
   /**
@@ -108,20 +127,47 @@ export class ContentMeta {
 
   private getContentId(): Bytes {
     // Values as Bytes
-    const payloadB = this.payload;
-    const magicNumberB = Bytes.fromHexString(this.magicNumber.toHex());
-    const contentTypeB = Bytes.fromUTF8(this.contentType);
-    const contentEncodingB = Bytes.fromUTF8(this.contentEncoding);
-    const contentLanguageB = Bytes.fromUTF8(this.contentLanguage);
+    const encoder = new CBOREncoder();
+    // Initially, the map always have two keys/values (payload and magic number)
+    let mapLength = 2;
 
-    // payload +  magicNumber + contentType + contentEncoding + contentLanguage
-    const contentId = getKeccak256FromBytes(
-      payloadB
-        .concat(magicNumberB)
-        .concat(contentTypeB)
-        .concat(contentEncodingB)
-        .concat(contentLanguageB)
-    );
+    if (this.contentTypeAdded) mapLength += 1;
+    if (this.contentEncodingAdded) mapLength += 1;
+    if (this.contentLanguageAdded) mapLength += 1;
+
+    encoder.addObject(mapLength);
+
+    // -- Add key 0 (payload)
+    encoder.addUint8(0);
+    encoder.addBytes(this.payload);
+
+    // -- Add key 1 (magic number)
+    encoder.addUint8(1);
+    encoder.addUint64(this.magicNumber.toU64());
+
+    if (this.contentTypeAdded) {
+      // -- Add key 2 (Content-Type)
+      encoder.addUint8(2);
+      encoder.addString(this.contentType);
+    }
+
+    if (this.contentEncodingAdded) {
+      // -- Add key 3 (Content-Encoding)
+      encoder.addUint8(3);
+      encoder.addString(this.contentEncoding);
+    }
+
+    if (this.contentLanguageAdded) {
+      // -- Add key 4 (Content-Language)
+      encoder.addUint8(4);
+      encoder.addString(this.contentLanguage);
+    }
+
+    const encodedData = encoder.serializeString();
+
+    const contentId = getKeccak256FromBytes(Bytes.fromHexString(encodedData));
+
+    this.encodedData = Bytes.fromHexString(encodedData);
 
     return contentId;
   }
@@ -159,6 +205,8 @@ export class ContentMeta {
     if (!aux.includes(this.rainMetaId)) aux.push(this.rainMetaId);
 
     metaContent.documents = aux;
+
+    metaContent.encodedData = this.encodedData;
 
     metaContent.save();
 
