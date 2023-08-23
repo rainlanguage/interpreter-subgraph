@@ -28,6 +28,10 @@ export const CONTRACT_META_MAGIC_NUMBER_HEX = "0xffc21bbf86cc199b";
 export let IERC1820_NAME_IEXPRESSION_DEPLOYER_V1_HASH =
   "0xf10faf5e29ad7057aa6922f7dc34fd1b591620d40c7a7f4443565469f249ec91";
 
+// IERC1820_REGISTRY.interfaceHash("IExpressionDeployerV2")
+export let IERC1820_NAME_IEXPRESSION_DEPLOYER_V2_HASH =
+  "0xdf2fb24711ac8a70ba0954aae92f0d032329580457cbb3882316f68164ab759c";
+
 // InterpreterCallerMeta: MetaV1 (address sender, bytes meta)
 export let INTERPRETER_CALLER_META_EVENT =
   "0xbea766d03fa1efd3f81cc8634d08320bc62bb0ed9234ac59bbaafa5893fb6b13";
