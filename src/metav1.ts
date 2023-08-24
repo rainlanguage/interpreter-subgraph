@@ -4,8 +4,6 @@ import {
   JSONValue,
   JSONValueKind,
   TypedMap,
-  crypto,
-  log,
 } from "@graphprotocol/graph-ts";
 import { getKeccak256FromBytes, isHexadecimalString } from "./utils";
 import { MetaContentV1 } from "../generated/schema";
@@ -15,6 +13,7 @@ export class ContentMeta {
   rainMetaId: Bytes;
   encodedData: Bytes = Bytes.empty();
   payload: Bytes = Bytes.empty();
+  // eslint-disable-next-line @typescript-eslint/ban-types
   magicNumber: BigInt = BigInt.zero();
   contentType: string = "";
   contentEncoding: string = "";
