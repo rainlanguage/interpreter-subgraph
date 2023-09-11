@@ -121,7 +121,7 @@ export function handleDISpair(event: DISpair): void {
   expressionDeployer.account = account.id;
   expressionDeployer.bytecodeHash = deployerBytecodeHash.toHex();
 
-  expressionDeployer.deployableBytecode = event.transaction.input;
+  expressionDeployer.deployedBytecode = event.transaction.input;
 
   expressionDeployer.bytecode = extrospection.bytecode(event.params.deployer);
 
