@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     # Silent this requirement until fix the testing to rust
     # needs: test
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/11-09-2023-rerun-ci'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
