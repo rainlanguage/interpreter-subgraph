@@ -36,7 +36,7 @@ import {
 } from "./utils";
 
 import { InterpreterCallerV1 } from "../generated/templates";
-import { JSONValueKind, json, store } from "@graphprotocol/graph-ts";
+import { JSONValueKind, json, log, store } from "@graphprotocol/graph-ts";
 import { CBORDecoder } from "@rainprotocol/assemblyscript-cbor";
 import { ContentMeta } from "./metav1";
 
@@ -120,6 +120,10 @@ export function handleDISpair(event: DISpair): void {
   expressionDeployer.store = storeInstance.id;
   expressionDeployer.account = account.id;
   expressionDeployer.bytecodeHash = deployerBytecodeHash.toHex();
+
+  expressionDeployer.deployableBytecode = event.transaction.input;
+
+  expressionDeployer.bytecode = extrospection.bytecode(event.params.deployer);
 
   const rainterpreterContract = Rainterpreter.bind(event.params.interpreter);
   const functionPointers = rainterpreterContract.try_functionPointers();

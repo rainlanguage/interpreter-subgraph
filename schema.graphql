@@ -47,6 +47,10 @@ type ExpressionDeployer @entity {
   opmetaHash: Bytes
   "Op meta"
   meta: RainMetaV1
+  "The deployable bytecode of the expressionDeployer contract that is being deployed"
+  deployableBytecode: Bytes
+  "The bytecode of the expressionDeployer"
+  bytecode: Bytes
 }
 
 type Interpreter @entity {
