@@ -36,7 +36,7 @@ import {
 } from "./utils";
 
 import { InterpreterCallerV1 } from "../generated/templates";
-import { JSONValueKind, json, log, store } from "@graphprotocol/graph-ts";
+import { JSONValueKind, json, store } from "@graphprotocol/graph-ts";
 import { CBORDecoder } from "@rainprotocol/assemblyscript-cbor";
 import { ContentMeta } from "./metav1";
 
