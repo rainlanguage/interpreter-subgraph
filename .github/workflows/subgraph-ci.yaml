@@ -53,14 +53,14 @@ jobs:
       - name: Prepare subgraph manifest to deploy on Mumbai
         run: nix-shell --run prepare-deploy-ci-mumbai
       - name: Graph Deployment to Mumbai
-        run: npx graph deploy --product hosted-service rainprotocol/interpreter-registry
+        run: npx graph deploy --product hosted-service rainprotocol/interpreter-registry-np
       # Polygon sg
       - name: Prepare subgraph manifest to deploy on Polygon
         run: nix-shell --run prepare-deploy-ci-polygon
       - name: Graph Deployment on Polygon
-        run: npx graph deploy --product hosted-service rainprotocol/interpreter-registry-polygon
+        run: npx graph deploy --product hosted-service rainprotocol/interpreter-registry-np-matic
       # ethereum sg
       - name: Prepare subgraph manifest to deploy on ethereum
         run: nix-shell --run prepare-deploy-ci-ethereum
       - name: Graph Deployment on ethereum
-        run: npx graph deploy --product hosted-service rainprotocol/interpreter-registry-ethereum
+        run: npx graph deploy --product hosted-service rainprotocol/interpreter-registry-np-eth
