@@ -9,7 +9,7 @@ dataSources:
     source:
       address: "0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24"
       abi: ERC1820Registry
-      startBlock: 115
+      startBlock: 35
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -21,7 +21,7 @@ dataSources:
         - name: ERC1820Registry
           file: ./abis/ERC1820Registry.json
         - name: RainterpreterExpressionDeployer
-          file: ./abis/RainterpreterExpressionDeployer.json
+          file: ./abis/RainterpreterExpressionDeployerNP.json
         - name: Extrospection
           file: ./abis/Extrospection.json
       eventHandlers:
@@ -43,7 +43,7 @@ templates:
         - RainterpreterExpressionDeployer
       abis:
         - name: RainterpreterExpressionDeployer
-          file: ./abis/RainterpreterExpressionDeployer.json
+          file: ./abis/RainterpreterExpressionDeployerNP.json
         - name: Rainterpreter
           file: ./abis/Rainterpreter.json
         - name: Extrospection
@@ -53,7 +53,7 @@ templates:
           handler: handleDISpair
         - event: ExpressionAddress(address,address)
           handler: handleExpressionAddress
-        - event: NewExpression(address,bytes[],uint256[],uint256[])
+        - event: NewExpression(address,bytes,uint256[],uint256[])
           handler: handleNewExpression
           receipt: true
       file: ./src/rainterpreterExpressionDeployer.ts

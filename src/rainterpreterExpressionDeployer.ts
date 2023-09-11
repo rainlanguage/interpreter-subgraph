@@ -18,7 +18,7 @@ import {
   INTERPRETER_CALLER_META_EVENT,
   OPMETA_MAGIC_NUMBER_HEX,
   RAIN_META_DOCUMENT_HEX,
-  decodeSources,
+  // decodeSources,
   generateTransaction,
   getAccount,
   getContract,
@@ -36,7 +36,7 @@ import {
 } from "./utils";
 
 import { InterpreterCallerV1 } from "../generated/templates";
-import { JSONValueKind, json, store, log } from "@graphprotocol/graph-ts";
+import { JSONValueKind, json, store } from "@graphprotocol/graph-ts";
 import { CBORDecoder } from "@rainprotocol/assemblyscript-cbor";
 import { ContentMeta } from "./metav1";
 
@@ -49,10 +49,6 @@ export function handleDISpair(event: DISpair): void {
       event.params.interpreter
     );
 
-  log.info(
-    `XD_1: Address: ${event.params.interpreter.toHex()} - allowed: ${isAllowedInterpreter}`,
-    []
-  );
   // If not allowed, then should deleted the ExpressionDeployer entity related
   // from the Subgraph store. This because the ExpressionDeployer is naturally
   // connected to his Interpreter and it should be no displayed.
@@ -124,6 +120,10 @@ export function handleDISpair(event: DISpair): void {
   expressionDeployer.store = storeInstance.id;
   expressionDeployer.account = account.id;
   expressionDeployer.bytecodeHash = deployerBytecodeHash.toHex();
+
+  expressionDeployer.deployableBytecode = event.transaction.input;
+
+  expressionDeployer.bytecode = extrospection.bytecode(event.params.deployer);
 
   const rainterpreterContract = Rainterpreter.bind(event.params.interpreter);
   const functionPointers = rainterpreterContract.try_functionPointers();
@@ -215,7 +215,7 @@ export function handleNewExpression(event: NewExpression): void {
     contract = getContract(event.params.sender.toHex());
 
     // If the sender and tx from are the same, an user interact directly with the ExpressionDeployer.
-    // In that case, do not create a Contract entity
+    // Like deploying the ExpressionDeployer itself. In that case, do not create a Contract entity
     if (event.params.sender.notEqual(event.transaction.from)) {
       // Checking if the transaction hold an INTERPRETER_CALLER_META_EVENT.
       // If the index exist, then the event exist...
@@ -231,13 +231,13 @@ export function handleNewExpression(event: NewExpression): void {
         contract = getContract(log_callerMeta.address.toHex());
         InterpreterCallerV1.create(log_callerMeta.address);
 
-        const sourcesL = event.params.sources.length;
         const constantsL = event.params.constants.length;
         const minOutputsL = event.params.minOutputs.length;
+        const bytecodeL = event.params.bytecode.length;
 
-        // If sources, constants and minOutputsL are empties, it consider that a
+        // If bytecode, constants and minOutputs length are zero, it consider that a
         // caller contract is touching the deployer.
-        if (!sourcesL && !constantsL && !minOutputsL) {
+        if (!bytecodeL && !constantsL && !minOutputsL) {
           if (contract && !contract.initialDeployer) {
             contract.initialDeployer = event.address.toHex();
             contract.save();
@@ -275,11 +275,10 @@ export function handleNewExpression(event: NewExpression): void {
 
       // Creating StateConfig entitiy
       const stateConfig = new StateConfig(event.transaction.hash.toHex());
-      const fnPointer = expressionDeployer.functionPointers;
+
+      stateConfig.bytecode = event.params.bytecode;
       stateConfig.constants = event.params.constants;
-      if (fnPointer) {
-        stateConfig.sources = decodeSources(fnPointer, event.params.sources);
-      }
+      stateConfig.minOutputs = event.params.minOutputs;
       stateConfig.save();
 
       // Obtain the log
@@ -308,6 +307,7 @@ export function handleNewExpression(event: NewExpression): void {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function handleExpressionAddress(event: ExpressionAddress): void {
   //
 }
