@@ -279,6 +279,8 @@ export function handleNewExpression(event: NewExpression): void {
       stateConfig.constants = event.params.constants;
       if (fnPointer) {
         stateConfig.sources = decodeSources(fnPointer, event.params.sources);
+      } else {
+        stateConfig.sources = event.params.sources;
       }
       stateConfig.save();
 
