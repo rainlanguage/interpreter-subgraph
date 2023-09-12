@@ -254,9 +254,12 @@ export function handleNewExpression(event: NewExpression): void {
 
     if (log_expressionAddress_i != -1) {
       // Getting entities required
+      // const expressionDeployer = getExpressionDeployer(event.address.toHex());
+      const expressionDeployer = ExpressionDeployer.load(event.address.toHex());
+      if (!expressionDeployer) return;
+
       const transaction = generateTransaction(event);
       const emitter = getAccount(event.transaction.from.toHex());
-      const expressionDeployer = getExpressionDeployer(event.address.toHex());
 
       // Skipping safe typing... (!)
       let interpreterInstance: InterpreterInstance | null = null;
