@@ -16,7 +16,8 @@ import {
   EXPRESSION_ADDRESS_EVENT,
   ExtrospectionPerNetwork,
   INTERPRETER_CALLER_META_EVENT,
-  OPMETA_MAGIC_NUMBER_HEX,
+  // OPMETA_MAGIC_NUMBER_HEX,
+  AUTHORING_META_V1_MAGIC_NUMBER_HEX,
   RAIN_META_DOCUMENT_HEX,
   // decodeSources,
   generateTransaction,
@@ -193,9 +194,9 @@ export function handleDISpair(event: DISpair): void {
       const metaContent_ = contentArr[i].generate();
 
       const magicNumber = metaContent_.magicNumber.toHex();
-      if (magicNumber == OPMETA_MAGIC_NUMBER_HEX) {
-        expressionDeployer.opmeta = metaContent_.payload;
-        expressionDeployer.opmetaHash = getKeccak256FromBytes(
+      if (magicNumber == AUTHORING_META_V1_MAGIC_NUMBER_HEX) {
+        expressionDeployer.authoringMeta = metaContent_.payload;
+        expressionDeployer.authoringMetaHash = getKeccak256FromBytes(
           metaContent_.payload
         );
       }

@@ -41,11 +41,11 @@ type ExpressionDeployer @entity {
   account: Account
   "functionPointers"
   functionPointers: String
-  "Raw opmeta"
-  opmeta: Bytes
-  "Raw opmeta hash"
-  opmetaHash: Bytes
-  "Op meta"
+  "Raw authoringMeta"
+  authoringMeta: Bytes
+  "Raw authoringMeta hash"
+  authoringMetaHash: Bytes
+  "Authoring meta"
   meta: RainMetaV1
   "The deployed bytecode of the expressionDeployer contract that is being deployed"
   deployedBytecode: Bytes
