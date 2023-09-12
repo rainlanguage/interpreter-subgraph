@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     # Silent this requirement until fix the testing to rust
     # needs: test
-    # if: github.ref == 'refs/heads/2023-09-11-interprerter-sg-non-np'
+    if: github.ref == 'refs/heads/2023-09-11-interprerter-sg-non-np'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
