@@ -33,10 +33,12 @@ jobs:
     runs-on: ubuntu-latest
     # Silent this requirement until fix the testing to rust
     # needs: test
-    # if: github.ref == 'refs/heads/11-09-2023-rerun-ci'
+    if: github.ref == 'refs/heads/11-09-2023-rerun-ci'
     steps:
       - name: Print current ref
         run: echo ${{ github.ref }}
+      - name: Check
+        run: echo MyCheck
       # - name: Checkout repository
       #   uses: actions/checkout@v2
       # # - name: Install Foundry
