@@ -36,7 +36,7 @@ jobs:
     # if: github.ref == 'refs/heads/11-09-2023-rerun-ci'
     steps:
       - name: Print current ref
-        run: echo $github.ref
+        run: echo ${{ github.ref }}
       # - name: Checkout repository
       #   uses: actions/checkout@v2
       # # - name: Install Foundry
