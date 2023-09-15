@@ -25,34 +25,25 @@ import {
   getExpressionDeployer,
   getInterpreter,
   getInterpreterInstance,
-  getKeccak256FromBytes,
   getRainMetaV1,
   getRainterpreterStore,
   getRainterpreterStoreInstance,
   stringToArrayBuffer,
-  // decodeSources,
-  // getFactory,
-  // NEWCHILD_EVENT,
 } from "./utils";
 
 import { InterpreterCallerV1 } from "../generated/templates";
-import { JSONValueKind, json, store, log } from "@graphprotocol/graph-ts";
+import { JSONValueKind, json, store } from "@graphprotocol/graph-ts";
 import { CBORDecoder } from "@rainprotocol/assemblyscript-cbor";
 import { ContentMeta } from "./metav1";
 
 export function handleDISpair(event: DISpair): void {
   const extrospection = ExtrospectionPerNetwork.get();
-  ////
 
   const isAllowedInterpreter =
     extrospection.scanOnlyAllowedInterpreterEVMOpcodes(
       event.params.interpreter
     );
 
-  log.info(
-    `XD_1: Address: ${event.params.interpreter.toHex()} - allowed: ${isAllowedInterpreter}`,
-    []
-  );
   // If not allowed, then should deleted the ExpressionDeployer entity related
   // from the Subgraph store. This because the ExpressionDeployer is naturally
   // connected to his Interpreter and it should be no displayed.
@@ -195,9 +186,7 @@ export function handleDISpair(event: DISpair): void {
       const magicNumber = metaContent_.magicNumber.toHex();
       if (magicNumber == OPMETA_MAGIC_NUMBER_HEX) {
         expressionDeployer.opmeta = metaContent_.payload;
-        expressionDeployer.opmetaHash = getKeccak256FromBytes(
-          metaContent_.payload
-        );
+        expressionDeployer.opmetaHash = metaContent_.id;
       }
     }
   }
@@ -313,6 +302,7 @@ export function handleNewExpression(event: NewExpression): void {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function handleExpressionAddress(event: ExpressionAddress): void {
   //
 }
