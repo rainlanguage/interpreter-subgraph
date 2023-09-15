@@ -16,24 +16,18 @@ import {
   EXPRESSION_ADDRESS_EVENT,
   ExtrospectionPerNetwork,
   INTERPRETER_CALLER_META_EVENT,
-  // OPMETA_MAGIC_NUMBER_HEX,
   AUTHORING_META_V1_MAGIC_NUMBER_HEX,
   RAIN_META_DOCUMENT_HEX,
-  // decodeSources,
   generateTransaction,
   getAccount,
   getContract,
   getExpressionDeployer,
   getInterpreter,
   getInterpreterInstance,
-  getKeccak256FromBytes,
   getRainMetaV1,
   getRainterpreterStore,
   getRainterpreterStoreInstance,
   stringToArrayBuffer,
-  // decodeSources,
-  // getFactory,
-  // NEWCHILD_EVENT,
 } from "./utils";
 
 import { InterpreterCallerV1 } from "../generated/templates";
@@ -43,7 +37,6 @@ import { ContentMeta } from "./metav1";
 
 export function handleDISpair(event: DISpair): void {
   const extrospection = ExtrospectionPerNetwork.get();
-  ////
 
   const isAllowedInterpreter =
     extrospection.scanOnlyAllowedInterpreterEVMOpcodes(
@@ -196,9 +189,8 @@ export function handleDISpair(event: DISpair): void {
       const magicNumber = metaContent_.magicNumber.toHex();
       if (magicNumber == AUTHORING_META_V1_MAGIC_NUMBER_HEX) {
         expressionDeployer.authoringMeta = metaContent_.payload;
-        expressionDeployer.authoringMetaHash = getKeccak256FromBytes(
-          metaContent_.payload
-        );
+        metaContent_.id;
+        expressionDeployer.authoringMetaHash = metaContent_.id;
       }
     }
   }
