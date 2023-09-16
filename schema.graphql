@@ -145,16 +145,14 @@ type Meta @entity {
   contracts: [ID!]!
   "The magic number that is used to track the payload"
   magicNumber: BigInt!
-  "If this record is Raindocument meta (emitted directly from contract) will be false, if it is a cbor map it will be true"
-  type: bool!
-  "RainDocuments that had this record as one their cbor maps, only will be filled if 'type' is true, else it will be an empty array"
-  parents: [Meta!]!
-  "Cbor maps that this RainDocument had as its content, only will be filled if 'type' is false, else it will be an empty array"
-  childs: [Meta!]!
+  "RainDocuments that had this record as one their cbor maps, only will be filled if the magicNumber is not RainDocument, else it will be an null"
+  parents: [Meta!]
+  "Cbor maps that this RainDocument had as its content, only will be filled if the magicNumber is RainDocument, else it will be null"
+  childs: [Meta!]
 
 
   "here comes the optional props, which are only needed for cbor maps records"
-  "so these props will only be filled if 'type' is true, else they will be null"
+  "so these props will only be filled if the magicNumber is not RainDocument, else they will be null"
 
   "The header name info for Content-Type"
   contentType: String
