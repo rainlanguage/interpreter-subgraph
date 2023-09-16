@@ -142,7 +142,7 @@ type Meta @entity {
   "for RainDocument metas emitted by contracts this is already known, but for each cbor map, this will basically be the **PAYLOAD**"
   rawBytes: Bytes!
   "The contract address that emitted this record"
-  contracts: ID!
+  contracts: [ID!]!
   "The magic number that is used to track the payload"
   magicNumber: BigInt!
   "If this record is Raindocument meta (emitted directly from contract) will be false, if it is a cbor map it will be true"
@@ -163,6 +163,7 @@ type Meta @entity {
   "The header name info for Content-Language. It's optional"
   contentLanguage: String
   "note that since we have payload as 'rawBytes' we dont need it here as in 'payload' field"
+  "note that since we have magic number as 'magicNumber' field we dont need it again here"
 }
 
 # type RainMetaV1 @entity {
