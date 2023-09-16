@@ -15,7 +15,8 @@ type Contract @entity {
   "The deployer used when added/deployed the contract"
   initialDeployer: ExpressionDeployer
   "The meta emmited"
-  meta: RainMetaV1
+  "the main RaindocumentMeta + all the cbor maps of that"
+  meta: [Meta!]!
   "Expressions deployed via this contract."
   expressions: [Expression!] @derivedFrom(field: "sender")
   contractMeta: Bytes
@@ -46,7 +47,8 @@ type ExpressionDeployer @entity {
   "Raw authoringMeta hash"
   authoringMetaHash: Bytes
   "Authoring meta"
-  meta: RainMetaV1
+  "the main RaindocumentMeta + all the cbor maps of that"
+  meta: [Meta!]!
   "The deployed bytecode of the expressionDeployer contract that is being deployed"
   deployedBytecode: Bytes
   "The bytecode of the expressionDeployer"
@@ -132,30 +134,61 @@ type StateConfig @entity {
   minOutputs: [BigInt!]!
 }
 
-type RainMetaV1 @entity {
-  "Hash of the meta directly emitted by the contract"
-  id: Bytes! # Include the RainMeta MagicNumber.
-  "Original meta bytes directly emitted from the contract"
-  metaBytes: Bytes! # Original meta bytes emitted from the contract
-  "The meta content V1 decoded from the meta bytes emitted"
-  content: [MetaContentV1!] @derivedFrom(field: "documents")
-}
-
-type MetaContentV1 @entity {
-  "The hash of the Map Rain Meta document or CBOR Item"
-  id: Bytes! # Hash of the whole stringify data.
-  "Original item/document data bytes"
-  encodedData: Bytes!
-  "The payload present on the index 0 of the Rain meta Document"
-  payload: Bytes!
+type Meta @entity {
+  "The hash of the meta raw bytes, this basically is the hash of 'rawBytes' field"
+  "for RainDocument metas emitted by contracts this is already known (i guess?), but for each cbor map needs to be calculated"
+  id: Bytes!
+  "The raw bytes, hash of this field is basically the 'id'"
+  "for RainDocument metas emitted by contracts this is already known, but for each cbor map, this will basically be the **PAYLOAD**"
+  rawBytes: Bytes!
+  "The contract address that emitted this record"
+  contracts: ID!
   "The magic number that is used to track the payload"
   magicNumber: BigInt!
+  "If this record is Raindocument meta (emitted directly from contract) will be false, if it is a cbor map it will be true"
+  type: bool!
+  "RainDocuments that had this record as one their cbor maps, only will be filled if 'type' is true, else it will be an empty array"
+  parents: [Meta!]
+  "Cbor maps that this RainDocument had as its content, only will be filled if 'type' is false, else it will be an empty array"
+  childs: [Meta!]
+
+
+  "here comes the optional props, which are only needed for cbor maps records"
+  "so these props will only be filled if 'type' is true, else they will be null"
+
   "The header name info for Content-Type"
   contentType: String
   "The header name info for Content-Encoding. It's optional"
   contentEncoding: String
   "The header name info for Content-Language. It's optional"
   contentLanguage: String
-  "RainMeta documents bytes that have this content"
-  documents: [RainMetaV1!]!
+  "note that since we have payload as 'rawBytes' we dont need it here as in 'payload' field"
 }
+
+# type RainMetaV1 @entity {
+#   "Hash of the meta directly emitted by the contract"
+#   id: Bytes! # Include the RainMeta MagicNumber.
+#   "Original meta bytes directly emitted from the contract"
+#   metaBytes: Bytes! # Original meta bytes emitted from the contract
+#   "The meta content V1 decoded from the meta bytes emitted"
+#   content: [MetaContentV1!] @derivedFrom(field: "documents")
+# }
+
+# type MetaContentV1 @entity {
+#   "The hash of the Map Rain Meta document or CBOR Item"
+#   id: Bytes! # Hash of the whole stringify data.
+#   "Original item/document data bytes"
+#   encodedData: Bytes!
+#   "The payload present on the index 0 of the Rain meta Document"
+#   payload: Bytes!
+#   "The magic number that is used to track the payload"
+#   magicNumber: BigInt!
+#   "The header name info for Content-Type"
+#   contentType: String
+#   "The header name info for Content-Encoding. It's optional"
+#   contentEncoding: String
+#   "The header name info for Content-Language. It's optional"
+#   contentLanguage: String
+#   "RainMeta documents bytes that have this content"
+#   documents: [RainMetaV1!]!
+# }
