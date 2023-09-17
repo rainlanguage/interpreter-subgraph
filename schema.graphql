@@ -14,8 +14,6 @@ type Contract @entity {
   deployTransaction: Transaction
   "The deployer used when added/deployed the contract"
   initialDeployer: ExpressionDeployer
-  "The meta emmited"
-  "the main RaindocumentMeta + all the cbor maps of that"
   meta: [Meta!]!
   "Expressions deployed via this contract."
   expressions: [Expression!] @derivedFrom(field: "sender")
@@ -46,8 +44,6 @@ type ExpressionDeployer @entity {
   authoringMeta: Bytes
   "Raw authoringMeta hash"
   authoringMetaHash: Bytes
-  "Authoring meta"
-  "the main RaindocumentMeta + all the cbor maps of that"
   meta: [Meta!]!
   "The deployed bytecode of the expressionDeployer contract that is being deployed"
   deployedBytecode: Bytes
@@ -134,35 +130,81 @@ type StateConfig @entity {
   minOutputs: [BigInt!]!
 }
 
-type Meta @entity {
-  "The hash of the meta raw bytes, this basically is the hash of 'rawBytes' field"
-  "for RainDocument metas emitted by contracts this is already known (i guess?), but for each cbor map needs to be calculated"
+interface Meta {
+  "The hash of the raw bytes, this basically is the hash of 'rawBytes' field"
   id: Bytes!
-  "The raw bytes, hash of this field is basically the 'id'"
-  "for RainDocument metas emitted by contracts this is already known, but for each cbor map, this will basically be the **PAYLOAD**"
+  "The raw bytes, hash of this field is basically the 'id'. Like metaBytes or payload"
   rawBytes: Bytes!
   "The contract address that emitted this record"
   contracts: [ID!]!
   "The magic number that is used to track the payload"
   magicNumber: BigInt!
-  "RainDocuments that had this record as one their cbor maps, only will be filled if the magicNumber is not RainDocument, else it will be an null"
-  parents: [Meta!]
-  "Cbor maps that this RainDocument had as its content, only will be filled if the magicNumber is RainDocument, else it will be null"
-  childs: [Meta!]
+  "Reference to another meta related. It could be a parent if it's a RainMeta or childre if they are MetaContent"
+  family: [Meta!]
+}
 
+type RainMetaV1 implements Meta @entity {
+  "The hash of the raw bytes, this basically is the hash of 'rawBytes' field"
+  id: Bytes!
+  "The raw bytes, hash of this field is basically the 'id'. Like metaBytes or payload"
+  rawBytes: Bytes!
+  "The contract address that emitted this record"
+  contracts: [ID!]!
+  "The magic number that is used to track the payload"
+  magicNumber: BigInt!
+  "Reference to another meta related. It could be a parent if it's a RainMeta or childre if they are MetaContent"
+  family: [Meta!]
+}
 
-  "here comes the optional props, which are only needed for cbor maps records"
-  "so these props will only be filled if the magicNumber is not RainDocument, else they will be null"
+type MetaContentV1 implements Meta @entity {
+  "The hash of the raw bytes, this basically is the hash of 'rawBytes' field"
+  id: Bytes!
+  "The raw bytes, hash of this field is basically the 'id'. Like metaBytes or payload"
+  rawBytes: Bytes!
+  "The contract address that emitted this record"
+  contracts: [ID!]!
+  "The magic number that is used to track the payload"
+  magicNumber: BigInt!
+  "Reference to another meta related. It could be a parent if it's a RainMeta or childre if they are MetaContent"
+  family: [Meta!]
 
+  # These are only available in MetaContentV1
   "The header name info for Content-Type"
   contentType: String
   "The header name info for Content-Encoding. It's optional"
   contentEncoding: String
   "The header name info for Content-Language. It's optional"
   contentLanguage: String
-  "note that since we have payload as 'rawBytes' we dont need it here as in 'payload' field"
-  "note that since we have magic number as 'magicNumber' field we dont need it again here"
 }
+
+# type Meta @entity {
+#   "The hash of the meta raw bytes, this basically is the hash of 'rawBytes' field"
+#   "for RainDocument metas emitted by contracts this is already known (i guess?), but for each cbor map needs to be calculated"
+#   id: Bytes!
+#   "The raw bytes, hash of this field is basically the 'id'"
+#   "for RainDocument metas emitted by contracts this is already known, but for each cbor map, this will basically be the **PAYLOAD**"
+#   rawBytes: Bytes!
+#   "The contract address that emitted this record"
+#   contracts: [ID!]!
+#   "The magic number that is used to track the payload"
+#   magicNumber: BigInt!
+#   "RainDocuments that had this record as one their cbor maps, only will be filled if the magicNumber is not RainDocument, else it will be an null"
+#   parents: [Meta!]
+#   "Cbor maps that this RainDocument had as its content, only will be filled if the magicNumber is RainDocument, else it will be null"
+#   childs: [Meta!]
+
+#   "here comes the optional props, which are only needed for cbor maps records"
+#   "so these props will only be filled if the magicNumber is not RainDocument, else they will be null"
+
+#   "The header name info for Content-Type"
+#   contentType: String
+#   "The header name info for Content-Encoding. It's optional"
+#   contentEncoding: String
+#   "The header name info for Content-Language. It's optional"
+#   contentLanguage: String
+#   "note that since we have payload as 'rawBytes' we dont need it here as in 'payload' field"
+#   "note that since we have magic number as 'magicNumber' field we dont need it again here"
+# }
 
 # type RainMetaV1 @entity {
 #   "Hash of the meta directly emitted by the contract"
