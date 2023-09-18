@@ -139,6 +139,16 @@ export function handleDISpair(event: DISpair): void {
   // Decode meta bytes
   const metaV1 = getRainMetaV1(event.params.opMeta);
 
+  // MetaV1.contracts
+  const auxContracts = metaV1.contracts;
+  if (!auxContracts.includes(event.params.deployer.toHex())) {
+    auxContracts.push(event.params.deployer.toHex());
+  }
+
+  // MetaV1.sequence
+  const auxSeq = metaV1.sequence;
+
+  // Contract.meta
   const metaAux = expressionDeployer.meta;
   if (!metaAux.includes(metaV1.id)) {
     metaAux.push(metaV1.id);
@@ -200,11 +210,21 @@ export function handleDISpair(event: DISpair): void {
         expressionDeployer.authoringMetaHash = metaContent_.id;
       }
 
+      // This include each meta content on the contract.
       if (!metaAux.includes(metaContent_.id)) {
         metaAux.push(metaContent_.id);
       }
+
+      // This include each meta content on the RainMeta related
+      if (!auxSeq.includes(metaContent_.id)) {
+        auxSeq.push(metaContent_.id);
+      }
     }
   }
+
+  metaV1.contracts = auxContracts;
+  metaV1.sequence = auxSeq;
+  metaV1.save();
 
   expressionDeployer.meta = metaAux;
   expressionDeployer.save();

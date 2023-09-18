@@ -23,6 +23,8 @@ export function handleInterfaceImplementerSet(
     const transaction = generateTransaction(event);
     expressionDeployer.deployTransaction = transaction.id;
 
+    expressionDeployer.meta = [];
+
     expressionDeployer.save();
 
     RainterpreterExpressionDeployerTemplate.create(event.params.implementer);

@@ -91,7 +91,7 @@ type Expression @entity(immutable: true) {
   id: ID!
   event: DeployExpressionEvent!
   "Account that deployed this expression"
-  account: Account!addressID
+  account: Account!
   "The contract that this expression was deployed via"
   sender: Contract!
   interpreter: Interpreter!

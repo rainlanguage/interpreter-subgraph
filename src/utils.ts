@@ -5,6 +5,8 @@ import {
   ethereum,
   crypto,
   log,
+  BigInt,
+  ByteArray,
 } from "@graphprotocol/graph-ts";
 import { Extrospection } from "../generated/ERC1820Registry/Extrospection";
 import {
@@ -233,6 +235,11 @@ export function getRainMetaV1(meta_: Bytes): RainMetaV1 {
   if (!metaV1) {
     metaV1 = new RainMetaV1(metaV1_ID);
     metaV1.rawBytes = meta_;
+    metaV1.contracts = [];
+    metaV1.sequence = [];
+
+    const bArr = ByteArray.fromHexString(RAIN_META_DOCUMENT_HEX);
+    metaV1.magicNumber = BigInt.fromUnsignedBytes(bArr);
     metaV1.save();
   }
 

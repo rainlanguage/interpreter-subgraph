@@ -19,6 +19,17 @@ export function handleMetaV1(event: MetaV1): void {
 
   // Decode meta bytes
   const metaV1 = getRainMetaV1(event.params.meta);
+
+  // MetaV1.contracts
+  const auxContracts = metaV1.contracts;
+  if (!auxContracts.includes(event.address.toHex())) {
+    auxContracts.push(event.address.toHex());
+  }
+
+  // MetaV1.sequence
+  const auxSeq = metaV1.sequence;
+
+  // Contract.meta
   const metaAux = contract.meta;
   if (!metaAux.includes(metaV1.id)) {
     metaAux.push(metaV1.id);
@@ -78,11 +89,21 @@ export function handleMetaV1(event: MetaV1): void {
         contract.contractMetaHash = metaContent_.id;
       }
 
+      // This include each meta content on the contract.
       if (!metaAux.includes(metaContent_.id)) {
         metaAux.push(metaContent_.id);
       }
+
+      // This include each meta content on the RainMeta related
+      if (!auxSeq.includes(metaContent_.id)) {
+        auxSeq.push(metaContent_.id);
+      }
     }
   }
+
+  metaV1.contracts = auxContracts;
+  metaV1.sequence = auxSeq;
+  metaV1.save();
 
   contract.meta = metaAux;
   contract.save();
