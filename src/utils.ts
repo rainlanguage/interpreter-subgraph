@@ -106,6 +106,7 @@ export function getExpressionDeployer(address_: string): ExpressionDeployer {
   let expressionDeployer = ExpressionDeployer.load(address_);
   if (!expressionDeployer) {
     expressionDeployer = new ExpressionDeployer(address_);
+    expressionDeployer.meta = [];
     expressionDeployer.save();
   }
 
@@ -194,6 +195,8 @@ export function getContract(address_: string): Contract {
       contract.implementation = impContract.id;
     }
 
+    contract.meta = [];
+
     contract.save();
   }
 
@@ -229,7 +232,7 @@ export function getRainMetaV1(meta_: Bytes): RainMetaV1 {
 
   if (!metaV1) {
     metaV1 = new RainMetaV1(metaV1_ID);
-    metaV1.metaBytes = meta_;
+    metaV1.rawBytes = meta_;
     metaV1.save();
   }
 
@@ -268,6 +271,7 @@ export function stringToArrayBuffer(val: string): ArrayBuffer {
   const buff = new ArrayBuffer(val.length / 2);
   const view = new DataView(buff);
   for (let i = 0, j = 0; i < val.length; i = i + 2, j++) {
+    // @ts-expect-error U8 is not found. It's an error since is compiled
     view.setUint8(j, u8(Number.parseInt(`${val.at(i)}${val.at(i + 1)}`, 16)));
   }
   return buff;

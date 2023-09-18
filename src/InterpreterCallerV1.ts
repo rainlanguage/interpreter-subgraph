@@ -5,7 +5,6 @@ import {
   RAIN_META_DOCUMENT_HEX,
   generateTransaction,
   getContract,
-  getKeccak256FromBytes,
   getRainMetaV1,
   stringToArrayBuffer,
 } from "./utils";
@@ -20,6 +19,10 @@ export function handleMetaV1(event: MetaV1): void {
 
   // Decode meta bytes
   const metaV1 = getRainMetaV1(event.params.meta);
+  const metaAux = contract.meta;
+  if (!metaAux.includes(metaV1.id)) {
+    metaAux.push(metaV1.id);
+  }
 
   // Converts the emitted target from Bytes to a Hexadecimal value
   let meta = event.params.meta.toHex();
@@ -67,16 +70,20 @@ export function handleMetaV1(event: MetaV1): void {
     }
 
     for (let i = 0; i < contentArr.length; i++) {
-      const metaContent_ = contentArr[i].generate();
+      const metaContent_ = contentArr[i].generate(event.address.toHex());
 
       const magicNumber = metaContent_.magicNumber.toHex();
       if (magicNumber == CONTRACT_META_MAGIC_NUMBER_HEX) {
-        contract.contractMeta = metaContent_.payload;
-        contract.contractMetaHash = getKeccak256FromBytes(metaContent_.payload);
+        contract.contractMeta = metaContent_.rawBytes;
+        contract.contractMetaHash = metaContent_.id;
+      }
+
+      if (!metaAux.includes(metaContent_.id)) {
+        metaAux.push(metaContent_.id);
       }
     }
   }
 
-  contract.meta = metaV1.id;
+  contract.meta = metaAux;
   contract.save();
 }

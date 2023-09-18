@@ -6,7 +6,7 @@ import {
   TypedMap,
 } from "@graphprotocol/graph-ts";
 import { getKeccak256FromBytes, isHexadecimalString } from "./utils";
-import { MetaContentV1 } from "../generated/schema";
+import { ContentMetaV1 } from "../generated/schema";
 import { CBOREncoder } from "@rainprotocol/assemblyscript-cbor";
 
 export class ContentMeta {
@@ -172,24 +172,25 @@ export class ContentMeta {
   }
 
   /**
-   * Create or generate a MetaContentV1 entity based on the current fields:
+   * Create or generate a ContentMetaV1 entity based on the current fields:
    *
-   * - If the MetaContentV1 does not exist, create the MetaContentV1 entity and
+   * - If the ContentMetaV1 does not exist, create the ContentMetaV1 entity and
    * made the relation to the rainMetaId.
    *
-   * - If the MetaContentV1 does exist, add the relation to the rainMetaId.
+   * - If the ContentMetaV1 does exist, add the relation to the rainMetaId.
    */
-  generate(): MetaContentV1 {
+  generate(addressID: string): ContentMetaV1 {
     const contentId = this.getContentId();
 
-    let metaContent = MetaContentV1.load(contentId);
+    let metaContent = ContentMetaV1.load(contentId);
 
     if (!metaContent) {
-      metaContent = new MetaContentV1(contentId);
+      metaContent = new ContentMetaV1(contentId);
 
-      metaContent.payload = this.payload;
+      metaContent.rawBytes = this.payload;
       metaContent.magicNumber = this.magicNumber;
-      metaContent.documents = [];
+      metaContent.parents = [];
+      metaContent.contracts = [];
 
       if (this.contentType != "") metaContent.contentType = this.contentType;
 
@@ -200,12 +201,13 @@ export class ContentMeta {
         metaContent.contentLanguage = this.contentLanguage;
     }
 
-    const aux = metaContent.documents;
-    if (!aux.includes(this.rainMetaId)) aux.push(this.rainMetaId);
+    const auxParents = metaContent.parents;
+    if (!auxParents.includes(this.rainMetaId)) auxParents.push(this.rainMetaId);
+    metaContent.parents = auxParents;
 
-    metaContent.documents = aux;
-
-    metaContent.encodedData = this.encodedData;
+    const auxIds = metaContent.contracts;
+    if (!auxIds.includes(addressID)) auxIds.push(addressID);
+    metaContent.contracts = auxIds;
 
     metaContent.save();
 

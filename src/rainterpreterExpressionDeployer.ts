@@ -139,6 +139,11 @@ export function handleDISpair(event: DISpair): void {
   // Decode meta bytes
   const metaV1 = getRainMetaV1(event.params.opMeta);
 
+  const metaAux = expressionDeployer.meta;
+  if (!metaAux.includes(metaV1.id)) {
+    metaAux.push(metaV1.id);
+  }
+
   // Converts the emitted target from Bytes to a Hexadecimal value
   let meta = event.params.opMeta.toHex();
 
@@ -184,18 +189,24 @@ export function handleDISpair(event: DISpair): void {
     }
 
     for (let i = 0; i < contentArr.length; i++) {
-      const metaContent_ = contentArr[i].generate();
+      const metaContent_ = contentArr[i].generate(
+        event.params.deployer.toHex()
+      );
 
       const magicNumber = metaContent_.magicNumber.toHex();
       if (magicNumber == AUTHORING_META_V1_MAGIC_NUMBER_HEX) {
-        expressionDeployer.authoringMeta = metaContent_.payload;
+        expressionDeployer.authoringMeta = metaContent_.rawBytes;
         metaContent_.id;
         expressionDeployer.authoringMetaHash = metaContent_.id;
+      }
+
+      if (!metaAux.includes(metaContent_.id)) {
+        metaAux.push(metaContent_.id);
       }
     }
   }
 
-  expressionDeployer.meta = metaV1.id;
+  expressionDeployer.meta = metaAux;
   expressionDeployer.save();
 }
 
