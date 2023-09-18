@@ -154,10 +154,10 @@ type RainMetaV1 implements Meta @entity {
   "The magic number associated with this meta"
   magicNumber: BigInt!
   "The unordered cbor maps (sequence of metas) of this RainMeta"
-  sequence: [MetaContentV1!]!
+  sequence: [ContentMetaV1!]!
 }
 
-type MetaContentV1 implements Meta @entity {
+type ContentMetaV1 implements Meta @entity {
   "The hash of this meta, this basically is the hash of 'rawBytes' field"
   id: Bytes!
   "The raw bytes this is the 'payload' of a cbor map, hash of this field is basically the 'id'"
