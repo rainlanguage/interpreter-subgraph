@@ -14,8 +14,6 @@ interface RainContract {
   deployTransaction: Transaction
   "All the meta items that emitted by this contract"
   meta: [Meta!]!
-  "All the expression this expression deployer contract has ever deployed"
-  expressions: [Expression!]! @derivedFrom(field: "sender")
 }
 
 type Contract implements RainContract @entity {
@@ -27,7 +25,7 @@ type Contract implements RainContract @entity {
   "All the meta items that emitted by this contract"
   meta: [Meta!]!
   "All the expression this contract has ever deployed"
-  expressions: [Expression!]! @derivedFrom(field: "sender")
+  expressions: [Expression!]! @derivedFrom(field: "contract")
   "The deployer used when added/deployed the contract"
   initialDeployer: ExpressionDeployer
   "The raw bytes of the emitted meta"
@@ -49,7 +47,7 @@ type ExpressionDeployer implements RainContract @entity {
   "All the meta items that emitted by this contract"
   meta: [Meta!]!
   "All the expression this expression deployer contract has ever deployed"
-  expressions: [Expression!]! @derivedFrom(field: "sender")
+  expressions: [Expression!]! @derivedFrom(field: "deployer")
   "The interpreter instance this deployer uses."
   interpreter: InterpreterInstance # get from ValidInterpreter.interpreter
   "The RainterpreterStore instance being used by the deployer"
@@ -107,7 +105,9 @@ type Expression @entity(immutable: true) {
   "Account that deployed this expression"
   account: Account!
   "The contract that this expression was deployed via"
-  sender: RainContract!
+  contract: Contract!
+  "The expression deployer that this expression was deployed via"
+  deployer: ExpressionDeployer!
   interpreter: Interpreter!
   interpreterInstance: InterpreterInstance!
   config: StateConfig!
