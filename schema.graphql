@@ -26,7 +26,7 @@ type Contract implements RainContract @entity {
   deployTransaction: Transaction
   "All the meta items that emitted by this contract"
   meta: [Meta!]!
-  "All the expression this expression deployer contract has ever deployed"
+  "All the expression this contract has ever deployed"
   expressions: [Expression!]! @derivedFrom(field: "sender")
   "The deployer used when added/deployed the contract"
   initialDeployer: ExpressionDeployer
