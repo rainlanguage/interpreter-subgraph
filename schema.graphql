@@ -6,18 +6,30 @@ type Account @entity {
   expressions: [Expression!] @derivedFrom(field: "account")
 }
 
-type Contract @entity {
+interface RainContract {
+  "The address of the contract"
+  id: ID!
+  "Bytecode hash of this contract"
+  bytecodeHash: String
+  deployTransaction: Transaction
+  "All the meta items that emitted by this contract"
+  meta: [Meta!]!
+  "All the expression this expression deployer contract has ever deployed"
+  expressions: [Expression!]! @derivedFrom(field: "sender")
+}
+
+type Contract implements RainContract @entity {
   "Address of this contract"
   id: ID!
   "Bytecode hash of this contract"
   bytecodeHash: String
   deployTransaction: Transaction
-  "The deployer used when added/deployed the contract"
-  initialDeployer: ExpressionDeployer
   "All the meta items that emitted by this contract"
   meta: [Meta!]!
-  "Expressions deployed via this contract."
-  expressions: [Expression!] @derivedFrom(field: "sender")
+  "All the expression this expression deployer contract has ever deployed"
+  expressions: [Expression!]! @derivedFrom(field: "sender")
+  "The deployer used when added/deployed the contract"
+  initialDeployer: ExpressionDeployer
   "The raw bytes of the emitted meta"
   contractMeta: Bytes
   "The hash of the emitted meta"
@@ -28,12 +40,16 @@ type Contract @entity {
   implementation: Contract
 }
 
-type ExpressionDeployer @entity {
+type ExpressionDeployer implements RainContract @entity {
   "The address of this deployer."
   id: ID!
-  deployTransaction: Transaction
   "Bytecode hash of this Deployer"
   bytecodeHash: String
+  deployTransaction: Transaction
+  "All the meta items that emitted by this contract"
+  meta: [Meta!]!
+  "All the expression this expression deployer contract has ever deployed"
+  expressions: [Expression!]! @derivedFrom(field: "sender")
   "The interpreter instance this deployer uses."
   interpreter: InterpreterInstance # get from ValidInterpreter.interpreter
   "The RainterpreterStore instance being used by the deployer"
@@ -46,8 +62,6 @@ type ExpressionDeployer @entity {
   authoringMeta: Bytes
   "Raw authoringMeta hash"
   authoringMetaHash: Bytes
-  "All the meta items that emitted by this contract"
-  meta: [Meta!]!
   "The deployed bytecode of the expressionDeployer contract that is being deployed"
   deployedBytecode: Bytes
   "The bytecode of the expressionDeployer"
@@ -149,8 +163,8 @@ type RainMetaV1 implements Meta @entity {
   id: Bytes!
   "The raw bytes, hash of this field is basically the 'id'"
   rawBytes: Bytes!
-  "The contract address that emitted this RainMeta"
-  contracts: [ID!]!
+  "The contract addresses that emitted this RainMeta"
+  contracts: [RainContract!]!
   "The magic number associated with this meta"
   magicNumber: BigInt!
   "The unordered cbor maps (sequence of metas) of this RainMeta"
@@ -162,8 +176,8 @@ type ContentMetaV1 implements Meta @entity {
   id: Bytes!
   "The raw bytes this is the 'payload' of a cbor map, hash of this field is basically the 'id'"
   rawBytes: Bytes!
-  "The contract address that emitted this MetaContent as part of the parent RainMeta sequence"
-  contracts: [ID!]!
+  "The contract addresses that emitted this MetaContent as part of the parent RainMeta sequence"
+  contracts: [RainContract!]!
   "The magic number associated with this meta"
   magicNumber: BigInt!
   "The RainMeta records that have this cbor map as part of their sequence"
