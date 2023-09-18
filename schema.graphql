@@ -107,7 +107,7 @@ type Expression @entity(immutable: true) {
   "Account that deployed this expression"
   account: Account!
   "The contract that this expression was deployed via"
-  sender: Contract!
+  sender: RainContract!
   interpreter: Interpreter!
   interpreterInstance: InterpreterInstance!
   config: StateConfig!
