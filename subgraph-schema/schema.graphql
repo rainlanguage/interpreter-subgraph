@@ -14,13 +14,14 @@ type Contract @entity {
   deployTransaction: Transaction
   "The deployer used when added/deployed the contract"
   initialDeployer: ExpressionDeployer
-  "The meta emmited"
-  meta: RainMetaV1
+  "All the meta items that emitted by this contract"
+  meta: [Meta!]!
   "Expressions deployed via this contract."
   expressions: [Expression!] @derivedFrom(field: "sender")
+  "The raw bytes of the emitted meta"
   contractMeta: Bytes
+  "The hash of the emitted meta"
   contractMetaHash: Bytes
-
   "The type of this contract. Eg: contract or proxy"
   type: String!
   "Optional implementation contract if the contract type is an implementation"
@@ -45,8 +46,8 @@ type ExpressionDeployer @entity {
   authoringMeta: Bytes
   "Raw authoringMeta hash"
   authoringMetaHash: Bytes
-  "Authoring meta"
-  meta: RainMetaV1
+  "All the meta items that emitted by this contract"
+  meta: [Meta!]!
   "The deployed bytecode of the expressionDeployer contract that is being deployed"
   deployedBytecode: Bytes
   "The bytecode of the expressionDeployer"
@@ -132,30 +133,45 @@ type StateConfig @entity {
   minOutputs: [BigInt!]!
 }
 
-type RainMetaV1 @entity {
-  "Hash of the meta directly emitted by the contract"
-  id: Bytes! # Include the RainMeta MagicNumber.
-  "Original meta bytes directly emitted from the contract"
-  metaBytes: Bytes! # Original meta bytes emitted from the contract
-  "The meta content V1 decoded from the meta bytes emitted"
-  content: [MetaContentV1!] @derivedFrom(field: "documents")
+interface Meta {
+  "The hash of this meta, this basically is the hash of 'rawBytes' field"
+  id: Bytes!
+  "The raw bytes, hash of this field is basically the 'id'. For cbor maps it is hash of the 'payload'"
+  rawBytes: Bytes!
+  "The contract address that emitted this Meta"
+  contracts: [ID!]!
+  "The magic number associated with this meta"
+  magicNumber: BigInt!
 }
 
-type MetaContentV1 @entity {
-  "The hash of the Map Rain Meta document or CBOR Item"
-  id: Bytes! # Hash of the whole stringify data.
-  "Original item/document data bytes"
-  encodedData: Bytes!
-  "The payload present on the index 0 of the Rain meta Document"
-  payload: Bytes!
-  "The magic number that is used to track the payload"
+type RainMetaV1 implements Meta @entity {
+  "The hash of the raw bytes"
+  id: Bytes!
+  "The raw bytes, hash of this field is basically the 'id'"
+  rawBytes: Bytes!
+  "The contract address that emitted this RainMeta"
+  contracts: [ID!]!
+  "The magic number associated with this meta"
   magicNumber: BigInt!
+  "The unordered cbor maps (sequence of metas) of this RainMeta"
+  sequence: [ContentMetaV1!]!
+}
+
+type ContentMetaV1 implements Meta @entity {
+  "The hash of this meta, this basically is the hash of 'rawBytes' field"
+  id: Bytes!
+  "The raw bytes this is the 'payload' of a cbor map, hash of this field is basically the 'id'"
+  rawBytes: Bytes!
+  "The contract address that emitted this MetaContent as part of the parent RainMeta sequence"
+  contracts: [ID!]!
+  "The magic number associated with this meta"
+  magicNumber: BigInt!
+  "The RainMeta records that have this cbor map as part of their sequence"
+  parents: [RainMetaV1!]!
   "The header name info for Content-Type"
   contentType: String
   "The header name info for Content-Encoding. It's optional"
   contentEncoding: String
   "The header name info for Content-Language. It's optional"
   contentLanguage: String
-  "RainMeta documents bytes that have this content"
-  documents: [RainMetaV1!]!
 }
