@@ -28,6 +28,7 @@ import {
   getRainterpreterStore,
   getRainterpreterStoreInstance,
   stringToArrayBuffer,
+  getKeccak256FromBytes,
 } from "./utils";
 
 import { InterpreterCallerV1 } from "../generated/templates";
@@ -220,6 +221,14 @@ export function handleDISpair(event: DISpair): void {
         auxSeq.push(metaContent_.id);
       }
     }
+  }
+
+  // Not authoringMeta found or just a bad encoded meta
+  if (!expressionDeployer.authoringMeta) {
+    expressionDeployer.authoringMeta = event.params.opMeta;
+    expressionDeployer.authoringMetaHash = getKeccak256FromBytes(
+      event.params.opMeta
+    );
   }
 
   metaV1.contracts = auxContracts;
