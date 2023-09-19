@@ -312,16 +312,18 @@ export function handleNewExpression(event: NewExpression): void {
 
       const expression = new Expression(expressionAddress);
       expression.event = deployExpressionEvent.id;
-
       expression.account = emitter.id;
+
+      if (contract) expression.contract = contract.id;
+
+      expression.deployer = expressionDeployer.id;
+
       expression.config = stateConfig.id;
 
       if (interpreterInstance) {
         expression.interpreter = interpreterInstance.interpreter;
         expression.interpreterInstance = interpreterInstance.id;
       }
-
-      if (contract) expression.sender = contract.id;
 
       deployExpressionEvent.expression = expression.id;
 
