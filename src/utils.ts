@@ -238,7 +238,10 @@ export function getRainMetaV1(meta_: Bytes): RainMetaV1 {
     metaV1.contracts = [];
     metaV1.sequence = [];
 
-    const bArr = ByteArray.fromHexString(RAIN_META_DOCUMENT_HEX);
+    // const bArr = ByteArray.fromHexString();
+    const bArr = Bytes.fromUint8Array(
+      Bytes.fromHexString(RAIN_META_DOCUMENT_HEX).reverse()
+    );
     metaV1.magicNumber = BigInt.fromUnsignedBytes(bArr);
     metaV1.save();
   }
