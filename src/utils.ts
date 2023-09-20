@@ -4,7 +4,6 @@ import {
   dataSource,
   ethereum,
   crypto,
-  log,
   BigInt,
 } from "@graphprotocol/graph-ts";
 import { Extrospection } from "../generated/ERC1820Registry/Extrospection";
@@ -50,8 +49,6 @@ export class ExtrospectionPerNetwork {
     const currentNetwork = dataSource.network();
     let address = "";
 
-    log.debug(`Extrospection_debug: Current network ${currentNetwork}`, []);
-
     // TODO: Implement keyless deploy + CREATE2 opcode to have the same address on all chains
 
     // Mainnet is Ethereum
@@ -67,8 +64,6 @@ export class ExtrospectionPerNetwork {
     if (currentNetwork == "localhost")
       address = "0xda752b21c6ee291e62bcdec08322724740b1238b";
 
-    log.debug(`Extrospection_debug: Current address ${address}`, []);
-
     return Extrospection.bind(Address.fromString(address));
   }
 }
@@ -82,7 +77,6 @@ export function decodeSources(
   functionPointers = functionPointers.substring(2);
   for (let i = 0; i < sources.length; i++) {
     let source = sources[i].toHexString().slice(2);
-    //log.warning("Source : {}", [source]);
     for (let j = 0; j < source.length; j += 8) {
       let opcode = source.slice(j, j + 4);
       let operand = source.slice(j + 4, j + 8);
@@ -91,10 +85,6 @@ export function decodeSources(
         .padStart(4, "0");
 
       tmp = tmp + index + operand;
-      // log.warning("Opcode : {} , Operand {} ", [
-      //   functionPointers.indexOf(opcode).toString(),
-      //   operand,
-      // ]);
     }
     tmp = "0x" + tmp;
     decompiledSources.push(Bytes.fromHexString(tmp));

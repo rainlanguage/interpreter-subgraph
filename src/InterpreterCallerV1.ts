@@ -5,6 +5,7 @@ import {
   RAIN_META_DOCUMENT_HEX,
   generateTransaction,
   getContract,
+  getKeccak256FromBytes,
   getRainMetaV1,
   stringToArrayBuffer,
 } from "./utils";
@@ -79,8 +80,8 @@ export function handleMetaV1(event: MetaV1): void {
 
       const magicNumber = metaContent_.magicNumber.toHex();
       if (magicNumber == CONTRACT_META_MAGIC_NUMBER_HEX) {
-        contract.rainMetaBytes = metaContent_.rawBytes;
-        contract.rainMetaHash = metaContent_.id;
+        contract.rainMetaBytes = event.params.meta;
+        contract.rainMetaHash = getKeccak256FromBytes(event.params.meta);
       }
 
       // This include each meta content on the contract.

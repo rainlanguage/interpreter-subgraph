@@ -28,6 +28,7 @@ import {
   getRainterpreterStore,
   getRainterpreterStoreInstance,
   stringToArrayBuffer,
+  getKeccak256FromBytes,
 } from "./utils";
 
 import { InterpreterCallerV1 } from "../generated/templates";
@@ -199,8 +200,10 @@ export function handleDISpair(event: DISpair): void {
 
       const magicNumber = metaContent_.magicNumber.toHex();
       if (magicNumber == AUTHORING_META_V1_MAGIC_NUMBER_HEX) {
-        expressionDeployer.rainMetaBytes = metaContent_.rawBytes;
-        expressionDeployer.rainMetaHash = metaContent_.id;
+        expressionDeployer.rainMetaBytes = event.params.opMeta;
+        expressionDeployer.rainMetaHash = getKeccak256FromBytes(
+          event.params.opMeta
+        );
       }
 
       // This include each meta content on the contract.
