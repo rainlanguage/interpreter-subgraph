@@ -6,7 +6,6 @@ import {
   crypto,
   log,
   BigInt,
-  ByteArray,
 } from "@graphprotocol/graph-ts";
 import { Extrospection } from "../generated/ERC1820Registry/Extrospection";
 import {
@@ -109,7 +108,7 @@ export function getExpressionDeployer(address_: string): ExpressionDeployer {
   if (!expressionDeployer) {
     expressionDeployer = new ExpressionDeployer(address_);
     expressionDeployer.meta = [];
-    expressionDeployer.save();
+    // expressionDeployer.save();
   }
 
   return expressionDeployer;
@@ -119,7 +118,7 @@ export function getInterpreter(hash_: string): Interpreter {
   let interpreter = Interpreter.load(hash_);
   if (!interpreter) {
     interpreter = new Interpreter(hash_);
-    interpreter.save();
+    // interpreter.save();
   }
 
   return interpreter;
@@ -138,7 +137,7 @@ export function getRainterpreterStore(hash_: string): RainterpreterStore {
   let rainterpreterStore = RainterpreterStore.load(hash_);
   if (!rainterpreterStore) {
     rainterpreterStore = new RainterpreterStore(hash_);
-    rainterpreterStore.save();
+    // rainterpreterStore.save();
   }
 
   return rainterpreterStore;
@@ -160,7 +159,7 @@ export function getAccount(address_: string): Account {
   let account = Account.load(address_);
   if (!account) {
     account = new Account(address_);
-    account.save();
+    // account.save();
   }
 
   return account;
@@ -243,7 +242,7 @@ export function getRainMetaV1(meta_: Bytes): RainMetaV1 {
       Bytes.fromHexString(RAIN_META_DOCUMENT_HEX).reverse()
     );
     metaV1.magicNumber = BigInt.fromUnsignedBytes(bArr);
-    metaV1.save();
+    // metaV1.save();
   }
 
   return metaV1;

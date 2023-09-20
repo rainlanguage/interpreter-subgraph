@@ -23,6 +23,9 @@ export class ContentMeta {
   private contentEncodingAdded: boolean = false;
   private contentLanguageAdded: boolean = false;
 
+  private metaContent: ContentMetaV1 = new ContentMetaV1(Bytes.empty());
+  private metaStored: boolean = false;
+
   constructor(
     metaContentV1Object_: TypedMap<string, JSONValue>,
     rainMetaID_: Bytes
@@ -209,8 +212,16 @@ export class ContentMeta {
     if (!auxIds.includes(addressID)) auxIds.push(addressID);
     metaContent.contracts = auxIds;
 
-    metaContent.save();
+    this.metaContent = metaContent;
+    this.metaStored = true;
+    // metaContent.save();
 
-    return metaContent;
+    return this.metaContent;
+  }
+
+  saveMeta(): void {
+    if (this.metaStored && this.metaContent.id.notEqual(Bytes.empty())) {
+      this.metaContent.save();
+    }
   }
 }

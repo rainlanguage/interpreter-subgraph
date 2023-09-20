@@ -57,9 +57,9 @@ type ExpressionDeployer implements RainContract @entity {
   "functionPointers"
   functionPointers: String
   "Raw authoringMeta"
-  authoringMeta: Bytes
+  authoringMeta: Bytes!
   "Raw authoringMeta hash"
-  authoringMetaHash: Bytes
+  authoringMetaHash: Bytes!
   "The deployed bytecode of the expressionDeployer contract that is being deployed"
   deployedBytecode: Bytes
   "The bytecode of the expressionDeployer"
