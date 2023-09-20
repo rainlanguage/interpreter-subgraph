@@ -29,9 +29,9 @@ type Contract implements RainContract @entity {
   "The deployer used when added/deployed the contract"
   initialDeployer: ExpressionDeployer
   "The raw bytes of the emitted meta"
-  contractMeta: Bytes
+  rainMetaBytes: Bytes!
   "The hash of the emitted meta"
-  contractMetaHash: Bytes
+  rainMetaHash: Bytes!
   "The type of this contract. Eg: contract or proxy"
   type: String!
   "Optional implementation contract if the contract type is an implementation"
@@ -57,9 +57,9 @@ type ExpressionDeployer implements RainContract @entity {
   "functionPointers"
   functionPointers: String
   "Raw authoringMeta"
-  authoringMeta: Bytes!
+  rainMetaBytes: Bytes!
   "Raw authoringMeta hash"
-  authoringMetaHash: Bytes!
+  rainMetaHash: Bytes!
   "The deployed bytecode of the expressionDeployer contract that is being deployed"
   deployedBytecode: Bytes
   "The bytecode of the expressionDeployer"

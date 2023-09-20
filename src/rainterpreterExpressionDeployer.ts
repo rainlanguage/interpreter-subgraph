@@ -199,8 +199,8 @@ export function handleDISpair(event: DISpair): void {
 
       const magicNumber = metaContent_.magicNumber.toHex();
       if (magicNumber == AUTHORING_META_V1_MAGIC_NUMBER_HEX) {
-        expressionDeployer.authoringMeta = metaContent_.rawBytes;
-        expressionDeployer.authoringMetaHash = metaContent_.id;
+        expressionDeployer.rainMetaBytes = metaContent_.rawBytes;
+        expressionDeployer.rainMetaHash = metaContent_.id;
       }
 
       // This include each meta content on the contract.
@@ -215,8 +215,7 @@ export function handleDISpair(event: DISpair): void {
     }
 
     // Not authoringMeta found or just a bad encoded meta
-    // if (expressionDeployer.authoringMeta.toHexString() == "0x00000000") {
-    if (expressionDeployer.authoringMeta.equals(Bytes.empty())) {
+    if (expressionDeployer.rainMetaBytes.equals(Bytes.empty())) {
       store.remove("ExpressionDeployer", expressionDeployer.id);
       return;
     }
@@ -340,6 +339,7 @@ export function handleNewExpression(event: NewExpression): void {
 
         deployExpressionEvent.expression = expression.id;
 
+        transaction.save();
         stateConfig.save();
         deployExpressionEvent.save();
         expression.save();
