@@ -26,9 +26,10 @@ export function handleInterfaceImplementerSet(
     expressionDeployer.deployTransaction = transaction.id;
 
     expressionDeployer.meta = [];
-    expressionDeployer.authoringMeta = Bytes.empty();
-    expressionDeployer.authoringMetaHash = Bytes.empty();
+    expressionDeployer.rainMetaBytes = Bytes.empty();
+    expressionDeployer.rainMetaHash = Bytes.empty();
 
+    transaction.save();
     expressionDeployer.save();
 
     RainterpreterExpressionDeployerTemplate.create(event.params.implementer);

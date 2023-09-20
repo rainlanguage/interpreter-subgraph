@@ -177,6 +177,8 @@ export function getContract(address_: string): Contract {
     contract = new Contract(address_);
     contract.bytecodeHash = bytecodeHash.toHexString();
     contract.type = "contract";
+    contract.rainMetaBytes = Bytes.empty();
+    contract.rainMetaHash = Bytes.empty();
 
     // Checking if this address is a minimal proxy.
     const response = extrospection.isERC1167Proxy(Address.fromString(address_));
@@ -220,7 +222,7 @@ export function generateTransaction(event_: ethereum.Event): Transaction {
     transaction = new Transaction(event_.transaction.hash.toHex());
     transaction.timestamp = event_.block.timestamp;
     transaction.blockNumber = event_.block.number;
-    transaction.save();
+    // transaction.save();
   }
 
   return transaction;
