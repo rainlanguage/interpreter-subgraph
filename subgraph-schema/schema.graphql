@@ -150,7 +150,7 @@ type StateConfig @entity {
 interface Meta {
   "The hash of this meta, this basically is the hash of 'rawBytes' field"
   id: Bytes!
-  "The raw bytes, hash of this field is basically the 'id'. For cbor maps it is hash of the 'payload'"
+  "The raw bytes, hash of this field is basically the 'id'"
   rawBytes: Bytes!
   "The contract address that emitted this Meta"
   contracts: [RainContract!]!
@@ -174,12 +174,14 @@ type RainMetaV1 implements Meta @entity {
 type ContentMetaV1 implements Meta @entity {
   "The hash of this meta, this basically is the hash of 'rawBytes' field"
   id: Bytes!
-  "The raw bytes this is the 'payload' of a cbor map, hash of this field is basically the 'id'"
+  "The cbor map item bytes."
   rawBytes: Bytes!
   "The contract addresses that emitted this MetaContent as part of the parent RainMeta sequence"
   contracts: [RainContract!]!
   "The magic number associated with this meta"
   magicNumber: BigInt!
+  "The payload of this content"
+  payload: Bytes!
   "The RainMeta records that have this cbor map as part of their sequence"
   parents: [RainMetaV1!]!
   "The header name info for Content-Type"
