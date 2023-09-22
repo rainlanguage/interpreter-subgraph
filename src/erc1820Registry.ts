@@ -26,8 +26,8 @@ export function handleInterfaceImplementerSet(
     expressionDeployer.deployTransaction = transaction.id;
 
     expressionDeployer.meta = [];
-    expressionDeployer.rainMetaBytes = Bytes.empty();
-    expressionDeployer.rainMetaHash = Bytes.empty();
+    expressionDeployer.constructorMeta = Bytes.empty();
+    expressionDeployer.constructorMetaHash = Bytes.empty();
 
     transaction.save();
     expressionDeployer.save();

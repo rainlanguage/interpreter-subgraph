@@ -200,8 +200,8 @@ export function handleDISpair(event: DISpair): void {
 
       const magicNumber = metaContent_.magicNumber.toHex();
       if (magicNumber == AUTHORING_META_V1_MAGIC_NUMBER_HEX) {
-        expressionDeployer.rainMetaBytes = event.params.opMeta;
-        expressionDeployer.rainMetaHash = getKeccak256FromBytes(
+        expressionDeployer.constructorMeta = event.params.opMeta;
+        expressionDeployer.constructorMetaHash = getKeccak256FromBytes(
           event.params.opMeta
         );
       }
@@ -218,7 +218,7 @@ export function handleDISpair(event: DISpair): void {
     }
 
     // Not authoringMeta found or just a bad encoded meta
-    if (expressionDeployer.rainMetaBytes.equals(Bytes.empty())) {
+    if (expressionDeployer.constructorMeta.equals(Bytes.empty())) {
       store.remove("ExpressionDeployer", expressionDeployer.id);
       return;
     }

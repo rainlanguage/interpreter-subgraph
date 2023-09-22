@@ -167,8 +167,8 @@ export function getContract(address_: string): Contract {
     contract = new Contract(address_);
     contract.bytecodeHash = bytecodeHash.toHexString();
     contract.type = "contract";
-    contract.rainMetaBytes = Bytes.empty();
-    contract.rainMetaHash = Bytes.empty();
+    contract.constructorMeta = Bytes.empty();
+    contract.constructorMetaHash = Bytes.empty();
 
     // Checking if this address is a minimal proxy.
     const response = extrospection.isERC1167Proxy(Address.fromString(address_));

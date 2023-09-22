@@ -80,8 +80,8 @@ export function handleMetaV1(event: MetaV1): void {
 
       const magicNumber = metaContent_.magicNumber.toHex();
       if (magicNumber == CONTRACT_META_MAGIC_NUMBER_HEX) {
-        contract.rainMetaBytes = event.params.meta;
-        contract.rainMetaHash = getKeccak256FromBytes(event.params.meta);
+        contract.constructorMeta = event.params.meta;
+        contract.constructorMetaHash = getKeccak256FromBytes(event.params.meta);
       }
 
       // This include each meta content on the contract.
@@ -96,7 +96,7 @@ export function handleMetaV1(event: MetaV1): void {
     }
 
     // Not authoringMeta found or just a bad encoded meta
-    if (contract.rainMetaBytes.equals(Bytes.empty())) {
+    if (contract.constructorMeta.equals(Bytes.empty())) {
       store.remove("Contract", contract.id);
       return;
     }
