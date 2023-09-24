@@ -191,3 +191,8 @@ type ContentMetaV1 implements Meta @entity {
   "The header name info for Content-Language. It's optional"
   contentLanguage: String
 }
+
+extend type ContentMetaV1 {
+  "The ABI meta of the corresponding ExpressionDeployer contract of this record"
+  abimeta: ContentMetaV1!
+}
