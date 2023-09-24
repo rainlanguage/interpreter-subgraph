@@ -192,7 +192,7 @@ type ContentMetaV1 implements Meta @entity {
   contentLanguage: String
 }
 
-extend type ContentMetaV1 {
-  "The ABI meta of the corresponding ExpressionDeployer contract of this record"
-  abimeta: ContentMetaV1!
+type ErrorSelector @entity {
+  "The Error selector signature as string (json stringified)"
+  sig: String!
 }
