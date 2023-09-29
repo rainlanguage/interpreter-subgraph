@@ -19,7 +19,9 @@ import {
   RainterpreterStore,
   RainterpreterStoreInstance,
   RainMetaV1,
+  DeployerBytecodeMetaV1,
 } from "../generated/schema";
+import { CBOREncoder } from "@rainprotocol/assemblyscript-cbor";
 
 export const RAIN_META_DOCUMENT_HEX = "0xff0a89c674ee7874";
 export const OPMETA_MAGIC_NUMBER_HEX = "0xffe5282f43e495b4";
@@ -238,6 +240,49 @@ export function getRainMetaV1(meta_: Bytes): RainMetaV1 {
   return metaV1;
 }
 
+/**
+ * Get the DeployerBytecodeMetaV1 entity from a given expression deployer bytecode
+ */
+export function getBytecodeMeta(bytecode_: Bytes): DeployerBytecodeMetaV1 {
+  const encoder = new CBOREncoder();
+  encoder.addObject(3);
+
+  // -- Add key 0
+  encoder.addUint8(0);
+  encoder.addBytes(bytecode_);
+
+  // -- Add key 1
+  // Magic number. This is hardcoded based on the rain metadata spec
+  encoder.addUint8(1);
+  // @ts-expect-error u64 exist on assebly
+  // eslint-disable-next-line @typescript-eslint/no-loss-of-precision
+  encoder.addUint64(u64(0xffdb988a8cd04d32));
+
+  // -- Add key 2
+  encoder.addUint8(2);
+  encoder.addString("application/octet-stream");
+
+  const bytecodeEncoded = Bytes.fromHexString(encoder.serializeString());
+  const bytecodeEncodedHash = getKeccak256FromBytes(bytecodeEncoded);
+
+  let bytecodeMeta = DeployerBytecodeMetaV1.load(bytecodeEncodedHash);
+
+  if (!bytecodeMeta) {
+    bytecodeMeta = new DeployerBytecodeMetaV1(bytecodeEncodedHash);
+
+    bytecodeMeta.rawBytes = bytecodeEncoded;
+    bytecodeMeta.contracts = [];
+    bytecodeMeta.magicNumber = hexStringToBigInt(
+      EXPRESSION_DEPLOYER_V2_BYTECODE_V1_MAGIC_NUMBER_HEX
+    );
+    bytecodeMeta.payload = bytecode_;
+    bytecodeMeta.parents = [];
+    bytecodeMeta.contentType = "application/octet-stream";
+  }
+
+  return bytecodeMeta;
+}
+
 export function getKeccak256FromBytes(data_: Bytes): Bytes {
   return Bytes.fromByteArray(crypto.keccak256(Bytes.fromByteArray(data_)));
 }
@@ -276,6 +321,8 @@ export function stringToArrayBuffer(val: string): ArrayBuffer {
   return buff;
 }
 
+// Disable line because this is assembly
+// eslint-disable-next-line @typescript-eslint/ban-types
 export function hexStringToBigInt(hex_: string): BigInt {
   const bArr = Bytes.fromUint8Array(Bytes.fromHexString(hex_).reverse());
   return BigInt.fromUnsignedBytes(bArr);
