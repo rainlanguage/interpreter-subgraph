@@ -191,3 +191,20 @@ type ContentMetaV1 implements Meta @entity {
   "The header name info for Content-Language. It's optional"
   contentLanguage: String
 }
+
+type DeployerBytecodeMetaV1 implements Meta @entity {
+  "The hash of this meta, this basically is the hash of 'rawBytes' field"
+  id: Bytes!
+  "The cbor map item bytes."
+  rawBytes: Bytes!
+  "The contract addresses that their cbor encoded deployed bytecode matches this record"
+  contracts: [RainContract!]!
+  "The magic number associated with this meta"
+  magicNumber: BigInt!
+  "The payload, this is the deployed bytecode"
+  payload: Bytes!
+  "The RainMeta records that have this cbor map as part of their sequence"
+  parents: [RainMetaV1!]!
+  "The header name info for Content-Type"
+  contentType: String!
+}
