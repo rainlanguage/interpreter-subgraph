@@ -10,6 +10,7 @@ import {
   InterpreterInstance,
   StateConfig,
   ExpressionDeployer,
+  DeployerBytecodeMetaV1,
 } from "../generated/schema";
 import { Rainterpreter } from "../generated/templates/RainterpreterExpressionDeployerTemplate/Rainterpreter";
 import {
@@ -29,11 +30,14 @@ import {
   getRainterpreterStoreInstance,
   stringToArrayBuffer,
   getKeccak256FromBytes,
+  EXPRESSION_DEPLOYER_V2_BYTECODE_V1_MAGIC_NUMBER_HEX,
+  hexStringToBigInt,
+  removeExpressionDeployer,
 } from "./utils";
 
 import { InterpreterCallerV1 } from "../generated/templates";
 import { Bytes, JSONValueKind, json, store } from "@graphprotocol/graph-ts";
-import { CBORDecoder } from "@rainprotocol/assemblyscript-cbor";
+import { CBORDecoder, CBOREncoder } from "@rainprotocol/assemblyscript-cbor";
 import { ContentMeta } from "./metav1";
 
 export function handleDISpair(event: DISpair): void {
@@ -48,23 +52,25 @@ export function handleDISpair(event: DISpair): void {
   // from the Subgraph store. This because the ExpressionDeployer is naturally
   // connected to his Interpreter and it should be no displayed.
   if (!isAllowedInterpreter) {
-    // Loading the deployer to remove from the store
-    const deployerToRemove = ExpressionDeployer.load(
-      event.params.deployer.toHex()
-    );
+    // // Loading the deployer to remove from the store
+    // const deployerToRemove = ExpressionDeployer.load(
+    //   event.params.deployer.toHex()
+    // );
 
-    if (deployerToRemove) {
-      // Getting the Transaction related to the deployer, since should be
-      // removed as well.
-      const transactionToRemove = deployerToRemove.deployTransaction;
-      if (transactionToRemove) {
-        // Use the store to remove the Transaction entity
-        store.remove("Transaction", transactionToRemove);
-      }
+    // if (deployerToRemove) {
+    //   // Getting the Transaction related to the deployer, since should be
+    //   // removed as well.
+    //   const transactionToRemove = deployerToRemove.deployTransaction;
+    //   if (transactionToRemove) {
+    //     // Use the store to remove the Transaction entity
+    //     store.remove("Transaction", transactionToRemove);
+    //   }
 
-      // Use the store to remove the ExpressionDeployer entity
-      store.remove("ExpressionDeployer", deployerToRemove.id);
-    }
+    //   // Use the store to remove the ExpressionDeployer entity
+    //   store.remove("ExpressionDeployer", deployerToRemove.id);
+    // }
+
+    removeExpressionDeployer(event.params.deployer.toHex());
 
     // Finish the function call;
     return;
@@ -192,7 +198,7 @@ export function handleDISpair(event: DISpair): void {
       return;
     }
 
-    // Generating
+    // Generating content meta from the meta emitted
     for (let i = 0; i < contentArr.length; i++) {
       const metaContent_ = contentArr[i].generate(
         event.params.deployer.toHex()
@@ -219,9 +225,68 @@ export function handleDISpair(event: DISpair): void {
 
     // Not authoringMeta found or just a bad encoded meta
     if (expressionDeployer.constructorMeta.equals(Bytes.empty())) {
-      store.remove("ExpressionDeployer", expressionDeployer.id);
+      removeExpressionDeployer(expressionDeployer.id);
+      // store.remove("ExpressionDeployer", expressionDeployer.id);
       return;
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Generate the ExpressionDeployerV2 bytecode v1 Meta for deployer
+    const deployerBytecode = extrospection.bytecode(event.params.deployer);
+
+    const encoder = new CBOREncoder();
+    encoder.addObject(3);
+
+    // -- Add key 0
+    encoder.addUint8(0);
+    encoder.addBytes(deployerBytecode);
+
+    // -- Add key 1
+    encoder.addUint8(1);
+    // Magic number
+    encoder.addUint64(u64(0xffdb988a8cd04d32));
+
+    // -- Add key 2
+    encoder.addUint8(2);
+    encoder.addString("application/octet-stream");
+
+    const bytecodeEncoded = Bytes.fromHexString(encoder.serializeString());
+    const bytecodeEncodedHash = getKeccak256FromBytes(bytecodeEncoded);
+
+    let bytecodeMeta = DeployerBytecodeMetaV1.load(bytecodeEncodedHash);
+
+    if (!bytecodeMeta) {
+      bytecodeMeta = new DeployerBytecodeMetaV1(bytecodeEncodedHash);
+
+      bytecodeMeta.rawBytes = bytecodeEncoded;
+      bytecodeMeta.contracts = [];
+      bytecodeMeta.magicNumber = hexStringToBigInt(
+        EXPRESSION_DEPLOYER_V2_BYTECODE_V1_MAGIC_NUMBER_HEX
+      );
+      bytecodeMeta.payload = deployerBytecode;
+      bytecodeMeta.parents = [];
+      bytecodeMeta.contentType = "application/octet-stream";
+    }
+
+    let bytecodeContracts = bytecodeMeta.contracts;
+    if (!bytecodeContracts.includes(expressionDeployer.id)) {
+      bytecodeContracts.push(expressionDeployer.id);
+      bytecodeMeta.contracts = bytecodeContracts;
+    }
+    let bytecodeMetaParents = bytecodeMeta.parents;
+    if (!bytecodeMetaParents.includes(metaV1.id)) {
+      bytecodeMetaParents.push(metaV1.id);
+      bytecodeMeta.parents = bytecodeMetaParents;
+    }
+
+    if (!auxSeq.includes(bytecodeMeta.id)) {
+      auxSeq.push(bytecodeMeta.id);
+    }
+
+    if (!metaAux.includes(bytecodeMeta.id)) {
+      metaAux.push(bytecodeMeta.id);
+    }
+    ///////////////////////////////////////////////////////////////////////////
 
     metaV1.contracts = auxContracts;
     metaV1.sequence = auxSeq;
@@ -238,9 +303,11 @@ export function handleDISpair(event: DISpair): void {
     storeInstance.save();
     account.save();
     metaV1.save();
+    bytecodeMeta.save();
     expressionDeployer.save();
   } else {
-    store.remove("ExpressionDeployer", event.params.deployer.toHex());
+    removeExpressionDeployer(event.params.deployer.toHex());
+    // store.remove("ExpressionDeployer", event.params.deployer.toHex());
     return;
   }
 }

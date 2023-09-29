@@ -5,6 +5,7 @@ import {
   ethereum,
   crypto,
   BigInt,
+  store,
 } from "@graphprotocol/graph-ts";
 import { Extrospection } from "../generated/ERC1820Registry/Extrospection";
 import {
@@ -24,6 +25,8 @@ export const RAIN_META_DOCUMENT_HEX = "0xff0a89c674ee7874";
 export const OPMETA_MAGIC_NUMBER_HEX = "0xffe5282f43e495b4";
 export const CONTRACT_META_MAGIC_NUMBER_HEX = "0xffc21bbf86cc199b";
 export const AUTHORING_META_V1_MAGIC_NUMBER_HEX = "0xffe9e3a02ca8e235";
+export const EXPRESSION_DEPLOYER_V2_BYTECODE_V1_MAGIC_NUMBER_HEX =
+  "0xffdb988a8cd04d32";
 
 // IERC1820_REGISTRY.interfaceHash("IExpressionDeployerV1")
 export let IERC1820_NAME_IEXPRESSION_DEPLOYER_V1_HASH =
@@ -228,12 +231,7 @@ export function getRainMetaV1(meta_: Bytes): RainMetaV1 {
     metaV1.rawBytes = meta_;
     metaV1.contracts = [];
     metaV1.sequence = [];
-
-    // const bArr = ByteArray.fromHexString();
-    const bArr = Bytes.fromUint8Array(
-      Bytes.fromHexString(RAIN_META_DOCUMENT_HEX).reverse()
-    );
-    metaV1.magicNumber = BigInt.fromUnsignedBytes(bArr);
+    metaV1.magicNumber = hexStringToBigInt(RAIN_META_DOCUMENT_HEX);
     // metaV1.save();
   }
 
@@ -276,4 +274,27 @@ export function stringToArrayBuffer(val: string): ArrayBuffer {
     view.setUint8(j, u8(Number.parseInt(`${val.at(i)}${val.at(i + 1)}`, 16)));
   }
   return buff;
+}
+
+export function hexStringToBigInt(hex_: string): BigInt {
+  const bArr = Bytes.fromUint8Array(Bytes.fromHexString(hex_).reverse());
+  return BigInt.fromUnsignedBytes(bArr);
+}
+
+export function removeExpressionDeployer(address: string): void {
+  // Loading the deployer to remove from the store
+  const deployerToRemove = ExpressionDeployer.load(address);
+
+  if (deployerToRemove) {
+    // Getting the Transaction related to the deployer, since should be
+    // removed as well.
+    const transactionToRemove = deployerToRemove.deployTransaction;
+    if (transactionToRemove) {
+      // Use the store to remove the Transaction entity
+      store.remove("Transaction", transactionToRemove);
+    }
+
+    // Use the store to remove the ExpressionDeployer entity
+    store.remove("ExpressionDeployer", deployerToRemove.id);
+  }
 }
