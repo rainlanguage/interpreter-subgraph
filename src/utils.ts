@@ -4,9 +4,8 @@ import {
   dataSource,
   ethereum,
   crypto,
-  log,
   BigInt,
-  ByteArray,
+  store,
 } from "@graphprotocol/graph-ts";
 import { Extrospection } from "../generated/ERC1820Registry/Extrospection";
 import {
@@ -20,12 +19,16 @@ import {
   RainterpreterStore,
   RainterpreterStoreInstance,
   RainMetaV1,
+  DeployerBytecodeMetaV1,
 } from "../generated/schema";
+import { CBOREncoder } from "@rainprotocol/assemblyscript-cbor";
 
 export const RAIN_META_DOCUMENT_HEX = "0xff0a89c674ee7874";
 export const OPMETA_MAGIC_NUMBER_HEX = "0xffe5282f43e495b4";
 export const CONTRACT_META_MAGIC_NUMBER_HEX = "0xffc21bbf86cc199b";
 export const AUTHORING_META_V1_MAGIC_NUMBER_HEX = "0xffe9e3a02ca8e235";
+export const EXPRESSION_DEPLOYER_V2_BYTECODE_V1_MAGIC_NUMBER_HEX =
+  "0xffdb988a8cd04d32";
 
 // IERC1820_REGISTRY.interfaceHash("IExpressionDeployerV1")
 export let IERC1820_NAME_IEXPRESSION_DEPLOYER_V1_HASH =
@@ -51,8 +54,6 @@ export class ExtrospectionPerNetwork {
     const currentNetwork = dataSource.network();
     let address = "";
 
-    log.debug(`Extrospection_debug: Current network ${currentNetwork}`, []);
-
     // TODO: Implement keyless deploy + CREATE2 opcode to have the same address on all chains
 
     // Mainnet is Ethereum
@@ -68,8 +69,6 @@ export class ExtrospectionPerNetwork {
     if (currentNetwork == "localhost")
       address = "0xda752b21c6ee291e62bcdec08322724740b1238b";
 
-    log.debug(`Extrospection_debug: Current address ${address}`, []);
-
     return Extrospection.bind(Address.fromString(address));
   }
 }
@@ -83,7 +82,6 @@ export function decodeSources(
   functionPointers = functionPointers.substring(2);
   for (let i = 0; i < sources.length; i++) {
     let source = sources[i].toHexString().slice(2);
-    //log.warning("Source : {}", [source]);
     for (let j = 0; j < source.length; j += 8) {
       let opcode = source.slice(j, j + 4);
       let operand = source.slice(j + 4, j + 8);
@@ -92,10 +90,6 @@ export function decodeSources(
         .padStart(4, "0");
 
       tmp = tmp + index + operand;
-      // log.warning("Opcode : {} , Operand {} ", [
-      //   functionPointers.indexOf(opcode).toString(),
-      //   operand,
-      // ]);
     }
     tmp = "0x" + tmp;
     decompiledSources.push(Bytes.fromHexString(tmp));
@@ -109,7 +103,7 @@ export function getExpressionDeployer(address_: string): ExpressionDeployer {
   if (!expressionDeployer) {
     expressionDeployer = new ExpressionDeployer(address_);
     expressionDeployer.meta = [];
-    expressionDeployer.save();
+    // expressionDeployer.save();
   }
 
   return expressionDeployer;
@@ -119,7 +113,7 @@ export function getInterpreter(hash_: string): Interpreter {
   let interpreter = Interpreter.load(hash_);
   if (!interpreter) {
     interpreter = new Interpreter(hash_);
-    interpreter.save();
+    // interpreter.save();
   }
 
   return interpreter;
@@ -138,7 +132,7 @@ export function getRainterpreterStore(hash_: string): RainterpreterStore {
   let rainterpreterStore = RainterpreterStore.load(hash_);
   if (!rainterpreterStore) {
     rainterpreterStore = new RainterpreterStore(hash_);
-    rainterpreterStore.save();
+    // rainterpreterStore.save();
   }
 
   return rainterpreterStore;
@@ -160,7 +154,7 @@ export function getAccount(address_: string): Account {
   let account = Account.load(address_);
   if (!account) {
     account = new Account(address_);
-    account.save();
+    // account.save();
   }
 
   return account;
@@ -178,6 +172,8 @@ export function getContract(address_: string): Contract {
     contract = new Contract(address_);
     contract.bytecodeHash = bytecodeHash.toHexString();
     contract.type = "contract";
+    contract.constructorMeta = Bytes.empty();
+    contract.constructorMetaHash = Bytes.empty();
 
     // Checking if this address is a minimal proxy.
     const response = extrospection.isERC1167Proxy(Address.fromString(address_));
@@ -221,7 +217,7 @@ export function generateTransaction(event_: ethereum.Event): Transaction {
     transaction = new Transaction(event_.transaction.hash.toHex());
     transaction.timestamp = event_.block.timestamp;
     transaction.blockNumber = event_.block.number;
-    transaction.save();
+    // transaction.save();
   }
 
   return transaction;
@@ -237,16 +233,54 @@ export function getRainMetaV1(meta_: Bytes): RainMetaV1 {
     metaV1.rawBytes = meta_;
     metaV1.contracts = [];
     metaV1.sequence = [];
-
-    // const bArr = ByteArray.fromHexString();
-    const bArr = Bytes.fromUint8Array(
-      Bytes.fromHexString(RAIN_META_DOCUMENT_HEX).reverse()
-    );
-    metaV1.magicNumber = BigInt.fromUnsignedBytes(bArr);
-    metaV1.save();
+    metaV1.magicNumber = hexStringToBigInt(RAIN_META_DOCUMENT_HEX);
+    // metaV1.save();
   }
 
   return metaV1;
+}
+
+/**
+ * Get the DeployerBytecodeMetaV1 entity from a given expression deployer bytecode
+ */
+export function getBytecodeMeta(bytecode_: Bytes): DeployerBytecodeMetaV1 {
+  const encoder = new CBOREncoder();
+  encoder.addObject(3);
+
+  // -- Add key 0
+  encoder.addUint8(0);
+  encoder.addBytes(bytecode_);
+
+  // -- Add key 1
+  // Magic number. This is hardcoded based on the rain metadata spec
+  encoder.addUint8(1);
+  // @ts-expect-error u64 exist on assebly
+  // eslint-disable-next-line @typescript-eslint/no-loss-of-precision
+  encoder.addUint64(u64(0xffdb988a8cd04d32));
+
+  // -- Add key 2
+  encoder.addUint8(2);
+  encoder.addString("application/octet-stream");
+
+  const bytecodeEncoded = Bytes.fromHexString(encoder.serializeString());
+  const bytecodeEncodedHash = getKeccak256FromBytes(bytecodeEncoded);
+
+  let bytecodeMeta = DeployerBytecodeMetaV1.load(bytecodeEncodedHash);
+
+  if (!bytecodeMeta) {
+    bytecodeMeta = new DeployerBytecodeMetaV1(bytecodeEncodedHash);
+
+    bytecodeMeta.rawBytes = bytecodeEncoded;
+    bytecodeMeta.contracts = [];
+    bytecodeMeta.magicNumber = hexStringToBigInt(
+      EXPRESSION_DEPLOYER_V2_BYTECODE_V1_MAGIC_NUMBER_HEX
+    );
+    bytecodeMeta.payload = bytecode_;
+    bytecodeMeta.parents = [];
+    bytecodeMeta.contentType = "application/octet-stream";
+  }
+
+  return bytecodeMeta;
 }
 
 export function getKeccak256FromBytes(data_: Bytes): Bytes {
@@ -285,4 +319,29 @@ export function stringToArrayBuffer(val: string): ArrayBuffer {
     view.setUint8(j, u8(Number.parseInt(`${val.at(i)}${val.at(i + 1)}`, 16)));
   }
   return buff;
+}
+
+// Disable line because this is assembly
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function hexStringToBigInt(hex_: string): BigInt {
+  const bArr = Bytes.fromUint8Array(Bytes.fromHexString(hex_).reverse());
+  return BigInt.fromUnsignedBytes(bArr);
+}
+
+export function removeExpressionDeployer(address: string): void {
+  // Loading the deployer to remove from the store
+  const deployerToRemove = ExpressionDeployer.load(address);
+
+  if (deployerToRemove) {
+    // Getting the Transaction related to the deployer, since should be
+    // removed as well.
+    const transactionToRemove = deployerToRemove.deployTransaction;
+    if (transactionToRemove) {
+      // Use the store to remove the Transaction entity
+      store.remove("Transaction", transactionToRemove);
+    }
+
+    // Use the store to remove the ExpressionDeployer entity
+    store.remove("ExpressionDeployer", deployerToRemove.id);
+  }
 }

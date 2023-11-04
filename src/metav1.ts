@@ -23,6 +23,9 @@ export class ContentMeta {
   private contentEncodingAdded: boolean = false;
   private contentLanguageAdded: boolean = false;
 
+  private metaContent: ContentMetaV1 = new ContentMetaV1(Bytes.empty());
+  private metaStored: boolean = false;
+
   constructor(
     metaContentV1Object_: TypedMap<string, JSONValue>,
     rainMetaID_: Bytes
@@ -162,13 +165,9 @@ export class ContentMeta {
       encoder.addString(this.contentLanguage);
     }
 
-    const encodedData = encoder.serializeString();
+    this.encodedData = Bytes.fromHexString(encoder.serializeString());
 
-    const contentId = getKeccak256FromBytes(Bytes.fromHexString(encodedData));
-
-    this.encodedData = Bytes.fromHexString(encodedData);
-
-    return contentId;
+    return getKeccak256FromBytes(this.encodedData);
   }
 
   /**
@@ -187,10 +186,11 @@ export class ContentMeta {
     if (!metaContent) {
       metaContent = new ContentMetaV1(contentId);
 
-      metaContent.rawBytes = this.payload;
-      metaContent.magicNumber = this.magicNumber;
-      metaContent.parents = [];
+      metaContent.rawBytes = this.encodedData;
       metaContent.contracts = [];
+      metaContent.magicNumber = this.magicNumber;
+      metaContent.payload = this.payload;
+      metaContent.parents = [];
 
       if (this.contentType != "") metaContent.contentType = this.contentType;
 
@@ -209,8 +209,16 @@ export class ContentMeta {
     if (!auxIds.includes(addressID)) auxIds.push(addressID);
     metaContent.contracts = auxIds;
 
-    metaContent.save();
+    this.metaContent = metaContent;
+    this.metaStored = true;
+    // metaContent.save();
 
-    return metaContent;
+    return this.metaContent;
+  }
+
+  saveMeta(): void {
+    if (this.metaStored && this.metaContent.id.notEqual(Bytes.empty())) {
+      this.metaContent.save();
+    }
   }
 }
